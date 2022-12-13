@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "data_adapter_oemof"
+version = "0.0.1dev"
+description = "Data adapter from oedatamodel to oemof.tabular datapackages"
+authors = [
+  "Jann Launer <jann.launer@rl-institut.de>",
+  "Sarah Berendes <Sarah.Berendes@rl-institut.de>",
+]
+
+[build-system]
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0.0"
+data_adapter = { git = "https://git@github.com/sedos-project/data_adapter", branch = "dev"}
+
+
+[tool.poetry.dev-dependencies]
+black = "20.8b1"
+pytest = "^7.0.1"
+coverage = "^6.3.2"
+flake8 = "^4.0.1"
+pre-commit = "^2.17.0"
+
+[tool.poetry.extras]
+docs = ["Sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
+
+[tool.black]
+exclude = '''
+/(
+    \
+  |
+    \.eggs
+  | \.git
+  | \.mypy_cache
+  | meta/migrations
+  | docs
+  | .venv
+)/
+'''
+max-line-length=100

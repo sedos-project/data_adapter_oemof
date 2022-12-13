@@ -1,22 +1,17 @@
-# rli_template
-Template repository for creating new projects under the RLI's umbrella
+# data_adapter_oemof
 
-## Get started
+A data adapter to create datapackages for oemof.tabular/oemof.solph from the SEDOS input data model.
 
-Simply click on the green `Use this template` button on the left of the `Clone or download` button.
+## Getting started
 
-The detailed instructions to create a new repository from this template can be found [here](https://help.github.com/en/articles/creating-a-repository-from-a-template).
+To install data_adapter_oemof, follow these steps:
 
-## src folder
-
-This folder is where you should place the code of your package (package name to be edited in `setup.py` under name)
-
-You can install it locally for developing with
-
-    python setup.py install
-    
-More details for packaging are available on [https://packaging.python.org](https://packaging.python.org/tutorials/packaging-projects/)
-
+* git-clone data_adapter_oemof into local folder:
+  `git clone https://github.com/rl-institut/data_adapter_oemof.git
+* enter folder `cd data_adapter_oemof`
+* create virtual environment using conda: `conda env create environment.yml`
+* activate environment: `conda activate oemof-B3`
+* install oemof-B3 package using poetry, via: `poetry install`
 
 ## Docs
 

@@ -1,5 +1,8 @@
-name: myvenv
+name: data_adapter_oemof
+channels:
+  - defaults
+  - conda-forge
 dependencies:
-- python=3.6
-- pip:
-   - -r requirements.txt
+  - pip
+  - pip:
+    - poetry
