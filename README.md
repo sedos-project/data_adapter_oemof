@@ -10,8 +10,8 @@ To install data_adapter_oemof, follow these steps:
   `git clone https://github.com/rl-institut/data_adapter_oemof.git
 * enter folder `cd data_adapter_oemof`
 * create virtual environment using conda: `conda env create environment.yml`
-* activate environment: `conda activate oemof-B3`
-* install oemof-B3 package using poetry, via: `poetry install`
+* activate environment: `conda activate data_adapter_oemof`
+* install data_adapter_oemof package using poetry, via: `poetry install`
 
 ## Docs
 
