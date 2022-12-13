@@ -1,0 +1,2 @@
+name;type;carrier;tech;capacity;capacity_cost;marginal_cost;efficiency;from_bus;to_bus
+ch4-gt;conversion;ch4;gt;100;20;2;0.99;ch4;electricity
