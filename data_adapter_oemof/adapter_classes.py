@@ -13,25 +13,24 @@ class VolatileAdapter:
     bus: str
     marginal_cost: float
     profile: Union[float, Sequence[float]]
-    output_parameters : dict
+    output_parameters: dict
 
     @classmethod
     def parametrize(cls):
-        kwargs = dict(
-            name = "get_name(region, carrier, tech)",
-            type = "TYPE_MAP[volatile]",
-            carrier = "carrier",
-            tech = "tech",
-            capacity = "get_capacity()",
-            capacity_cost = "get_capacity_cost()",
-            bus = None,
-            marginal_cost = None,
-            profile = None,
-            output_parameters = None,
+        instance = cls(
+            name=get_name(region, carrier, tech),
+            type=type,
+            carrier=carrier,
+            tech="tech",
+            capacity=get_param("capacity"),
+            capacity_cost=get_capacity_cost("capacity_cost"),
+            bus=get_param("bus"),
+            marginal_cost=get_param("marginal_cost"),
+            profile=None,
+            output_parameters=None,
         )
-        return cls(**kwargs)
+
+        return instance
 
 
-ADAPTER_MAP = {
-    "volatile": VolatileAdapter
-}
+ADAPTER_MAP = {"volatile": VolatileAdapter}
