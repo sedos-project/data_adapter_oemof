@@ -14,3 +14,6 @@ class Volatile:
     marginal_cost: float
     profile: Union[float, Sequence[float]]
     output_parameters: dict
+
+
+TYPE_MAP = {"volatile": Volatile}
