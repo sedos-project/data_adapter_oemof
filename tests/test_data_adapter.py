@@ -20,24 +20,24 @@ def test_adapter():
     ]
 
     # collect instances of the adapters
-    type_adapters = {}
+    adapters = {}
     for component in components:
-        if component.type not in type_adapters:
-            type_adapters[component.type] = []
+        if component.type not in adapters:
+            adapters[component.type] = []
 
         datacls = dataclasses.TYPE_MAP[component.type]
 
         adapter = Adapter(datacls)
 
-        type_adapters[component.type].append(adapter)
+        adapters[component.type].append(adapter)
 
     # parametrize
-    type_adapted = {}
-    for typ, adapters in type_adapters.items():
-        type_adapted[typ] = [adapter.parametrize_dataclass() for adapter in adapters]
+    parametrized = {}
+    for typ, adapters in adapters.items():
+        parametrized[typ] = [adapter.parametrize_dataclass() for adapter in adapters]
 
     # create a dictionary of dataframes
-    dataframes = {type: pd.DataFrame(adapted) for type, adapted in type_adapted.items()}
+    dataframes = {type: pd.DataFrame(adapted) for type, adapted in parametrized.items()}
 
     df = dataframes["volatile"]
 
