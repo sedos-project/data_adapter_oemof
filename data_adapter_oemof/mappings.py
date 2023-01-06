@@ -1,4 +1,6 @@
 import logging
+from pathlib import Path
+import yaml
 
 logger = logging.getLogger()
 
@@ -25,6 +27,13 @@ class Mapper:
         return self.data[mapped_key]
 
 
+def load_yaml(file_path):
+    with open(file_path, "r", encoding="UTF-8") as file:
+        dictionary = yaml.load(file, Loader=yaml.FullLoader)
+
+    return dictionary
+
+
 TYPE_MAP = {
     "volatile": "",
 }
@@ -39,11 +48,7 @@ TECH_MAP = {
 
 # Maps from oemof.tabular parameter names
 # to ontological terms or to sedos nomenclature as fallback option
-GLOBAL_PARAMETER_MAP = {
-    "capacity": "sedos-capacity",
-    "marginal_cost": "sedos-marginal_cost",
-    "overnight_cost": "sedos-overnight_cost",
-    "fixed_cost": "sedos-fixed_cost",
-    "lifetime": "sedos-lifetime",
-    "wacc": "sedos-wacc",
-}
+filepath = Path(__file__).parent / "mappings" / "GLOBAL_PARAMETER_MAP.yaml"
+GLOBAL_PARAMETER_MAP = load_yaml(filepath)
+
+print(GLOBAL_PARAMETER_MAP)
