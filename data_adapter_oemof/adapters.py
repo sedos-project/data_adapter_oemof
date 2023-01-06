@@ -48,11 +48,11 @@ def build_storage(self):
 def build_volatile(self):
     instance = self.datacls(
         name="calculations.get_name(data.region, data.carrier, data.tech)",
-        type="self.data.type",
-        carrier="carrier",
-        tech="",
-        capacity=8,  # get_param("capacity"),
-        capacity_cost=8,  # get_capacity_cost("capacity_cost"),
+        type="self.data",
+        carrier=self.data["carrier"],
+        tech=self.data["tech"],
+        capacity=self.data["capacity"],  # get_param("capacity"),
+        capacity_cost=self.data["capacity_cost"],  # get_capacity_cost("capacity_cost"),
         bus=8,  # get_param("bus"),
         marginal_cost=8,  # get_param("marginal_cost"),
         profile=8,  # None,
