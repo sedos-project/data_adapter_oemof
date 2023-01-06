@@ -39,24 +39,25 @@ def test_adapter():
     # create a dictionary of dataframes
     dataframes = {type: pd.DataFrame(adapted) for type, adapted in parametrized.items()}
 
-    df = dataframes["volatile"]
+    for typ, df in dataframes.items():
 
-    path_default = (
-        TEST_DIR
-        / "_files"
-        / "tabular_datapackage_mininmal_example"
-        / "data"
-        / "elements"
-        / "volatile.csv"
-    )
+        path_default = (
+            TEST_DIR
+            / "_files"
+            / "tabular_datapackage_mininmal_example"
+            / "data"
+            / "elements"
+            / f"{typ}.csv"
+        )
 
-    df_default = pd.read_csv(path_default, sep=";")
+        df_default = pd.read_csv(path_default, sep=";")
 
-    assert set(df.columns) == set(df_default.columns)
-    print(df)
-    print(df_default)
+        assert set(df.columns) == set(df_default.columns)
 
-    # pd.testing.assert_frame_equal(df, df_default)
+        print(df)
+        print(df_default)
+
+        # pd.testing.assert_frame_equal(df, df_default)
 
 
 test_adapter()
