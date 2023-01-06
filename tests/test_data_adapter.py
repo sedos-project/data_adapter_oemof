@@ -11,11 +11,21 @@ TEMP_DIR = TEST_DIR / "_temp"
 
 
 def test_adapter():
-    Component = namedtuple("Component", ["region", "carrier", "tech", "type"])
+    Component = namedtuple("Component", ["type", "data"])
 
-    # first, just a list of components
+    # first, a list of components and some data
     components = [
-        Component(region="B", carrier="wind", tech=tech, type="volatile")
+        Component(
+            type="volatile",
+            data={
+                "region": "B",
+                "carrier": "wind",
+                "tech": tech,
+                "capacity": 0,
+                "capacity_cost": None,
+                "marginal_cost": 0,
+            },
+        )
         for tech in ["onshore", "offshore"]
     ]
 
@@ -27,7 +37,7 @@ def test_adapter():
 
         datacls = dataclasses.TYPE_MAP[component.type]
 
-        adapter = Adapter(datacls)
+        adapter = Adapter(datacls, data=component.data)
 
         adapters[component.type].append(adapter)
 
