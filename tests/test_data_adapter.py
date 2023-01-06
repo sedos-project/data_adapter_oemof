@@ -21,9 +21,12 @@ def test_adapter():
                 "region": "B",
                 "carrier": "wind",
                 "tech": tech,
-                "capacity": 0,
-                "capacity_cost": None,
-                "marginal_cost": 0,
+                "sedos-capacity": 12,
+                "sedos-marginal_cost": 1,
+                "sedos-overnight_cost": 1000,
+                "sedos-fixed_cost": 100,
+                "sedos-lifetime": 25,
+                "sedos-wacc": 0.05,
             },
         )
         for tech in ["onshore", "offshore"]

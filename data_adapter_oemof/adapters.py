@@ -5,6 +5,8 @@ from data_adapter_oemof.dataclasses import (
     Storage,
     Volatile,
 )
+from data_adapter_oemof.mappings import Mapper
+from data_adapter_oemof import calculations
 
 
 class Adapter:
@@ -46,15 +48,24 @@ def build_storage(self):
 
 
 def build_volatile(self):
+    mapper = Mapper(self.data)
+
     instance = self.datacls(
-        name="calculations.get_name(data.region, data.carrier, data.tech)",
-        type="self.data",
-        carrier=self.data["carrier"],
-        tech=self.data["tech"],
-        capacity=self.data["capacity"],  # get_param("capacity"),
-        capacity_cost=self.data["capacity_cost"],  # get_capacity_cost("capacity_cost"),
-        bus=8,  # get_param("bus"),
-        marginal_cost=8,  # get_param("marginal_cost"),
+        name=calculations.get_name(
+            mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+        ),
+        type=mapper.get("type"),
+        carrier=mapper.get("carrier"),
+        tech=mapper.get("tech"),
+        capacity=mapper.get("capacity"),
+        capacity_cost=calculations.get_capacity_cost(
+            mapper.get("overnight_cost"),
+            mapper.get("fixed_cost"),
+            mapper.get("lifetime"),
+            mapper.get("wacc"),
+        ),
+        bus=mapper.get("bus"),  # get_param("bus"),
+        marginal_cost=mapper.get("marginal_cost"),
         profile=8,  # None,
         output_parameters=8,  # None,
     )
