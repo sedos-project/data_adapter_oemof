@@ -3,7 +3,7 @@ from collections import namedtuple
 
 import pandas as pd
 
-from data_adapter_oemof.adapters import Adapter
+from data_adapter_oemof.adapter import Adapter
 from data_adapter_oemof import dataclasses
 
 TEST_DIR = pathlib.Path(__file__).parent

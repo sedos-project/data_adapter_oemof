@@ -48,7 +48,6 @@ TECH_MAP = {
 
 # Maps from oemof.tabular parameter names
 # to ontological terms or to sedos nomenclature as fallback option
-filepath = Path(__file__).parent / "mappings" / "GLOBAL_PARAMETER_MAP.yaml"
-GLOBAL_PARAMETER_MAP = load_yaml(filepath)
-
-print(GLOBAL_PARAMETER_MAP)
+GLOBAL_PARAMETER_MAP = load_yaml(
+    Path(__file__).parent / "mappings" / "GLOBAL_PARAMETER_MAP.yaml"
+)
