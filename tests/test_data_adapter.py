@@ -3,8 +3,7 @@ from collections import namedtuple
 
 import pandas as pd
 
-from data_adapter_oemof.adapter import Adapter
-from data_adapter_oemof import dataclasses
+from data_adapter_oemof.adapters import TYPE_MAP
 
 TEST_DIR = pathlib.Path(__file__).parent
 TEMP_DIR = TEST_DIR / "_temp"
@@ -33,21 +32,16 @@ def test_adapter():
     ]
 
     # collect instances of the adapters
-    adapters = {}
-    for component in components:
-        if component.type not in adapters:
-            adapters[component.type] = []
-
-        datacls = dataclasses.TYPE_MAP[component.type]
-
-        adapter = Adapter(datacls, data=component.data)
-
-        adapters[component.type].append(adapter)
-
-    # parametrize
     parametrized = {}
-    for typ, adapters in adapters.items():
-        parametrized[typ] = [adapter.parametrize_dataclass() for adapter in adapters]
+    for component in components:
+        if component.type not in parametrized:
+            parametrized[component.type] = []
+
+        adapter = TYPE_MAP[component.type]
+
+        parametrized[component.type].append(
+            adapter.parametrize_dataclass(component.data)
+        )
 
     # create a dictionary of dataframes
     dataframes = {type: pd.DataFrame(adapted) for type, adapted in parametrized.items()}

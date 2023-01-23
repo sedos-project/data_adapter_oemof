@@ -1,6 +1,9 @@
 from typing import Sequence, Union
 from dataclasses import dataclass, field
 
+from data_adapter_oemof.mappings import Mapper
+from data_adapter_oemof import calculations
+
 
 @dataclass
 class Commodity:
@@ -12,6 +15,10 @@ class Commodity:
     amount: float
     marginal_cost: float = 0
     output_parameters: dict = field(default_factory=dict)
+
+    def parametrize_dataclass(self, data):
+        instance = self.datacls()
+        return instance
 
 
 @dataclass
@@ -33,6 +40,10 @@ class Conversion:
     input_parameters: dict = field(default_factory=dict)
     output_parameters: dict = field(default_factory=dict)
 
+    def parametrize_dataclass(self, data):
+        instance = self.datacls()
+        return instance
+
 
 @dataclass
 class Load:
@@ -45,6 +56,10 @@ class Load:
     profile: Union[float, Sequence[float]]
     marginal_utility: float = 0
     input_parameters: dict = field(default_factory=dict)
+
+    def parametrize_dataclass(self, data):
+        instance = self.datacls()
+        return instance
 
 
 @dataclass
@@ -66,6 +81,10 @@ class Storage:
     input_parameters: dict = field(default_factory=dict)
     output_parameters: dict = field(default_factory=dict)
 
+    def parametrize_dataclass(self, data):
+        instance = self.datacls()
+        return instance
+
 
 @dataclass
 class Volatile:
@@ -79,6 +98,31 @@ class Volatile:
     marginal_cost: float
     profile: Union[float, Sequence[float]]
     output_parameters: dict
+
+    @classmethod
+    def parametrize_dataclass(cls, data):
+        mapper = Mapper(data)
+
+        instance = cls(
+            name=calculations.get_name(
+                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+            ),
+            type=mapper.get("type"),
+            carrier=mapper.get("carrier"),
+            tech=mapper.get("tech"),
+            capacity=mapper.get("capacity"),
+            capacity_cost=calculations.get_capacity_cost(
+                mapper.get("overnight_cost"),
+                mapper.get("fixed_cost"),
+                mapper.get("lifetime"),
+                mapper.get("wacc"),
+            ),
+            bus=mapper.get("bus"),  # get_param("bus"),
+            marginal_cost=mapper.get("marginal_cost"),
+            profile=8,  # None,
+            output_parameters=8,  # None,
+        )
+        return instance
 
 
 TYPE_MAP = {
