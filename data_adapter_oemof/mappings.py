@@ -21,7 +21,7 @@ class Mapper:
             logger.info(f"Key not found. Did not map '{key}'")
 
         if mapped_key not in self.data:
-            logger.warning("Could not get key")
+            logger.warning(f"Could not get data for mapped key '{mapped_key}'")
             return None
 
         return self.data[mapped_key]
