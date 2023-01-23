@@ -4,6 +4,24 @@ from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof import calculations
 
 
+def not_build_solph_components(cls):
+    r"""
+    Sets 'build_solph_components' to False in __init__.
+    """
+    original_init = cls.__init__
+
+    def new_init(self, *args, **kwargs):
+
+        kwargs["build_solph_components"] = False
+
+        original_init(self, *args, **kwargs)
+
+    cls.__init__ = new_init
+
+    return cls
+
+
+@not_build_solph_components
 class CommodityAdapter(facades.Commodity):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
@@ -16,18 +34,21 @@ class ConversionAdapter(facades.Conversion):
         return instance
 
 
+@not_build_solph_components
 class LoadAdapter(facades.Load):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
+@not_build_solph_components
 class StorageAdapter(facades.Storage):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
+@not_build_solph_components
 class VolatileAdapter(facades.Volatile):
     @classmethod
     def parametrize_dataclass(cls, data):
