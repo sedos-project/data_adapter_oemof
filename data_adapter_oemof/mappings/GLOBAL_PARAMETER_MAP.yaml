@@ -1,0 +1,6 @@
+capacity: sedos-capacity
+marginal_cost: sedos-marginal_cost
+overnight_cost: sedos-overnight_cost
+fixed_cost: sedos-fixed_cost
+lifetime: sedos-lifetime
+wacc: sedos-wacc
