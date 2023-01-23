@@ -51,3 +51,7 @@ TECH_MAP = {
 GLOBAL_PARAMETER_MAP = load_yaml(
     Path(__file__).parent / "mappings" / "GLOBAL_PARAMETER_MAP.yaml"
 )
+
+PROCESS_TYPE_MAP = load_yaml(
+    Path(__file__).parent / "mappings" / "PROCESS_TYPE_MAP.yaml"
+)
