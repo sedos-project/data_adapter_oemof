@@ -1,9 +1,13 @@
-from data_adapter.structure import get_energy_structure
 from data_adapter.preprocessing import get_process_df
+from data_adapter.structure import get_energy_structure
+from oemof.solph.helpers import extend_basic_path
 
+from data_adapter_oemof.build_datapackage import (
+    build_datapackage,
+    save_datapackage_to_csv,
+)
 
-from data_adapter_oemof.adapters import TYPE_MAP
-from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
+tmp_path = extend_basic_path("data_adatper_oemof")
 
 
 def test_build_tabular_datapackage():
@@ -16,11 +20,11 @@ def test_build_tabular_datapackage():
     # all necessary information.
     processes = ["offshore wind farm"]
 
-    for process in processes:
-        data = get_process_df("modex_test_renewable", process)
+    process_data = {
+        process: get_process_df("modex_test_renewable", process)
+        for process in processes
+    }
 
-        process_type = PROCESS_TYPE_MAP[process]
+    datapackage = build_datapackage(**process_data)
 
-        adapter = TYPE_MAP[process_type]
-
-        p = adapter.parametrize_dataclass(data)
+    save_datapackage_to_csv(datapackage, tmp_path)
