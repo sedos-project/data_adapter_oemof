@@ -59,12 +59,6 @@ def test_adapter():
 
         df_default = pd.read_csv(path_default, sep=";")
 
-        # assert set(df.columns) == set(df_default.columns)
+        assert set(df.columns) == set(df_default.columns)
 
-        print(df)
-        print(df_default)
-
-        # pd.testing.assert_frame_equal(df, df_default)
-
-
-test_adapter()
+        pd.testing.assert_frame_equal(df, df_default)

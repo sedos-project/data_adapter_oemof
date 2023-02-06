@@ -1,13 +1,20 @@
 from data_adapter.preprocessing import get_process_df
 from data_adapter.structure import get_energy_structure
-from oemof.solph.helpers import extend_basic_path
 
+from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 from data_adapter_oemof.build_datapackage import (
     build_datapackage,
     save_datapackage_to_csv,
 )
 
-tmp_path = extend_basic_path("data_adatper_oemof")
+
+path_default = (
+    PATH_TEST_FILES
+    / "_files"
+    / "tabular_datapackage_mininmal_example"
+    / "data"
+    / "elements"
+)
 
 
 def test_build_tabular_datapackage():
@@ -27,4 +34,6 @@ def test_build_tabular_datapackage():
 
     datapackage = build_datapackage(**process_data)
 
-    save_datapackage_to_csv(datapackage, tmp_path)
+    save_datapackage_to_csv(datapackage, PATH_TMP)
+
+    check_if_csv_dirs_equal(PATH_TMP, path_default)
