@@ -1,104 +1,55 @@
-from typing import Sequence, Union
-from dataclasses import dataclass, field
+from oemof.tabular import facades
 
 from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof import calculations
 
 
-@dataclass
-class Commodity:
-    name: str
-    type: str
-    carrier: str
-    tech: str
-    bus: str
-    amount: float
-    marginal_cost: float = 0
-    output_parameters: dict = field(default_factory=dict)
+def not_build_solph_components(cls):
+    r"""
+    Sets 'build_solph_components' to False in __init__.
+    """
+    original_init = cls.__init__
 
+    def new_init(self, *args, **kwargs):
+
+        kwargs["build_solph_components"] = False
+
+        original_init(self, *args, **kwargs)
+
+    cls.__init__ = new_init
+
+    return cls
+
+
+@not_build_solph_components
+class CommodityAdapter(facades.Commodity):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
-@dataclass
-class Conversion:
-    name: str
-    type: str
-    from_bus: str
-    to_bus: str
-    carrier: str
-    tech: str
-    capacity: float = None
-    efficiency: float = 1
-    marginal_cost: float = 0
-    carrier_cost: float = 0
-    capacity_cost: float = None
-    expandable: bool = False
-    capacity_potential: float = float("+inf")
-    capacity_minimum: float = None
-    input_parameters: dict = field(default_factory=dict)
-    output_parameters: dict = field(default_factory=dict)
-
+class ConversionAdapter(facades.Conversion):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
-@dataclass
-class Load:
-    name: str
-    type: str
-    carrier: str
-    tech: str
-    bus: str
-    amount: float
-    profile: Union[float, Sequence[float]]
-    marginal_utility: float = 0
-    input_parameters: dict = field(default_factory=dict)
-
+@not_build_solph_components
+class LoadAdapter(facades.Load):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
-@dataclass
-class Storage:
-    name: str
-    type: str
-    carrier: str
-    tech: str
-    bus: str
-    storage_capacity: float = 0
-    capacity: float = 0
-    capacity_cost: float = 0
-    storage_capacity_cost: float = None
-    storage_capacity_potential: float = float("+inf")
-    capacity_potential: float = float("+inf")
-    expandable: bool = False
-    marginal_cost: float = 0
-    efficiency: float = 1
-    input_parameters: dict = field(default_factory=dict)
-    output_parameters: dict = field(default_factory=dict)
-
+@not_build_solph_components
+class StorageAdapter(facades.Storage):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
-@dataclass
-class Volatile:
-    name: str
-    type: str
-    carrier: str
-    tech: str
-    capacity: float
-    capacity_cost: float
-    bus: str
-    marginal_cost: float
-    profile: Union[float, Sequence[float]]
-    output_parameters: dict
-
+@not_build_solph_components
+class VolatileAdapter(facades.Volatile):
     @classmethod
     def parametrize_dataclass(cls, data):
         mapper = Mapper(data)
@@ -120,15 +71,14 @@ class Volatile:
             bus=mapper.get("bus"),  # get_param("bus"),
             marginal_cost=mapper.get("marginal_cost"),
             profile=8,  # None,
-            output_parameters=8,  # None,
         )
         return instance
 
 
 TYPE_MAP = {
-    "commodity": Commodity,
-    "conversion": Conversion,
-    "load": Load,
-    "storage": Storage,
-    "volatile": Volatile,
+    "commodity": CommodityAdapter,
+    "conversion": ConversionAdapter,
+    "load": LoadAdapter,
+    "storage": StorageAdapter,
+    "volatile": VolatileAdapter,
 }
