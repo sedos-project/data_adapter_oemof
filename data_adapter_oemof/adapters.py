@@ -1,7 +1,9 @@
+import dataclasses
+
 from oemof.tabular import facades
 
-from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof import calculations
+from data_adapter_oemof.mappings import Mapper
 
 
 def not_build_solph_components(cls):
@@ -19,6 +21,13 @@ def not_build_solph_components(cls):
     cls.__init__ = new_init
 
     return cls
+
+
+def get_default_mappings(cls, mapper):
+    dictionary = {
+        field.name: mapper.get(field.name) for field in dataclasses.fields(cls)
+    }
+    return dictionary
 
 
 @not_build_solph_components
@@ -54,25 +63,23 @@ class VolatileAdapter(facades.Volatile):
     def parametrize_dataclass(cls, data):
         mapper = Mapper(data)
 
-        instance = cls(
-            name=calculations.get_name(
+        defaults = get_default_mappings(cls, mapper)
+
+        attributes = {
+            "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
-            type=mapper.get("type"),
-            carrier=mapper.get("carrier"),
-            tech=mapper.get("tech"),
-            capacity=mapper.get("capacity"),
-            capacity_cost=calculations.get_capacity_cost(
+            "capacity_cost": calculations.get_capacity_cost(
                 mapper.get("overnight_cost"),
                 mapper.get("fixed_cost"),
                 mapper.get("lifetime"),
                 mapper.get("wacc"),
             ),
-            bus=mapper.get("bus"),  # get_param("bus"),
-            marginal_cost=mapper.get("marginal_cost"),
-            profile=8,  # None,
-        )
-        return instance
+        }
+
+        defaults.update(attributes)
+
+        return cls(**defaults)
 
 
 TYPE_MAP = {
