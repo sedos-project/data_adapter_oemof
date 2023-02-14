@@ -10,13 +10,14 @@ def calculation(func):
 
     def decorated_func(*args, **kwargs):
         try:
-            func(*args, **kwargs)
-        except Exception as e:
+            return func(*args, **kwargs)
+        except Exception as e:  # pylint: disable=broad-except
             warnings.warn(
                 f"Calculation function '{func.__name__}' \n"
                 f"called with {args, kwargs} \n"
                 f"failed because of: \n" + str(e)
             )
+            return None
 
     return decorated_func
 
