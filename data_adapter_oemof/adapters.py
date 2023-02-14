@@ -1,22 +1,27 @@
 import dataclasses
 
 from oemof.tabular import facades
+from oemof.solph import Bus
 
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
 
-def not_build_solph_components(cls):
+def facade_adapter(cls):
     r"""
+    Sets type of Busses to str
     Sets 'build_solph_components' to False in __init__.
     """
+    # set type of bus to str
+    for field in dataclasses.fields(cls):
+        if field.type == Bus:
+            field.type = str
+
     original_init = cls.__init__
 
-    def new_init(self, *args, **kwargs):
-
-        kwargs["build_solph_components"] = False
-
-        original_init(self, *args, **kwargs)
+    # do not build solph components
+    def new_init(*args, **kwargs):
+        original_init(*args, build_solph_components=False, **kwargs)
 
     cls.__init__ = new_init
 
@@ -30,34 +35,35 @@ def get_default_mappings(cls, mapper):
     return dictionary
 
 
-@not_build_solph_components
+@facade_adapter
 class CommodityAdapter(facades.Commodity):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
+@facade_adapter
 class ConversionAdapter(facades.Conversion):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
-@not_build_solph_components
+@facade_adapter
 class LoadAdapter(facades.Load):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
-@not_build_solph_components
+@facade_adapter
 class StorageAdapter(facades.Storage):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
-@not_build_solph_components
+@facade_adapter
 class VolatileAdapter(facades.Volatile):
     @classmethod
     def parametrize_dataclass(cls, data):
