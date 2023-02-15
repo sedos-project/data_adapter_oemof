@@ -4,19 +4,20 @@ from oemof.tools.economics import annuity
 
 
 def calculation(func):
-    r"""
+    """
     This is a decorator that allows calculations to fail
     """
 
     def decorated_func(*args, **kwargs):
         try:
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         except Exception as e:
             warnings.warn(
                 f"Calculation function '{func.__name__}' \n"
                 f"called with {args, kwargs} \n"
                 f"failed because of: \n" + str(e)
             )
+            return e
 
     return decorated_func
 
@@ -27,5 +28,16 @@ def get_name(region, carrier, tech):
 
 
 @calculation
-def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
-    return annuity(overnight_cost, lifetime, wacc) + fixed_cost
+def get_capacity_cost(**kwargs):
+    """
+    Takes kwargs with either specified overnight cost, fixed cost, lifetime and wacc
+     OR mapper that might contain those elements to calculate capacity cost
+    :param kwargs:
+    :return:
+    """
+    print(kwargs["mapper"].get("fixed_cost"))
+    if set(["overnight_cost", "fixed_cost", "lifetime", "wacc"]).issubset(kwargs.keys()):
+        return annuity(capex=kwargs["overnight_cost"],n= kwargs["lifetime"],wacc= kwargs["wacc"]) + kwargs["fixed_cost"]
+    elif set(["mapper"]).issubset(kwargs.keys()):
+        return annuity(kwargs["mapper"].get("overnight_cost"), kwargs["mapper"].get("lifetime"),
+        kwargs["mapper"].get("wacc"))+ kwargs["mapper"].get("fixed_cost")

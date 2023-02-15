@@ -1,5 +1,8 @@
 import json
 import os
+
+import yaml
+
 os.environ["COLLECTION_DIR"] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/collections"
 os.environ["STRUCTURES_DIR"] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/structure/"
 from data_adapter.preprocessing import get_process
@@ -13,33 +16,24 @@ from data_adapter_oemof.build_datapackage import (
 )
 
 
-path_default = (
-    PATH_TEST_FILES
-    / "_files"
-    / "tabular_datapackage_mininmal_example"
-    / "data"
-    / "elements"
-)
-
-
-def test_build_tabular_datapackage():
-
-    # download Collection:
+def test_struct():
     download_collection("https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/")
 
     es_structure = get_energy_structure()
 
     processes = es_structure.keys()
 
-    # This is a placeholder as long as get_energy_structure does not provide
-    # all necessary information.
+    with open(os.path.join(os.environ["STRUCTURES_DIR"], "HARDCODED_ES_STRUCT.json"), "r") as f:
+        HARDCODED_ES_STRUCT = json.load(f)
 
+    assert es_structure == HARDCODED_ES_STRUCT
+    return es_structure
+
+
+def test_process_data(es_struct=test_struct()):
+    processes = es_struct.keys()
     process_data = {
         process: get_process("hack-a-thon", process)
         for process in processes
     }
-
-    datapackage = build_datapackage(**process_data)
-    save_datapackage_to_csv(datapackage, PATH_TMP)
-
-    check_if_csv_dirs_equal(PATH_TMP, path_default)
+    datapackage = build_datapackage()

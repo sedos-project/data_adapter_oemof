@@ -1,1 +1,4 @@
-offshore wind farm: volatile
+onshore wind farm: volatile
+battery storage_electrical energy: storage
+energy transformation unit: dispatchable
+

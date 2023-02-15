@@ -16,7 +16,7 @@ def test_adapter():
     components = [
         Component(
             type="volatile",
-            data={
+            data={"type":"volatile",
                 "region": "B",
                 "carrier": "wind",
                 "tech": tech,
@@ -42,10 +42,8 @@ def test_adapter():
         parametrized[component.type].append(
             adapter.parametrize_dataclass(component.data)
         )
-
     # create a dictionary of dataframes
     dataframes = {type: pd.DataFrame(adapted) for type, adapted in parametrized.items()}
-
     for typ, df in dataframes.items():
 
         path_default = (

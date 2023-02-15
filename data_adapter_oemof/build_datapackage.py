@@ -13,8 +13,7 @@ def build_datapackage(**process_data):
         process_type = PROCESS_TYPE_MAP[process]
 
         adapter = TYPE_MAP[process_type]
-
-        paramet = adapter.parametrize_dataclass(data)
+        paramet = adapter.parametrize_dataclass(data=data.scalars)
 
         if process_type not in parametrized:
             parametrized[process_type] = []

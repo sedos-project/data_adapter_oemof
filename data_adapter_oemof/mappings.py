@@ -1,16 +1,20 @@
 import logging
 from pathlib import Path
+
+import pandas as pd
 import yaml
 
 logger = logging.getLogger()
 
 
 class Mapper:
-    def __init__(self, data, mapping=None):
+    def __init__(self, data:dict, mapping=None):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
         self.data = data
         self.mapping = mapping
+        print(self.data)
+
 
     def get(self, key):
         if key in self.mapping:
@@ -23,7 +27,6 @@ class Mapper:
         if mapped_key not in self.data:
             logger.warning(f"Could not get data for mapped key '{mapped_key}'")
             return None
-
         return self.data[mapped_key]
 
 
