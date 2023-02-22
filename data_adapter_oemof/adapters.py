@@ -75,24 +75,6 @@ class VolatileAdapter(facades.Volatile):
         print(defaults)
         return cls(**defaults)
 
-        # Todo:
-        # def adapter(data, type_map_call, type_map):
-        #     cls = type_map[type_map_call]
-        #     mapper = Mapper(data)
-        #     defaults = get_default_mappings(cls, mapper)
-        #     attributes = {
-        #         "name": calculations.get_name(
-        #             mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
-        #         ),
-        #         "type": type_map_call
-        #         "capacity_cost": calculations.get_capacity_cost(**{"mapper": mapper}),
-        #     }
-        #     defaults.update(attributes)
-        #     def check_integrity():
-        #         cls_attrs = defaults.update({"build_solph_components":False})
-        #         return cls(**cls_attrs)
-        #     return defaults
-
 
 TYPE_MAP = {
     "commodity": CommodityAdapter,
