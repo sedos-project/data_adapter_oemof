@@ -72,7 +72,6 @@ class VolatileAdapter(facades.Volatile):
                                                             fixed_cost=mapper.get("fixed_cost")),
         }
         defaults.update(attributes)
-        print(defaults)
         return cls(**defaults)
 
 
