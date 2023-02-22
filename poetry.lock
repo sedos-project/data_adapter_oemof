@@ -105,18 +105,18 @@ files = [
 
 [[package]]
 name = "boto3"
-version = "1.26.71"
+version = "1.26.76"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "boto3-1.26.71-py3-none-any.whl", hash = "sha256:5a9d19cdd8dcec679c483408f208027e01ab2087cbc66787790036087b6737de"},
-    {file = "boto3-1.26.71.tar.gz", hash = "sha256:6c4845243d1896019646d649f1f0ff4042cedcc5db3ecfba3dc2d611ea11cd08"},
+    {file = "boto3-1.26.76-py3-none-any.whl", hash = "sha256:b4c2969b7677762914394b8273cc1905dfe5b71f250741c1a575487ae357e729"},
+    {file = "boto3-1.26.76.tar.gz", hash = "sha256:30c7d967ed1c6b5a05643e42cae9d4d36c3f1cb6782637ddc7007a104cfd9027"},
 ]
 
 [package.dependencies]
-botocore = ">=1.29.71,<1.30.0"
+botocore = ">=1.29.76,<1.30.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.6.0,<0.7.0"
 
@@ -125,14 +125,14 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.29.71"
+version = "1.29.76"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "botocore-1.29.71-py3-none-any.whl", hash = "sha256:40406466f5c416b1f54bfbfc11aef90d783103f7ea77a1992dcaf1768ab04e12"},
-    {file = "botocore-1.29.71.tar.gz", hash = "sha256:783e7fa97bb5bf3759e4b333b8da2bcaffdb54828ea1d759b55329cc39003b98"},
+    {file = "botocore-1.29.76-py3-none-any.whl", hash = "sha256:70735b00cd529f152992231ca6757e458e5ec25db43767b3526e9a35b2f143b7"},
+    {file = "botocore-1.29.76.tar.gz", hash = "sha256:c2f67b6b3f8acf2968eafca06526f07b9fb0d27bac4c68a635d51abb675134a7"},
 ]
 
 [package.dependencies]
@@ -543,7 +543,7 @@ tox = ["tox"]
 
 [[package]]
 name = "data-adapter"
-version = "0.5.0"
+version = "0.6.0"
 description = "Provides general functionality for other data adapters"
 category = "main"
 optional = false
@@ -563,7 +563,7 @@ sqlalchemy = "^1.4.46"
 type = "git"
 url = "https://git@github.com/sedos-project/data_adapter"
 reference = "dev"
-resolved_reference = "f9889ff3217765373923422972d115931315c2d5"
+resolved_reference = "6175009848d13aab8ba6417748f17fe5eb6b4f31"
 
 [[package]]
 name = "datapackage"
@@ -692,14 +692,14 @@ pyflakes = ">=2.4.0,<2.5.0"
 
 [[package]]
 name = "frictionless"
-version = "4.40.9"
+version = "4.40.11"
 description = "Data management framework for Python that provides functionality to describe, extract, validate, and transform tabular data"
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "frictionless-4.40.9-py2.py3-none-any.whl", hash = "sha256:9d76c807c487685dbf8896332deedb5ad931ea1e6247a51e6b9ce61081c6c717"},
-    {file = "frictionless-4.40.9.tar.gz", hash = "sha256:a55de96d8673ff413f7c4c57458ed65e6006cdd38c4e6b6e1114e46d45734255"},
+    {file = "frictionless-4.40.11-py2.py3-none-any.whl", hash = "sha256:5b2bbb3779d5e2ecfe99add2458a7b2bcb61eae6173696ea57ef0b28c085d976"},
+    {file = "frictionless-4.40.11.tar.gz", hash = "sha256:e7d83d82cd3273820c74ac715e8d78285697f1eceda49a2417a72f839420d42e"},
 ]
 
 [package.dependencies]
@@ -733,7 +733,7 @@ pandas = ["pandas (>=1.0)"]
 s3 = ["boto3 (>=1.9)"]
 server = ["flask (>=1.1)", "gunicorn (>=20.0)"]
 spss = ["savReaderWriter (>=3.0)"]
-sql = ["sqlalchemy (>=1.3)"]
+sql = ["sqlalchemy (<2.0)"]
 
 [[package]]
 name = "greenlet"
@@ -1300,7 +1300,7 @@ plots = ["matplotlib", "plotly"]
 type = "git"
 url = "https://git@github.com/oemof/oemof-tabular"
 reference = "dev"
-resolved_reference = "69eb4a391a976b7302e763f09cce2a743b1ea46a"
+resolved_reference = "cd85dc2fa0c91e57cb4ce3c90a5f0bb315bf3623"
 
 [[package]]
 name = "oemof-tools"
@@ -1998,14 +1998,14 @@ crt = ["botocore[crt] (>=1.20.29,<2.0a.0)"]
 
 [[package]]
 name = "setuptools"
-version = "67.3.1"
+version = "67.4.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.3.1-py3-none-any.whl", hash = "sha256:23c86b4e44432bfd8899384afc08872ec166a24f48a3f99f293b0a557e6a6b5d"},
-    {file = "setuptools-67.3.1.tar.gz", hash = "sha256:daec07fd848d80676694d6bf69c009d28910aeece68a38dbe88b7e1bb6dba12e"},
+    {file = "setuptools-67.4.0-py3-none-any.whl", hash = "sha256:f106dee1b506dee5102cc3f3e9e68137bbad6d47b616be7991714b0c62204251"},
+    {file = "setuptools-67.4.0.tar.gz", hash = "sha256:e5fd0a713141a4a105412233c63dc4e17ba0090c8e8334594ac790ec97792330"},
 ]
 
 [package.extras]
@@ -2027,14 +2027,14 @@ files = [
 
 [[package]]
 name = "simpleeval"
-version = "0.9.12"
+version = "0.9.13"
 description = "A simple, safe single expression evaluator library."
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "simpleeval-0.9.12-py2.py3-none-any.whl", hash = "sha256:d82faa7dc88379614ea3b385fd84cc24f0aa4853432e267718526e5aeac6b1b9"},
-    {file = "simpleeval-0.9.12.tar.gz", hash = "sha256:3e0be507486d4e21cf9d08847c7e57dd61a1603950399985f7c5a0be7fd33e36"},
+    {file = "simpleeval-0.9.13-py2.py3-none-any.whl", hash = "sha256:22a2701a5006e4188d125d34accf2405c2c37c93f6b346f2484b6422415ae54a"},
+    {file = "simpleeval-0.9.13.tar.gz", hash = "sha256:4a30f9cc01825fe4c719c785e3762623e350c4840d5e6855c2a8496baaa65fac"},
 ]
 
 [[package]]

@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 import pandas as pd
 
@@ -7,16 +8,13 @@ from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
 
 
 def build_datapackage(**process_data):
-    parametrized = {}
+    parametrized = defaultdict(list)
     for process, data in process_data.items():
 
         process_type = PROCESS_TYPE_MAP[process]
 
         adapter = TYPE_MAP[process_type]
-        paramet = adapter.parametrize_dataclass(data=data.scalars)
-
-        if process_type not in parametrized:
-            parametrized[process_type] = []
+        paramet = data.scalars.apply(adapter.parametrize_dataclass, axis=1)
 
         parametrized[process_type].append(paramet)
 

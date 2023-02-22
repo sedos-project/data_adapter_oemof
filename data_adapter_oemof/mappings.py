@@ -8,13 +8,12 @@ logger = logging.getLogger()
 
 
 class Mapper:
-    def __init__(self, data:dict, mapping=None):
+    def __init__(self, data: dict, mapping=None):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
         self.data = data
         self.mapping = mapping
         print(self.data)
-
 
     def get(self, key):
         if key in self.mapping:

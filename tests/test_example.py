@@ -1,7 +1,12 @@
 import json
 import os
-os.environ["COLLECTION_DIR"] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/collections"
-os.environ["STRUCTURES_DIR"] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/structure/"
+
+os.environ[
+    "COLLECTION_DIR"
+] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/collections"
+os.environ[
+    "STRUCTURES_DIR"
+] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/structure/"
 from data_adapter.preprocessing import get_process
 from data_adapter.structure import get_energy_structure
 from data_adapter.databus import download_collection
@@ -25,9 +30,11 @@ path_default = (
 def test_build_tabular_datapackage():
 
     # download Collection:
-    download_collection("https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/")
+    download_collection(
+        "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
+    )
 
-    es_structure = get_energy_structure()
+    es_structure = get_energy_structure(structure="structure")
 
     processes = es_structure.keys()
 
@@ -35,11 +42,11 @@ def test_build_tabular_datapackage():
     # all necessary information.
 
     process_data = {
-        process: get_process("hack-a-thon", process)
-        for process in processes
+        process: get_process("hack-a-thon", process) for process in processes
     }
 
     datapackage = build_datapackage(**process_data)
+    print(datapackage)
     save_datapackage_to_csv(datapackage, PATH_TMP)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)

@@ -13,7 +13,6 @@ def not_build_solph_components(cls):
     original_init = cls.__init__
 
     def new_init(self, *args, **kwargs):
-
         kwargs["build_solph_components"] = False
 
         original_init(self, *args, **kwargs)
@@ -65,29 +64,18 @@ class VolatileAdapter(facades.Volatile):
         defaults = get_default_mappings(cls, mapper)
 
         attributes = {
-            "name": calculations.get_name(
+            "label": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
-            "capacity_cost": calculations.get_capacity_cost(**{"mapper":mapper}),
+            "capacity_cost": calculations.get_capacity_cost(capacity_cost=mapper.get("capacity_cost"),
+                                                            lifetime=mapper.get("lifetime"), wacc=mapper.get("wacc"),
+                                                            fixed_cost=mapper.get("fixed_cost")),
         }
         defaults.update(attributes)
         print(defaults)
         return cls(**defaults)
 
-        # Hier fallen diejenigen attribute wieder aus heraus, die nich teil der facade sind -> das sind vorallem 'name' und 'type'
-
-        # Der nutzen der klasse hier ist (wie ich das verstanden habe) ein check ob die daten types stimmen und ob die
-        # minimalen parameter übergeben wurden um die facade nachher zu bauen.
-
-        # Lösungsvorschlag: Statt der klasse geben wir ein dictionary (oder Dataframe) zurück,
-        # der die Facade csv enthält und prüfen die intefrität der facade bevor die attributes hinzugefügt werden.
-
-        # Außerdem:
-        #   Douplicate code: Jede Adapterklasse besteht im moment aus den gleichen aufrufen -> TypeMap umschreiben und
-        #   dort auf die tabular.facades mappen. Die kann dann an eine allgemeine funktion (oder klasse, was ist hier
-        #   sinnvoller?) übergeben werden.
-
-        #Todo:
+        # Todo:
         # def adapter(data, type_map_call, type_map):
         #     cls = type_map[type_map_call]
         #     mapper = Mapper(data)
@@ -96,8 +84,8 @@ class VolatileAdapter(facades.Volatile):
         #         "name": calculations.get_name(
         #             mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
         #         ),
-        #         "capacity_cost": calculations.get_capacity_cost(**{"mapper": mapper}),
         #         "type": type_map_call
+        #         "capacity_cost": calculations.get_capacity_cost(**{"mapper": mapper}),
         #     }
         #     defaults.update(attributes)
         #     def check_integrity():
@@ -113,5 +101,5 @@ TYPE_MAP = {
     "storage": VolatileAdapter,
     "volatile": VolatileAdapter,
     "dispatchable": VolatileAdapter,
-    "battery_storage": StorageAdapter
+    "battery_storage": StorageAdapter,
 }

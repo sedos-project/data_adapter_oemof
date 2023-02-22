@@ -35,9 +35,8 @@ def get_capacity_cost(**kwargs):
     :param kwargs:
     :return:
     """
-    print(kwargs["mapper"].get("fixed_cost"))
-    if set(["overnight_cost", "fixed_cost", "lifetime", "wacc"]).issubset(kwargs.keys()):
-        return annuity(capex=kwargs["overnight_cost"],n= kwargs["lifetime"],wacc= kwargs["wacc"]) + kwargs["fixed_cost"]
-    elif set(["mapper"]).issubset(kwargs.keys()):
-        return annuity(kwargs["mapper"].get("overnight_cost"), kwargs["mapper"].get("lifetime"),
-        kwargs["mapper"].get("wacc"))+ kwargs["mapper"].get("fixed_cost")
+    if {"capacity_cost", "fixed_cost", "lifetime", "wacc"}.issubset(kwargs.keys()):
+        return annuity(capex=kwargs["overnight_cost"], n=kwargs["lifetime"], wacc=kwargs["wacc"]) + kwargs["fixed_cost"]
+    elif {"mapper"}.issubset(kwargs.keys()):
+        return annuity(kwargs["mapper"].get("capacity_cost"), kwargs["mapper"].get("lifetime"),
+                       kwargs["mapper"].get("wacc"))+kwargs["mapper"].get("fixed_cost")

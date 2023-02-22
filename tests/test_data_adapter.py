@@ -16,7 +16,8 @@ def test_adapter():
     components = [
         Component(
             type="volatile",
-            data={"type":"volatile",
+            data={
+                "type": "volatile",
                 "region": "B",
                 "carrier": "wind",
                 "tech": tech,
