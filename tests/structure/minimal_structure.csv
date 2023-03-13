@@ -1,5 +1,4 @@
 id;process;parameter;inputs;outputs
-1;commodity;default;;ch4
 2;conversion;default;ch4;electricity
 3;load;default;electricity;electricity
 4;storage;default;electricity;electricity
