@@ -31,10 +31,10 @@ def test_build_tabular_datapackage():
 
     # download Collection:
     download_collection(
-        "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
+        "https://energy.databus.dbpedia.org/felixmaur/collections/minimal_example/"
     )
 
-    es_structure = get_energy_structure(structure="structure")
+    es_structure = get_energy_structure(structure="minimal_structure")
 
     processes = es_structure.keys()
 
@@ -42,11 +42,10 @@ def test_build_tabular_datapackage():
     # all necessary information.
 
     process_data = {
-        process: get_process("hack-a-thon", process) for process in processes
+        process: get_process("hack-a-thon", process, links="links") for process in processes
     }
 
     datapackage = build_datapackage(**process_data)
-    print(datapackage)
     save_datapackage_to_csv(datapackage, PATH_TMP)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)

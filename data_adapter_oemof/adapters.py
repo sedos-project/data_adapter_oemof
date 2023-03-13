@@ -82,6 +82,7 @@ class VolatileAdapter(facades.Volatile):
             ),
         }
         defaults.update(attributes)
+
         return cls(**defaults)
 
 

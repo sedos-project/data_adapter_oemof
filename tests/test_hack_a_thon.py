@@ -25,7 +25,7 @@ def test_struct():
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
     )
 
-    es_structure = get_energy_structure(structure="structure")
+    es_structure = get_energy_structure(structure="minimal_structure")
 
     processes = es_structure.keys()
 
@@ -35,6 +35,13 @@ def test_struct():
 def test_process_data(es_struct=test_struct()):
     processes = es_struct.keys()
     process_data = {
-        process: get_process("hack-a-thon", process) for process in processes
+        process: get_process("hack-a-thon", process, links="minimal_links") for process in processes
     }
-    datapackage = build_datapackage()
+    datapackage = build_datapackage(**process_data)
+
+    return datapackage
+
+
+def test_build_datapackage(process_data=test_process_data()):
+    pass
+
