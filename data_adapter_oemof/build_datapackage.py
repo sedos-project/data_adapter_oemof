@@ -6,6 +6,7 @@ import pandas as pd
 from data_adapter_oemof.adapters import TYPE_MAP
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
 
+import inspect
 
 def build_datapackage(**process_data):
     parametrized = defaultdict(list)
@@ -18,11 +19,11 @@ def build_datapackage(**process_data):
 
         parametrized[process_type].append(paramet)
 
+
     # create a dictionary of dataframes
     datapackage = {
         type: pd.DataFrame(adapted) for type, adapted in parametrized.items()
     }
-
     return datapackage
 
 

@@ -13,7 +13,6 @@ class Mapper:
             mapping = GLOBAL_PARAMETER_MAP
         self.data = data
         self.mapping = mapping
-        print(self.data)
 
     def get(self, key):
         if key in self.mapping:

@@ -108,6 +108,7 @@ class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
             ),
         }
         defaults.update(attributes)
+
         return cls(**defaults)
 
 
