@@ -35,14 +35,13 @@ def test_build_tabular_datapackage():
     )
 
     es_structure = get_energy_structure(structure="minimal_structure")
-
+    print(es_structure)
     processes = es_structure.keys()
-
     # This is a placeholder as long as get_energy_structure does not provide
     # all necessary information.
 
     process_data = {
-        process: get_process("hack-a-thon", process, links="links") for process in processes
+        process: get_process("hack-a-thon", process, links="minimal_links") for process in processes
     }
 
     datapackage = build_datapackage(**process_data)
