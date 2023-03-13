@@ -30,18 +30,19 @@ path_default = (
 def test_build_tabular_datapackage():
 
     # download Collection:
-    download_collection(
-        "https://energy.databus.dbpedia.org/felixmaur/collections/minimal_example/"
-    )
+    # uncomment as soon as pin is removed
+    #download_collection(
+    #    "https://energy.databus.dbpedia.org/felixmaur/collections/minimal_example/"
+    #)
 
     es_structure = get_energy_structure(structure="minimal_structure")
     print(es_structure)
     processes = es_structure.keys()
     # This is a placeholder as long as get_energy_structure does not provide
     # all necessary information.
-
+    print(processes)
     process_data = {
-        process: get_process("hack-a-thon", process, links="minimal_links") for process in processes
+        process: get_process("minimal_example", process, links="minimal_links") for process in processes
     }
 
     datapackage = build_datapackage(**process_data)
