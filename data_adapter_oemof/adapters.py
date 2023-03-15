@@ -129,7 +129,8 @@ class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
     def parametrize_dataclass(cls, data: dict):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
-
+        busses = get_busses(cls, struct)
+        defaults.update(busses)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
