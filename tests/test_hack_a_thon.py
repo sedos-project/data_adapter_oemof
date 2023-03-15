@@ -1,14 +1,4 @@
-import json
 import os
-
-import yaml
-
-os.environ[
-    "COLLECTION_DIR"
-] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/collections"
-os.environ[
-    "STRUCTURES_DIR"
-] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/structure/"
 from data_adapter.preprocessing import get_process
 from data_adapter.structure import get_energy_structure
 from data_adapter.databus import download_collection
@@ -18,6 +8,14 @@ from data_adapter_oemof.build_datapackage import (
     build_datapackage,
     save_datapackage_to_csv,
 )
+
+
+os.environ[
+    "COLLECTION_DIR"
+] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/collections"
+os.environ[
+    "STRUCTURES_DIR"
+] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/structure/"
 
 
 def test_struct():
@@ -35,7 +33,8 @@ def test_struct():
 def test_process_data(es_struct=test_struct()):
     processes = es_struct.keys()
     process_data = {
-        process: get_process("hack-a-thon", process, links="minimal_links") for process in processes
+        process: get_process("hack-a-thon", process, links="minimal_links")
+        for process in processes
     }
     datapackage = build_datapackage(**process_data)
 
@@ -44,4 +43,3 @@ def test_process_data(es_struct=test_struct()):
 
 def test_build_datapackage(process_data=test_process_data()):
     pass
-
