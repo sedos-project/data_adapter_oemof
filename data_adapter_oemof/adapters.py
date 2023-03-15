@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 
 import pandas as pd
 from oemof.tabular import facades
