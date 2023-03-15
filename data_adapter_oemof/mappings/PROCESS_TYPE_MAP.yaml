@@ -4,6 +4,6 @@
 commodity: commodity
 conversion: conversion
 "load": load
-"storage": battery_storage
+"storage": storage
 "volatile": volatile
 "dispatchable": dispatchable
