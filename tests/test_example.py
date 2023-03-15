@@ -19,7 +19,6 @@ from data_adapter_oemof.build_datapackage import (
 )
 
 
-
 path_default = (
     PATH_TEST_FILES
     / "_files"

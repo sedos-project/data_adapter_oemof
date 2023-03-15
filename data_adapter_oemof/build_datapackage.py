@@ -6,8 +6,6 @@ import pandas as pd
 from data_adapter_oemof.adapters import TYPE_MAP
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
 
-import inspect
-
 
 def build_datapackage(es_structure, **process_data):
     parametrized = defaultdict(list)
