@@ -1,5 +1,6 @@
 import setup_environment
 
+setup_environment.setup()
 from data_adapter.preprocessing import get_process
 from data_adapter.structure import get_energy_structure
 
@@ -11,19 +12,16 @@ from data_adapter_oemof.build_datapackage import (
     save_datapackage_to_csv,
 )
 
-setup_environment.setup()
-
 path_default = (
-    PATH_TEST_FILES
-    / "_files"
-    / "tabular_datapackage_mininmal_example"
-    / "data"
-    / "elements"
+        PATH_TEST_FILES
+        / "_files"
+        / "tabular_datapackage_mininmal_example"
+        / "data"
+        / "elements"
 )
 
 
 def test_build_tabular_datapackage():
-
     # download Collection:
     # uncomment as soon as pin is removed
     # download_collection(
@@ -41,3 +39,7 @@ def test_build_tabular_datapackage():
     save_datapackage_to_csv(datapackage, PATH_TMP)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
+    # FIXME: Get them closer together
+    #  - Add names
+    #  - Add type
+    #  - Drop Nan-columns
