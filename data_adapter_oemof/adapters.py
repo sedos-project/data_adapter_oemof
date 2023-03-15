@@ -6,6 +6,7 @@ from oemof.solph import Bus
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
+#Todo: Build all dataadapters, build
 
 class AdapterToDataFrameMixin:
     extra_attributes = ("name",)
@@ -116,8 +117,8 @@ TYPE_MAP = {
     "commodity": CommodityAdapter,
     "conversion": ConversionAdapter,
     "load": LoadAdapter,
-    "storage": VolatileAdapter,
+    "storage": StorageAdapter,
     "volatile": VolatileAdapter,
-    "dispatchable": VolatileAdapter,
+    "dispatchable": ConversionAdapter,
     "battery_storage": StorageAdapter,
 }

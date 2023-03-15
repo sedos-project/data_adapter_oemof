@@ -1,7 +1,8 @@
-capacity: installed_capacity
-marginal_cost: variable_costs
-fixed_cost: fixed_costs
-capacity_cost: capital_costs
+capacity: ammount
+#capacity: installed_capacity
+#marginal_cost: variable_costs
+#fixed_cost: fixed_costs
+#capacity_cost: capital_costs
 #overnight_cost: sedos-overnight_cost
 #lifetime: sedos-lifetime
 #wacc: sedos-wacc

@@ -46,6 +46,7 @@ def test_build_tabular_datapackage():
     }
 
     datapackage = build_datapackage(**process_data)
+
     save_datapackage_to_csv(datapackage, PATH_TMP)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
