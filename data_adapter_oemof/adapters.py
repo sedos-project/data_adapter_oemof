@@ -101,7 +101,7 @@ class ConversionAdapter(facades.Conversion):
     def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
-        buses = get_busses(cls, struct)
+        busses = get_busses(cls, struct)
         #Todo: n:j conversion facades in allen anderen facades wird nur "default" benutzt? bzw. kann n:j facade
         # nicht auch 1:1 sein (wenn wir sowieso eine facade bauen müssen die das kann..?)
         attributes = {
@@ -117,7 +117,7 @@ class ConversionAdapter(facades.Conversion):
             # ),
         }
         defaults.update(attributes)
-
+        defaults.update(busses)
         return cls(**defaults)
 
 
