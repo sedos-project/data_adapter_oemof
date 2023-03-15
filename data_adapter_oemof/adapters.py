@@ -114,8 +114,9 @@ class ConversionAdapter(facades.Conversion):
         busses = get_busses(cls, struct)
         defaults.update(busses)
 
-        # TODO: n:j conversion facades in allen anderen facades wird nur "default" benutzt? bzw. kann n:j facade \
-        #  nicht auch 1:1 sein (wenn wir sowieso eine facade bauen müssen die das kann..?)
+        # TODO: n:j conversion facades in allen anderen facades wird nur "default" benutzt?
+        #  Bw. kann n:j facade nicht auch 1:1 sein
+        #  (wenn wir sowieso eine facade bauen müssen die das kann..?)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
@@ -170,8 +171,8 @@ class StorageAdapter(facades.Storage):
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
             # TODO: decide where such calculations shall be made -> mapper?
-            #  Essentially when there are multiple ways to obtain "capacity_cost" (either by calculation or if it\
-            #  is already existing in dataset)
+            #  Essentially when there are multiple ways to obtain "capacity_cost"
+            #  (either by calculation or if it is already existing in dataset)
             # "capacity_cost": calculations.get_capacity_cost(
             #     mapper.get("overnight_cost"),
             #     mapper.get("fixed_cost"),
