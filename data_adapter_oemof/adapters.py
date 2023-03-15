@@ -1,5 +1,6 @@
 import dataclasses
 
+import pandas as pd
 from oemof.tabular import facades
 from oemof.solph import Bus
 
@@ -47,12 +48,12 @@ class CommodityAdapter(facades.Commodity):
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
-            "capacity_cost": calculations.get_capacity_cost(
-                mapper.get("overnight_cost"),
-                mapper.get("fixed_cost"),
-                mapper.get("lifetime"),
-                mapper.get("wacc"),
-            ),
+            # "capacity_cost": calculations.get_capacity_cost(
+            #     mapper.get("overnight_cost"),
+            #     mapper.get("fixed_cost"),
+            #     mapper.get("lifetime"),
+            #     mapper.get("wacc"),
+            # ),
         }
         defaults.update(attributes)
 
@@ -70,12 +71,12 @@ class ConversionAdapter(facades.Conversion):
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
-            "capacity_cost": calculations.get_capacity_cost(
-                mapper.get("overnight_cost"),
-                mapper.get("fixed_cost"),
-                mapper.get("lifetime"),
-                mapper.get("wacc"),
-            ),
+            # "capacity_cost": calculations.get_capacity_cost(
+            #     mapper.get("overnight_cost"),
+            #     mapper.get("fixed_cost"),
+            #     mapper.get("lifetime"),
+            #     mapper.get("wacc"),
+            # ),
         }
         defaults.update(attributes)
 
@@ -93,12 +94,12 @@ class LoadAdapter(facades.Load):
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
-            "capacity_cost": calculations.get_capacity_cost(
-                mapper.get("overnight_cost"),
-                mapper.get("fixed_cost"),
-                mapper.get("lifetime"),
-                mapper.get("wacc"),
-            ),
+            # "capacity_cost": calculations.get_capacity_cost(
+            #     mapper.get("overnight_cost"),
+            #     mapper.get("fixed_cost"),
+            #     mapper.get("lifetime"),
+            #     mapper.get("wacc"),
+            # ),
         }
         defaults.update(attributes)
 
@@ -116,12 +117,15 @@ class StorageAdapter(facades.Storage):
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
-            "capacity_cost": calculations.get_capacity_cost(
-                mapper.get("overnight_cost"),
-                mapper.get("fixed_cost"),
-                mapper.get("lifetime"),
-                mapper.get("wacc"),
-            ),
+            # Todo: decide where such calculations shall be made -> mapper?
+            #   Esentially when there are multiple ways to obtain "capacity_cost" (either by calculation or if it
+            #   is already existing in dataset)
+            # "capacity_cost": calculations.get_capacity_cost(
+            #     mapper.get("overnight_cost"),
+            #     mapper.get("fixed_cost"),
+            #     mapper.get("lifetime"),
+            #     mapper.get("wacc"),
+            # ),
         }
         defaults.update(attributes)
 
@@ -139,12 +143,12 @@ class VolatileAdapter(facades.Volatile):
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
-            "capacity_cost": calculations.get_capacity_cost(
-                mapper.get("overnight_cost"),
-                mapper.get("fixed_cost"),
-                mapper.get("lifetime"),
-                mapper.get("wacc"),
-            ),
+            # "capacity_cost": calculations.get_capacity_cost(
+            #     mapper.get("overnight_cost"),
+            #     mapper.get("fixed_cost"),
+            #     mapper.get("lifetime"),
+            #     mapper.get("wacc"),
+            # ),
         }
         defaults.update(attributes)
 

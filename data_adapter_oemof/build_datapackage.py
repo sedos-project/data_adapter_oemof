@@ -16,21 +16,18 @@ def build_datapackage(**process_data):
         adapter = TYPE_MAP[process_type]
         paramet = data.scalars.apply(adapter.parametrize_dataclass, axis=1)
 
-
-        parametrized[process_type].append(paramet.iloc[0])
+        parametrized[process_type].extend(paramet.values)
 
 
 
     # create a dictionary of dataframes
     datapackage = {
-        type: pd.DataFrame([adapted]) for type, adapted in parametrized.items()
+        type: pd.DataFrame(adapted) for type, adapted in parametrized.items()
     }
     return datapackage
 
 
 def save_datapackage_to_csv(datapackage, destination):
     for key, value in datapackage.items():
-        x = value[0][0]
-        x = pd.DataFrame(x)
         file_path = os.path.join(destination, key + ".csv")
-        x.to_csv(file_path)
+        value.to_csv(file_path)
