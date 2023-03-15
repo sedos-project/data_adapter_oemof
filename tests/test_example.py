@@ -1,16 +1,9 @@
-import json
-import os
-
-os.environ[
-    "COLLECTION_DIR"
-] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/collections"
-os.environ[
-    "STRUCTURES_DIR"
-] = "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/structure/"
+import setup_environment
 
 from data_adapter.preprocessing import get_process
 from data_adapter.structure import get_energy_structure
-from data_adapter.databus import download_collection
+
+# from data_adapter.databus import download_collection
 
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 from data_adapter_oemof.build_datapackage import (
@@ -18,6 +11,7 @@ from data_adapter_oemof.build_datapackage import (
     save_datapackage_to_csv,
 )
 
+setup_environment.setup()
 
 path_default = (
     PATH_TEST_FILES
