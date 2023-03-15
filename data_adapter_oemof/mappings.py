@@ -26,6 +26,8 @@ class Mapper:
             logger.warning(f"Could not get data for mapped key '{mapped_key}'")
             return None
         return self.data[mapped_key]
+    def get_bus(self, struct):
+        return list(filter(lambda x: "bus" in x, self.mapping))
 
 
 def load_yaml(file_path):
