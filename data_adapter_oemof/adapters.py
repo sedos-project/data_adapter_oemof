@@ -40,7 +40,7 @@ def get_default_mappings(cls, mapper):
 @facade_adapter
 class CommodityAdapter(facades.Commodity):
     @classmethod
-    def parametrize_dataclass(cls, data: dict):
+    def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
 
@@ -63,7 +63,7 @@ class CommodityAdapter(facades.Commodity):
 @facade_adapter
 class ConversionAdapter(facades.Conversion):
     @classmethod
-    def parametrize_dataclass(cls, data: dict):
+    def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
 
@@ -86,9 +86,9 @@ class ConversionAdapter(facades.Conversion):
 @facade_adapter
 class LoadAdapter(facades.Load):
     @classmethod
-    def parametrize_dataclass(cls, data: dict):
+    def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
-        defaults = get_default_mappings(cls, mapper)
+        defaults = get_default_mappings(cls)
 
         attributes = {
             "name": calculations.get_name(
@@ -109,7 +109,7 @@ class LoadAdapter(facades.Load):
 @facade_adapter
 class StorageAdapter(facades.Storage):
     @classmethod
-    def parametrize_dataclass(cls, data: dict):
+    def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
 
@@ -118,7 +118,7 @@ class StorageAdapter(facades.Storage):
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
             # Todo: decide where such calculations shall be made -> mapper?
-            #   Esentially when there are multiple ways to obtain "capacity_cost" (either by calculation or if it
+            #   Essentially when there are multiple ways to obtain "capacity_cost" (either by calculation or if it
             #   is already existing in dataset)
             # "capacity_cost": calculations.get_capacity_cost(
             #     mapper.get("overnight_cost"),
@@ -135,7 +135,7 @@ class StorageAdapter(facades.Storage):
 @facade_adapter
 class VolatileAdapter(facades.Volatile):
     @classmethod
-    def parametrize_dataclass(cls, data: dict):
+    def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
 

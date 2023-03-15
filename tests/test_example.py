@@ -45,7 +45,7 @@ def test_build_tabular_datapackage():
         process: get_process("minimal_example", process, links="minimal_links") for process in processes
     }
 
-    datapackage = build_datapackage(**process_data)
+    datapackage = build_datapackage(es_structure, **process_data)
 
     save_datapackage_to_csv(datapackage, PATH_TMP)
 
