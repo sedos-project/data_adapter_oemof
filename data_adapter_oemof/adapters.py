@@ -6,6 +6,7 @@ from oemof.solph import Bus
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
+#Todo: Build all dataadapters, build
 
 def facade_adapter(cls):
     r"""
@@ -37,30 +38,94 @@ def get_default_mappings(cls, mapper):
 
 @facade_adapter
 class CommodityAdapter(facades.Commodity):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+    @classmethod
+    def parametrize_dataclass(cls, data: dict):
+        mapper = Mapper(data)
+        defaults = get_default_mappings(cls, mapper)
+
+        attributes = {
+            "name": calculations.get_name(
+                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+            ),
+            "capacity_cost": calculations.get_capacity_cost(
+                mapper.get("overnight_cost"),
+                mapper.get("fixed_cost"),
+                mapper.get("lifetime"),
+                mapper.get("wacc"),
+            ),
+        }
+        defaults.update(attributes)
+
+        return cls(**defaults)
 
 
 @facade_adapter
 class ConversionAdapter(facades.Conversion):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+    @classmethod
+    def parametrize_dataclass(cls, data: dict):
+        mapper = Mapper(data)
+        defaults = get_default_mappings(cls, mapper)
+
+        attributes = {
+            "name": calculations.get_name(
+                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+            ),
+            "capacity_cost": calculations.get_capacity_cost(
+                mapper.get("overnight_cost"),
+                mapper.get("fixed_cost"),
+                mapper.get("lifetime"),
+                mapper.get("wacc"),
+            ),
+        }
+        defaults.update(attributes)
+
+        return cls(**defaults)
 
 
 @facade_adapter
 class LoadAdapter(facades.Load):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+    @classmethod
+    def parametrize_dataclass(cls, data: dict):
+        mapper = Mapper(data)
+        defaults = get_default_mappings(cls, mapper)
+
+        attributes = {
+            "name": calculations.get_name(
+                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+            ),
+            "capacity_cost": calculations.get_capacity_cost(
+                mapper.get("overnight_cost"),
+                mapper.get("fixed_cost"),
+                mapper.get("lifetime"),
+                mapper.get("wacc"),
+            ),
+        }
+        defaults.update(attributes)
+
+        return cls(**defaults)
 
 
 @facade_adapter
 class StorageAdapter(facades.Storage):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+    @classmethod
+    def parametrize_dataclass(cls, data: dict):
+        mapper = Mapper(data)
+        defaults = get_default_mappings(cls, mapper)
+
+        attributes = {
+            "name": calculations.get_name(
+                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+            ),
+            "capacity_cost": calculations.get_capacity_cost(
+                mapper.get("overnight_cost"),
+                mapper.get("fixed_cost"),
+                mapper.get("lifetime"),
+                mapper.get("wacc"),
+            ),
+        }
+        defaults.update(attributes)
+
+        return cls(**defaults)
 
 
 @facade_adapter
@@ -90,8 +155,8 @@ TYPE_MAP = {
     "commodity": CommodityAdapter,
     "conversion": ConversionAdapter,
     "load": LoadAdapter,
-    "storage": VolatileAdapter,
+    "storage": StorageAdapter,
     "volatile": VolatileAdapter,
-    "dispatchable": VolatileAdapter,
+    "dispatchable": ConversionAdapter,
     "battery_storage": StorageAdapter,
 }

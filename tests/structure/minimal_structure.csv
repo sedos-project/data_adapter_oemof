@@ -3,3 +3,4 @@ id;process;parameter;inputs;outputs
 3;load;default;electricity;electricity
 4;storage;default;electricity;electricity
 5;volatile;default;onshore;electricity
+6;commodity;default;;ch4
