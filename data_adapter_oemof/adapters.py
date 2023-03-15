@@ -77,7 +77,8 @@ class CommodityAdapter(facades.Commodity):
     def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
-
+        busses = get_busses(cls, struct)
+        defaults.update(busses)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
@@ -102,6 +103,8 @@ class ConversionAdapter(facades.Conversion):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
         busses = get_busses(cls, struct)
+        defaults.update(busses)
+
         #Todo: n:j conversion facades in allen anderen facades wird nur "default" benutzt? bzw. kann n:j facade
         # nicht auch 1:1 sein (wenn wir sowieso eine facade bauen müssen die das kann..?)
         attributes = {
@@ -117,7 +120,6 @@ class ConversionAdapter(facades.Conversion):
             # ),
         }
         defaults.update(attributes)
-        defaults.update(busses)
         return cls(**defaults)
 
 
@@ -127,7 +129,8 @@ class LoadAdapter(facades.Load):
     def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper=mapper)
-
+        busses = get_busses(cls, struct)
+        defaults.update(busses)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
@@ -151,7 +154,8 @@ class StorageAdapter(facades.Storage):
     def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
-
+        busses = get_busses(cls, struct)
+        defaults.update(busses)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
@@ -177,7 +181,8 @@ class VolatileAdapter(facades.Volatile):
     def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
-
+        busses = get_busses(cls, struct)
+        defaults.update(busses)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
