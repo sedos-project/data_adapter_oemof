@@ -7,7 +7,7 @@ from oemof.solph import Bus
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
-# TODO: Build all dataadapters, build
+# TODO: Build all dataadapters
 
 logger = logging.getLogger()
 
@@ -58,7 +58,7 @@ def get_busses(cls, struct, one_bus_from_struct: str = "outputs"):
     :param struct: struct from data_adapter.get_struct
     :return: Dict: facade specific correct bus names as keys and connected busses as value
     """
-    # TODO decide what should happen with multiple i/o
+    # TODO: decide what should happen with multiple i/o
     bus_occurrences_in_fields = {
         field.name for field in dataclasses.fields(cls) if "bus" in field.name
     }
