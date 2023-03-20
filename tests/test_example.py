@@ -43,3 +43,4 @@ def test_build_tabular_datapackage():
     #  - Add names
     #  - Add type
     #  - Drop Nan-columns
+# Todo: Write Modelbuilder test (I think solver test will not be necessary for now?)
