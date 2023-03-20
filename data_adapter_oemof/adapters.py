@@ -7,6 +7,23 @@ from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
 
+class AdapterToDataFrameMixin:
+    extra_attributes = ("name",)
+    """
+    Adds function to return DataFrame from adapter.
+    
+    This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
+    But we add custom_attributes (i.e. "name") which would be neglected.
+    """
+
+    def as_dict(self):
+        fields = dataclasses.fields(self)
+        data = {field.name: getattr(self, field.name) for field in fields}
+        for attr in self.extra_attributes:
+            data[attr] = getattr(self, attr)
+        return data
+
+
 def facade_adapter(cls):
     r"""
     Sets type of Busses to str
@@ -45,35 +62,35 @@ def get_default_mappings(cls, mapper):
 
 
 @facade_adapter
-class CommodityAdapter(facades.Commodity):
+class CommodityAdapter(facades.Commodity, AdapterToDataFrameMixin):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
 @facade_adapter
-class ConversionAdapter(facades.Conversion):
+class ConversionAdapter(facades.Conversion, AdapterToDataFrameMixin):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
 @facade_adapter
-class LoadAdapter(facades.Load):
+class LoadAdapter(facades.Load, AdapterToDataFrameMixin):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
 @facade_adapter
-class StorageAdapter(facades.Storage):
+class StorageAdapter(facades.Storage, AdapterToDataFrameMixin):
     def parametrize_dataclass(self, data):
         instance = self.datacls()
         return instance
 
 
 @facade_adapter
-class VolatileAdapter(facades.Volatile):
+class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
     @classmethod
     def parametrize_dataclass(cls, data: dict):
         mapper = Mapper(data)
