@@ -14,7 +14,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0.0"
 data_adapter = { git = "https://git@github.com/sedos-project/data_adapter", branch = "dev"}
-oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", branch = "dev"}
+oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", branch = "feature/solph-0.5"}
 
 
 [tool.poetry.dev-dependencies]
