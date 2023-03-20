@@ -20,8 +20,17 @@ def facade_adapter(cls):
     original_init = cls.__init__
 
     # do not build solph components
-    def new_init(*args, **kwargs):
-        original_init(*args, build_solph_components=False, **kwargs)
+    def new_init(self, *args, **kwargs):
+        custom_attributes = {}
+        original_fields = tuple(field.name for field in dataclasses.fields(cls))
+        for key in tuple(kwargs.keys()):
+            if key not in original_fields:
+                custom_attributes[key] = kwargs.pop(key)
+
+        original_init(self, *args, build_solph_components=False, **kwargs)
+
+        for key, value in custom_attributes.items():
+            setattr(self, key, value)
 
     cls.__init__ = new_init
 
