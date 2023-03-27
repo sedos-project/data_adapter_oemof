@@ -59,6 +59,7 @@ def get_busses(cls, struct, one_bus_from_struct: str = "outputs"):
     :return: Dict: facade specific correct bus names as keys and connected busses as value
     """
     # TODO: decide what should happen with multiple i/o
+    # TODO: Move this function to another module?
     bus_occurrences_in_fields = {
         field.name for field in dataclasses.fields(cls) if "bus" in field.name
     }
@@ -87,12 +88,12 @@ class CommodityAdapter(facades.Commodity):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
         busses = get_busses(cls, struct)
-        defaults.update(busses)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
-            "type": "something"
+            "type": "something",
+            "region": mapper.get("region")
             # "capacity_cost": calculations.get_capacity_cost(
             #     mapper.get("overnight_cost"),
             #     mapper.get("fixed_cost"),
@@ -100,6 +101,7 @@ class CommodityAdapter(facades.Commodity):
             #     mapper.get("wacc"),
             # ),
         }
+        defaults.update(busses)
         defaults.update(attributes)
 
         return cls(**defaults)
@@ -118,9 +120,9 @@ class ConversionAdapter(facades.Conversion):
         #  Bw. kann n:j facade nicht auch 1:1 sein
         #  (wenn wir sowieso eine facade bauen müssen die das kann..?)
         attributes = {
-            "name": calculations.get_name(
+            "habibi": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
-            ),
+            )
             # TODO: capacity costs berechnen wie? -> erstmal nicht machen?
             # "capacity_cost": calculations.get_capacity_cost(
             #     mapper.get("overnight_cost"),
@@ -142,10 +144,9 @@ class LoadAdapter(facades.Load):
         busses = get_busses(cls, struct)
         defaults.update(busses)
         attributes = {
-            "name": calculations.get_name(
+            "habibi": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
-            ),
-            "bus": struct["default"]["inputs"][0]
+            )
             # "capacity_cost": calculations.get_capacity_cost(
             #     mapper.get("overnight_cost"),
             #     mapper.get("fixed_cost"),
