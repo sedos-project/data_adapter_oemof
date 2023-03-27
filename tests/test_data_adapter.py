@@ -17,13 +17,14 @@ def test_adapter():
         Component(
             type="volatile",
             data={
+                "type": "volatile",
                 "region": "B",
                 "carrier": "wind",
                 "tech": tech,
-                "sedos-capacity": 12,
+                "installed_capacity": 12,
                 "sedos-marginal_cost": 1,
                 "sedos-overnight_cost": 1000,
-                "sedos-fixed_cost": 100,
+                "capital_costs": 100,
                 "sedos-lifetime": 25,
                 "sedos-wacc": 0.05,
             },
@@ -42,10 +43,8 @@ def test_adapter():
         parametrized[component.type].append(
             adapter.parametrize_dataclass(component.data)
         )
-
     # create a dictionary of dataframes
-    dataframes = {type: pd.DataFrame(adapted) for type, adapted in parametrized.items()}
-
+    dataframes = {type: pd.DataFrame([adapted.as_dict() for adapted in adapted_list]) for type, adapted_list in parametrized.items()}
     for typ, df in dataframes.items():
 
         path_default = (
@@ -59,12 +58,6 @@ def test_adapter():
 
         df_default = pd.read_csv(path_default, sep=";")
 
-        # assert set(df.columns) == set(df_default.columns)
+        assert set(df.columns) == set(df_default.columns)
 
-        print(df)
-        print(df_default)
-
-        # pd.testing.assert_frame_equal(df, df_default)
-
-
-test_adapter()
+        pd.testing.assert_frame_equal(df, df_default)
