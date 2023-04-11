@@ -44,7 +44,10 @@ def test_adapter():
             adapter.parametrize_dataclass(component.data)
         )
     # create a dictionary of dataframes
-    dataframes = {type: pd.DataFrame([adapted.as_dict() for adapted in adapted_list]) for type, adapted_list in parametrized.items()}
+    dataframes = {
+        type: pd.DataFrame([adapted.as_dict() for adapted in adapted_list])
+        for type, adapted_list in parametrized.items()
+    }
     for typ, df in dataframes.items():
 
         path_default = (

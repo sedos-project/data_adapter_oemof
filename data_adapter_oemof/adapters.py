@@ -1,20 +1,23 @@
 import dataclasses
 import logging
 
-import pandas as pd
 from oemof.tabular import facades
 from oemof.solph import Bus
 
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
-#Todo: Build all dataadapters, build
+logger = logging.getLogger()
+
+
+# Todo: Build all dataadapters, build
+
 
 class AdapterToDataFrameMixin:
     extra_attributes = ("name",)
     """
     Adds function to return DataFrame from adapter.
-    
+
     This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
     But we add custom_attributes (i.e. "name") which would be neglected.
     """
@@ -68,6 +71,7 @@ def get_default_mappings(cls, mapper):
     }
     return mapped_all_class_fields
 
+
 def get_busses(cls, struct, one_bus_from_struct: str = "outputs"):
     """
     Get the busses that a facade can take and found in structure which can be either:
@@ -77,20 +81,28 @@ def get_busses(cls, struct, one_bus_from_struct: str = "outputs"):
         - n:1
         - 1:n
         - n:j
+    :param one_bus_from_struct: What Bus to search for if only one bus is necessary for the facade
     :param cls: Data-adapter which is inheriting from oemof.tabular facade
     :param struct: struct from data_adapter.get_struct
     :return: Dictionary with (facade specific) correct bus names as keys and connected busses as value
     """
-    bus_occurrences_in_fields = {field.name for field in dataclasses.fields(cls) if "bus" in field.name}
+    bus_occurrences_in_fields = [
+        field.name for field in dataclasses.fields(cls) if "bus" in field.name
+    ]
     bus_dict = {}
     if "bus" in bus_occurrences_in_fields and len(bus_occurrences_in_fields) == 1:
         bus_dict["bus"] = struct["default"][one_bus_from_struct]
-    elif len(bus_occurrences_in_fields) == 2 and "from_bus" in bus_occurrences_in_fields\
-        and "to_bus" in bus_occurrences_in_fields:
+    elif (
+        len(bus_occurrences_in_fields) == 2
+        and "from_bus" in bus_occurrences_in_fields
+        and "to_bus" in bus_occurrences_in_fields
+    ):
         bus_dict["from_bus"] = struct["default"]["inputs"]
         bus_dict["to_bus"] = struct["default"]["outputs"]
     else:
-        logger.warning(f"There is no valid number of from/to busses for {dataclasses.fields(cls)}'")
+        logger.warning(
+            f"There is no valid number of from/to busses for {dataclasses.fields(cls)}'"
+        )
         return None
     return bus_dict
 
@@ -126,7 +138,7 @@ class StorageAdapter(facades.Storage, AdapterToDataFrameMixin):
 @facade_adapter
 class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
     @classmethod
-    def parametrize_dataclass(cls, data: dict):
+    def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
         busses = get_busses(cls, struct)
@@ -148,11 +160,11 @@ class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
 
 
 TYPE_MAP = {
-    "commodity": CommodityAdapter,
-    "conversion": ConversionAdapter,
-    "load": LoadAdapter,
-    "storage": StorageAdapter,
+    "commodity": VolatileAdapter,
+    "conversion": VolatileAdapter,
+    "load": VolatileAdapter,
+    "storage": VolatileAdapter,
     "volatile": VolatileAdapter,
-    "dispatchable": ConversionAdapter,
-    "battery_storage": StorageAdapter,
+    "dispatchable": VolatileAdapter,
+    "battery_storage": VolatileAdapter,
 }
