@@ -7,7 +7,7 @@ ExtractionTurbine:
     category: outputs
     name: sedos-heat
 
-  - fuel_bus:
+  fuel_bus:
     category: inputs
     name: default
 

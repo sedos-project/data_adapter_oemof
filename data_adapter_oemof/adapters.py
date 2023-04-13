@@ -14,7 +14,7 @@ logger = logging.getLogger()
 
 
 class AdapterToDataFrameMixin:
-    extra_attributes = ("name","type")
+    extra_attributes = ("name", "type")
     """
     Adds function to return DataFrame from adapter.
 
@@ -33,7 +33,7 @@ class AdapterToDataFrameMixin:
     def default_parametrize_dataclass(cls, data: dict, struct, process_type):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
-        busses = get_busses(cls, struct)
+        busses = mapper.get_busses(cls, struct)
         defaults.update(busses)
         attributes = {
             "name": calculations.get_name(
@@ -87,77 +87,6 @@ def get_default_mappings(cls, mapper):
     return mapped_all_class_fields
 
 
-def get_busses(cls, struct: dict, one_bus_from_struct: str = "outputs"):
-    """
-    Get the busses that a facade can take and found in structure which can be either:
-        - one (from_bus and to_bus bus are the same OR only one from_bus/to_bus bus is there
-        - two (from_bus bus is not the same as to_bus bus)
-    Special cases where multiple busses are occurring will be caught in their specific facades, such as:
-        - n:1
-        - 1:n
-        - n:j
-    :param one_bus_from_struct: What Bus to search for if only one bus is necessary for the facade
-    :param cls: Data-adapter which is inheriting from oemof.tabular facade
-    :param struct: struct from data_adapter.get_struct
-    :return: Dictionary with (facade specific) correct bus names as keys and connected busses as value
-    """
-    #Todo: Mapping, dann meine Logik -> Weil ja busse nicht gleich heißen bzw Bus spalten. 
-    bus_occurrences_in_fields = [
-        field.name for field in dataclasses.fields(cls) if "bus" in field.name
-    ]
-    a = cls.__name__
-    bus_dict = {}
-    if "bus" in bus_occurrences_in_fields and len(bus_occurrences_in_fields) == 1:
-        bus_dict["bus"] = struct["default"][one_bus_from_struct]
-    elif (
-        len(bus_occurrences_in_fields) == 2
-        and "from_bus" in bus_occurrences_in_fields
-        and "to_bus" in bus_occurrences_in_fields
-    ):
-        bus_dict["from_bus"] = struct["default"]["inputs"]
-        bus_dict["to_bus"] = struct["default"]["outputs"]
-    else:
-        logger.warning(
-            f"There is no valid number of from/to busses for {dataclasses.fields(cls)}'"
-        )
-        return None
-    return bus_dict
-
-def get_default_busses(cls, struct: dict, mapper):
-    """
-        Get the busses that a facade can take and found in structure which can be either:
-            - one (from_bus and to_bus bus are the same OR only one from_bus/to_bus bus is there
-            - two (from_bus bus is not the same as to_bus bus)
-        Special cases where multiple busses are occurring will be caught in their specific facades, such as:
-            - n:1
-            - 1:n
-            - n:j
-        :param cls: Data-adapter which is inheriting from oemof.tabular facade
-        :param struct: struct from data_adapter.get_struct
-        :return: Dictionary with (facade specific) correct bus names as keys and connected busses as value
-        """
-    # Todo: Mapping, dann meine Logik -> Weil ja busse nicht gleich heißen bzw Bus spalten.
-    bus_occurrences_in_fields = [
-        field.name for field in dataclasses.fields(cls) if "bus" in field.name
-    ]
-    bus_dict = {}
-    if "bus" in bus_occurrences_in_fields and len(bus_occurrences_in_fields) == 1:
-        bus_dict["bus"] = struct["default"]["output"]
-    elif (
-            len(bus_occurrences_in_fields) == 2
-            and "from_bus" in bus_occurrences_in_fields
-            and "to_bus" in bus_occurrences_in_fields
-    ):
-        bus_dict["from_bus"] = struct["default"]["inputs"]
-        bus_dict["to_bus"] = struct["default"]["outputs"]
-    else:
-        logger.warning(
-            f"There is no valid number of from/to busses for {dataclasses.fields(cls)}'"
-        )
-        return None
-    return bus_dict
-
-
 @facade_adapter
 class CommodityAdapter(facades.Commodity, AdapterToDataFrameMixin):
     def parametrize_dataclass(self, data):
@@ -190,8 +119,10 @@ class StorageAdapter(facades.Storage, AdapterToDataFrameMixin):
 class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super(VolatileAdapter, cls).default_parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type":"volatile"})
+        defaults = super(VolatileAdapter, cls).default_parametrize_dataclass(
+            data, struct, process_type
+        )
+        defaults.update({"type": "volatile"})
         return cls(**defaults)
 
 
