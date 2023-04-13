@@ -36,4 +36,6 @@ def build_datapackage(es_structure, **process_data):
 def save_datapackage_to_csv(datapackage, destination):
     for key, value in datapackage.items():
         file_path = os.path.join(destination, key + ".csv")
-        value.to_csv(file_path)
+        # FIXME droping na only for tests!
+        value = value.dropna(axis="columns")
+        value.to_csv(file_path, sep=";", index=False)
