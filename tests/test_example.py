@@ -1,5 +1,6 @@
 import setup_environment
 
+import pandas as pd
 setup_environment.setup()
 from data_adapter.preprocessing import get_process
 from data_adapter.structure import get_energy_structure
@@ -45,3 +46,8 @@ def test_build_tabular_datapackage():
 
 
 # Todo: Write Modelbuilder test (I think solver test will not be necessary for now?)
+def test_test():
+    df1 = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
+    df2 = pd.DataFrame({'b': [3.0, 4.0], 'a': [1, 2]})
+    pd.testing.assert_frame_equal(df1, df2, check_less_precise=True,
+                                  check_column_type=False, check_dtype=False, check_like=True)

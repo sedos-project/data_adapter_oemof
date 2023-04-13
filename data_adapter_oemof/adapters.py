@@ -30,7 +30,7 @@ class AdapterToDataFrameMixin:
         return data
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
+    def default_parametrize_dataclass(cls, data: dict, struct, process_type):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
         busses = get_busses(cls, struct)
@@ -189,7 +189,7 @@ class StorageAdapter(facades.Storage, AdapterToDataFrameMixin):
 class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super(VolatileAdapter, cls).parametrize_dataclass(data, struct, process_type)
+        defaults = super(VolatileAdapter, cls).default_parametrize_dataclass(data, struct, process_type)
         defaults.update({"type":"volatile"})
         return cls(**defaults)
 
