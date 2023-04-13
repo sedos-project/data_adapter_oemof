@@ -7,11 +7,14 @@ logger = logging.getLogger()
 
 
 class Mapper:
-    def __init__(self, data: dict, mapping=None):
+    def __init__(self, data: dict, mapping=None, busses = None):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
+        if busses is None:
+            busses = BUS_NAME_MAP
         self.data = data
         self.mapping = mapping
+        self.bus_map = busses
 
     def get(self, key):
         if key in self.mapping:
@@ -57,4 +60,8 @@ GLOBAL_PARAMETER_MAP = load_yaml(
 
 PROCESS_TYPE_MAP = load_yaml(
     Path(__file__).parent / "mappings" / "PROCESS_TYPE_MAP.yaml"
+)
+
+BUS_NAME_MAP = load_yaml(
+    Path(__file__).parent / "mappings" / "BUS_NAME_MAP.yaml"
 )

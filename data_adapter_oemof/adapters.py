@@ -105,6 +105,7 @@ def get_busses(cls, struct: dict, one_bus_from_struct: str = "outputs"):
     bus_occurrences_in_fields = [
         field.name for field in dataclasses.fields(cls) if "bus" in field.name
     ]
+    a = cls.__name__
     bus_dict = {}
     if "bus" in bus_occurrences_in_fields and len(bus_occurrences_in_fields) == 1:
         bus_dict["bus"] = struct["default"][one_bus_from_struct]

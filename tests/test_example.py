@@ -39,7 +39,6 @@ def test_build_tabular_datapackage():
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
     # FIXME: Get them closer together
-    #  - Add type
     #  - Drop Nan-columns
     #  - Add Region
     #  - multiple inputs/outputs
