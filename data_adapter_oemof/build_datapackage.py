@@ -1,3 +1,4 @@
+import dataclasses
 import os
 from collections import defaultdict
 
@@ -22,8 +23,11 @@ def build_datapackage(es_structure, **process_data):
         parametrized[process_type].extend(paramet.values)
 
     # create a dictionary of dataframes
+    datapackage_fields = {
+        type: [adapted_instance for adapted_instance in adapted] for type, adapted in parametrized.items()
+    }
     datapackage = {
-        type: pd.DataFrame(adapted) for type, adapted in parametrized.items()
+        type: pd.DataFrame([instance.as_dict() for instance in adapted]) for type, adapted in parametrized.items()
     }
     return datapackage
 

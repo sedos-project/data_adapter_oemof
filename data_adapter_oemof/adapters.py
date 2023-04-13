@@ -14,7 +14,7 @@ logger = logging.getLogger()
 
 
 class AdapterToDataFrameMixin:
-    extra_attributes = ("name",)
+    extra_attributes = ("name","type")
     """
     Adds function to return DataFrame from adapter.
 
@@ -86,6 +86,7 @@ def get_busses(cls, struct, one_bus_from_struct: str = "outputs"):
     :param struct: struct from data_adapter.get_struct
     :return: Dictionary with (facade specific) correct bus names as keys and connected busses as value
     """
+    #Todo: Mapping, dann meine Logik -> Weil ja busse nicht gleich heißen bzw Bus spalten. 
     bus_occurrences_in_fields = [
         field.name for field in dataclasses.fields(cls) if "bus" in field.name
     ]
@@ -145,7 +146,7 @@ class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
         defaults.update(busses)
         attributes = {
             "name": calculations.get_name(
-                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+                mapper.get("carrier"), mapper.get("carrier"), mapper.get("tech")
             ),
             # "capacity_cost": calculations.get_capacity_cost(
             #     mapper.get("overnight_cost"),
