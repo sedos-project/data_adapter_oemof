@@ -10,14 +10,15 @@ from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
 
 def build_datapackage(es_structure, **process_data):
     parametrized = defaultdict(list)
+    struct_io: dict
     for (process, data), (process, struct_io) in zip(
         process_data.items(), es_structure.items()
     ):
-        process_type = PROCESS_TYPE_MAP[process]
+        process_type: str = PROCESS_TYPE_MAP[process]
 
         adapter = TYPE_MAP[process_type]
         paramet = data.scalars.apply(
-            adapter.parametrize_dataclass, struct=struct_io, axis=1
+            adapter.parametrize_dataclass, struct=struct_io, process_type=process_type, axis=1
         )
 
         parametrized[process_type].extend(paramet.values)

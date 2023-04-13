@@ -1,0 +1,4 @@
+ExtractionTurbine:
+  -electricity_bus: electricity
+  -heat_bus: heat
+  -fuel_bus: inputs

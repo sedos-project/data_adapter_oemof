@@ -29,6 +29,21 @@ class AdapterToDataFrameMixin:
             data[attr] = getattr(self, attr)
         return data
 
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        mapper = Mapper(data)
+        defaults = get_default_mappings(cls, mapper)
+        busses = get_busses(cls, struct)
+        defaults.update(busses)
+        attributes = {
+            "name": calculations.get_name(
+                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+            ),
+        }
+        defaults.update(attributes)
+
+        return defaults
+
 
 def facade_adapter(cls):
     r"""
@@ -72,7 +87,7 @@ def get_default_mappings(cls, mapper):
     return mapped_all_class_fields
 
 
-def get_busses(cls, struct, one_bus_from_struct: str = "outputs"):
+def get_busses(cls, struct: dict, one_bus_from_struct: str = "outputs"):
     """
     Get the busses that a facade can take and found in structure which can be either:
         - one (from_bus and to_bus bus are the same OR only one from_bus/to_bus bus is there
@@ -97,6 +112,40 @@ def get_busses(cls, struct, one_bus_from_struct: str = "outputs"):
         len(bus_occurrences_in_fields) == 2
         and "from_bus" in bus_occurrences_in_fields
         and "to_bus" in bus_occurrences_in_fields
+    ):
+        bus_dict["from_bus"] = struct["default"]["inputs"]
+        bus_dict["to_bus"] = struct["default"]["outputs"]
+    else:
+        logger.warning(
+            f"There is no valid number of from/to busses for {dataclasses.fields(cls)}'"
+        )
+        return None
+    return bus_dict
+
+def get_default_busses(cls, struct: dict, mapper):
+    """
+        Get the busses that a facade can take and found in structure which can be either:
+            - one (from_bus and to_bus bus are the same OR only one from_bus/to_bus bus is there
+            - two (from_bus bus is not the same as to_bus bus)
+        Special cases where multiple busses are occurring will be caught in their specific facades, such as:
+            - n:1
+            - 1:n
+            - n:j
+        :param cls: Data-adapter which is inheriting from oemof.tabular facade
+        :param struct: struct from data_adapter.get_struct
+        :return: Dictionary with (facade specific) correct bus names as keys and connected busses as value
+        """
+    # Todo: Mapping, dann meine Logik -> Weil ja busse nicht gleich heißen bzw Bus spalten.
+    bus_occurrences_in_fields = [
+        field.name for field in dataclasses.fields(cls) if "bus" in field.name
+    ]
+    bus_dict = {}
+    if "bus" in bus_occurrences_in_fields and len(bus_occurrences_in_fields) == 1:
+        bus_dict["bus"] = struct["default"]["output"]
+    elif (
+            len(bus_occurrences_in_fields) == 2
+            and "from_bus" in bus_occurrences_in_fields
+            and "to_bus" in bus_occurrences_in_fields
     ):
         bus_dict["from_bus"] = struct["default"]["inputs"]
         bus_dict["to_bus"] = struct["default"]["outputs"]
@@ -139,24 +188,9 @@ class StorageAdapter(facades.Storage, AdapterToDataFrameMixin):
 @facade_adapter
 class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
     @classmethod
-    def parametrize_dataclass(cls, data: dict, struct):
-        mapper = Mapper(data)
-        defaults = get_default_mappings(cls, mapper)
-        busses = get_busses(cls, struct)
-        defaults.update(busses)
-        attributes = {
-            "name": calculations.get_name(
-                mapper.get("carrier"), mapper.get("carrier"), mapper.get("tech")
-            ),
-            # "capacity_cost": calculations.get_capacity_cost(
-            #     mapper.get("overnight_cost"),
-            #     mapper.get("fixed_cost"),
-            #     mapper.get("lifetime"),
-            #     mapper.get("wacc"),
-            # ),
-        }
-        defaults.update(attributes)
-
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super(VolatileAdapter, cls).parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type":"volatile"})
         return cls(**defaults)
 
 
