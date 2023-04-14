@@ -10,7 +10,7 @@ logger = logging.getLogger()
 
 
 class Mapper:
-    def __init__(self, data: dict, mapping=None, busses = None):
+    def __init__(self, data: dict, mapping=None, busses=None):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
         if busses is None:
@@ -54,7 +54,9 @@ class Mapper:
                 match = struct["default"][category][0]
 
             else:
-                match = difflib.get_close_matches(name, struct["default"][category], n=1, cutoff=0.2)[0]
+                match = difflib.get_close_matches(
+                    name, struct["default"][category], n=1, cutoff=0.2
+                )[0]
 
             if not match:
                 logger.warning(f"No Matching bsu found for ")
@@ -91,6 +93,4 @@ PROCESS_TYPE_MAP = load_yaml(
     Path(__file__).parent / "mappings" / "PROCESS_TYPE_MAP.yaml"
 )
 
-BUS_NAME_MAP = load_yaml(
-    Path(__file__).parent / "mappings" / "BUS_NAME_MAP.yaml"
-)
+BUS_NAME_MAP = load_yaml(Path(__file__).parent / "mappings" / "BUS_NAME_MAP.yaml")
