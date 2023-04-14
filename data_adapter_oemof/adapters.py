@@ -11,6 +11,7 @@ logger = logging.getLogger()
 
 
 # Todo: Build all dataadapters, build
+# Todo: Add Timeseries adapter
 
 
 class AdapterToDataFrameMixin:
