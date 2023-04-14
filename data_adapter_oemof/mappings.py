@@ -34,26 +34,26 @@ class Mapper:
     def get_busses(self, cls, struct):
         """
         Getting the busses for process from structure
+        :param cls: DataAdapter (children) class
         :param struct: dict
         :return: dictionary with tabular like Busses
         """
         bus_occurrences_in_fields = [
             field.name for field in dataclasses.fields(cls) if "bus" in field.name
         ]
-
         if len(bus_occurrences_in_fields) == 0:
             logger.warning(f"No busses found in fields for Dataadapter {cls.__name__}")
-
         bus_dict = {}
         for bus in bus_occurrences_in_fields:
-            if struct[self.bus_map[cls.__name__][bus]["name"]] == "default:"
+            if struct[self.bus_map[cls.__name__][bus]["name"]] == "default":
                 bus_dict[bus] = struct[self.bus_map[cls.__name__][bus]["category"]]
             else:
                 try:
                     # search and find parts of words from BUS_NAME_MAP in structure entry
                     bus_dict[bus] = struct[self.bus_map[cls.__name__][bus]["category"]]
                 except:
-                    # failed search for
+                    # failed search
+
                     logger.warning(f"Failed to find {bus} in structure. Please rename in structure or BUS_NAME_MAP")
 
         {bus: struct[self.bus_map[cls.__name__][bus]["category"]] for bus in bus_occurrences_in_fields}
