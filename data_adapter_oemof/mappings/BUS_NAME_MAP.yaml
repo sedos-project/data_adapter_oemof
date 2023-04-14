@@ -1,7 +1,7 @@
 ExtractionTurbine:
   electricity_bus:
     category: outputs
-    name: sedos-electricity
+    name: electricity
 
   heat_bus:
     category: outputs

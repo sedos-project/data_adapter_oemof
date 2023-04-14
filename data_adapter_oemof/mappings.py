@@ -2,7 +2,8 @@ import dataclasses
 import logging
 import warnings
 from pathlib import Path
-
+from difflib import SequenceMatcher
+import difflib
 import yaml
 
 logger = logging.getLogger()
@@ -45,18 +46,18 @@ class Mapper:
             logger.warning(f"No busses found in fields for Dataadapter {cls.__name__}")
         bus_dict = {}
         for bus in bus_occurrences_in_fields:
-            if struct[self.bus_map[cls.__name__][bus]["name"]] == "default":
-                bus_dict[bus] = struct[self.bus_map[cls.__name__][bus]["category"]]
+            name = self.bus_map[cls.__name__][bus]["name"]
+            category = self.bus_map[cls.__name__][bus]["category"]
+
+            # If default is in busmap rule is to take teh first entry in mentioned category
+            if name == "default":
+                match = struct["default"][category][0]
+
             else:
-                try:
-                    # search and find parts of words from BUS_NAME_MAP in structure entry
-                    bus_dict[bus] = struct[self.bus_map[cls.__name__][bus]["category"]]
-                except:
-                    # failed search
+                match = difflib.get_close_matches(name, struct["default"][category], n=1, cutoff=0.2)[0]
 
-                    logger.warning(f"Failed to find {bus} in structure. Please rename in structure or BUS_NAME_MAP")
-
-        {bus: struct[self.bus_map[cls.__name__][bus]["category"]] for bus in bus_occurrences_in_fields}
+            if not match:
+                logger.warning(f"No Matching bsu found for ")
 
         return bus_dict
 
