@@ -32,6 +32,8 @@ def test_adapter():
         for tech in ["onshore", "offshore"]
     ]
 
+    struct = {"default": {"inputs": ["onshore"], "outputs": ["electricity"]}}
+
     # collect instances of the adapters
     parametrized = {}
     for component in components:
@@ -41,7 +43,7 @@ def test_adapter():
         adapter = TYPE_MAP[component.type]
 
         parametrized[component.type].append(
-            adapter.parametrize_dataclass(component.data)
+            adapter.parametrize_dataclass(component.data, struct, None)
         )
     # create a dictionary of dataframes
     dataframes = {
