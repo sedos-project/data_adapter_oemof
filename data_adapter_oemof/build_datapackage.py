@@ -22,7 +22,7 @@ class datapackage:
         parametrized = {}
         struct_io: dict
         for (process, data), (process, struct_io) in zip(
-                process_data.items(), es_structure.items()
+            process_data.items(), es_structure.items()
         ):
             process_type: str = PROCESS_TYPE_MAP[process]
 
@@ -53,6 +53,3 @@ class datapackage:
             # FIXME droping na only for tests!
             value = value.dropna(axis="columns")
             value.to_csv(file_path, sep=";", index=False)
-
-
-
