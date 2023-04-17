@@ -10,8 +10,7 @@ from data_adapter.databus import download_collection
 
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 from data_adapter_oemof.build_datapackage import (
-    build_datapackage,
-    save_datapackage_to_csv,
+    datapackage
 )
 
 path_default = (
@@ -34,9 +33,8 @@ def test_build_tabular_datapackage():
         for process in es_structure.keys()
     }
 
-    datapackage = build_datapackage(es_structure, **process_data)
+    dta = datapackage.build_datapackage(es_structure, **process_data)
 
-    save_datapackage_to_csv(datapackage, PATH_TMP)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
     # FIXME: Get them closer together

@@ -6,10 +6,12 @@ import pandas as pd
 
 from data_adapter_oemof.adapters import TYPE_MAP
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
+from oemof.tabular.datapackage.building import infer_metadata
 
 
 @dataclasses.dataclass
 class datapackage:
+    data: dict # datadict with scalar data in form of {type:pd.DataFrame(type)}
     @classmethod
     def build_datapackage(cls, es_structure, **process_data):
         """
@@ -45,9 +47,12 @@ class datapackage:
                 parametrized[process_type] = pd.DataFrame(
                     [param.as_dict() for param in paramet.values]
                 )
-        return cls
+        return cls(data=parametrized)
 
-    def save_datapackage_to_csv(self, datapackage, destination):
+    def get_foreign_keys(self):
+        pass
+
+    def save_datapackage_to_csv(self, destination):
         for key, value in datapackage.items():
             file_path = os.path.join(destination, key + ".csv")
             # FIXME droping na only for tests!
