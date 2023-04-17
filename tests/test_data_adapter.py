@@ -21,7 +21,7 @@ def test_adapter():
                 "region": "B",
                 "carrier": "wind",
                 "tech": tech,
-                "installed_capacity": 12,
+                "capacity": 12,
                 "sedos-marginal_cost": 1,
                 "sedos-overnight_cost": 1000,
                 "capital_costs": 100,
