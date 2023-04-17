@@ -10,7 +10,7 @@ from data_adapter_oemof.mappings import Mapper
 logger = logging.getLogger()
 
 
-# Todo: Build all dataadapters, build
+# Todo: Build all dataadapters
 # Todo: Add Timeseries adapter
 
 
