@@ -9,7 +9,7 @@ from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
 
 
 def build_datapackage(es_structure, **process_data):
-    parametrized = defaultdict(list)
+    parametrized = {}
     struct_io: dict
     for (process, data), (process, struct_io) in zip(
         process_data.items(), es_structure.items()
@@ -23,19 +23,19 @@ def build_datapackage(es_structure, **process_data):
             process_type=process_type,
             axis=1,
         )
-
-        parametrized[process_type].extend(paramet.values)
-
-    # create a dictionary of dataframes
-    datapackage_fields = {
-        type: [adapted_instance for adapted_instance in adapted]
-        for type, adapted in parametrized.items()
-    }
-    datapackage = {
-        type: pd.DataFrame([instance.as_dict() for instance in adapted])
-        for type, adapted in parametrized.items()
-    }
-    return datapackage
+        if process_type in parametrized.keys():
+            parametrized[process_type] = pd.concat(
+                [
+                    pd.DataFrame([param.as_dict() for param in paramet.values]),
+                    parametrized[process_type],
+                ],
+                ignore_index=True,
+            )
+        else:
+            parametrized[process_type] = pd.DataFrame(
+                [param.as_dict() for param in paramet.values]
+            )
+    return parametrized
 
 
 def save_datapackage_to_csv(datapackage, destination):

@@ -43,23 +43,25 @@ class Mapper:
             field.name for field in dataclasses.fields(cls) if "bus" in field.name
         ]
         if len(bus_occurrences_in_fields) == 0:
-            logger.warning(f"No busses found in fields for Dataadapter {cls.__name__}")
+            logger.warning(
+                f"No busses found in facades fields for Dataadapter {cls.__name__}"
+            )
         bus_dict = {}
         for bus in bus_occurrences_in_fields:
             name = self.bus_map[cls.__name__][bus]["name"]
             category = self.bus_map[cls.__name__][bus]["category"]
-
-            # If default is in busmap rule is to take teh first entry in mentioned category
+            # If default is in busmap rule is to take the first entry in mentioned category
             if name == "default":
                 match = struct["default"][category][0]
-
             else:
                 match = difflib.get_close_matches(
                     name, struct["default"][category], n=1, cutoff=0.2
                 )[0]
-
             if not match:
-                logger.warning(f"No Matching bsu found for ")
+                logger.warning(
+                    f"No Matching bus found for bus {bus} "
+                    f"(which is a the facade name for the bus"
+                )
                 continue
             bus_dict[bus] = match
 
