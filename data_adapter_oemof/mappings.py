@@ -60,6 +60,8 @@ class Mapper:
 
             if not match:
                 logger.warning(f"No Matching bsu found for ")
+                continue
+            bus_dict[bus] = match
 
         return bus_dict
 
