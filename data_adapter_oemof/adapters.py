@@ -96,11 +96,22 @@ class LoadAdapter(facades.Load, Adapter):
 class StorageAdapter(facades.Storage, Adapter):
     """StorageAdapter"""
 
+@facade_adapter
+class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
+    """StorageAdapter"""
+    inputs = ["fuel_bus"]
+    outputs = ["electricity_bus", "heat_bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "ExtractionTurbine"})
+        return cls(**defaults)
+
+
 
 @facade_adapter
 class VolatileAdapter(facades.Volatile, Adapter):
-    # Todo: Implement rule: If one bus is in inputs or outputs: take first entry from structure.csv
-    #   else: search for close matches (like in mapper)
     inputs = []
     outputs = ["electricity"]
     @classmethod

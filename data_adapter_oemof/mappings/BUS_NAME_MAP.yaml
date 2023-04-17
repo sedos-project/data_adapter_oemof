@@ -1,17 +1,7 @@
 ExtractionTurbine:
-  electricity_bus:
-    category: outputs
-    name: electricity
+  electricity_bus: electricity
 
-  heat_bus:
-    category: outputs
-    name: sedos-heat
-
-  fuel_bus:
-    category: inputs
-    name: default
+  heat_bus: heat
 
 VolatileAdapter:
-  bus:
-    category: outputs
-    name: default
+  bus: hans

@@ -34,8 +34,17 @@ class Mapper:
 
     def get_busses(self, cls, struct):
         """
-        Getting the busses for process from structure
-        :param cls: DataAdapter (children) class
+        Getting Busses after following rules
+            - Searching for all busses mentioned in facade
+            - for all Busses in the Facade check if they are input or output -> should be Attribute of Adapter
+            - If for the facades bus category ( input or output) there is only one Entry in the Adapter:
+                - Take (first) Entry from structure csv
+            - Else (if there are more than one entries)
+                - First check if there is a Name in BUS_NAME_MAP given for the Bus, if yes search for similarities in
+                strucutre csv
+                - If not: Search for similarities in names in Structure csv and Adapters busses -> take name from struct
+
+        :param cls: Child from Adapter class
         :param struct: dict
         :return: dictionary with tabular like Busses
         """
@@ -48,19 +57,22 @@ class Mapper:
             )
         bus_dict = {}
         for bus in bus_occurrences_in_fields:
-            name = self.bus_map[cls.__name__][bus]["name"]
-            category = self.bus_map[cls.__name__][bus]["category"]
-            # If default is in busmap rule is to take the first entry in mentioned category
-            if name == "default":
-                match = struct["default"][category][0]
+            name = self.bus_map[cls.__name__][bus]
+            category = "inputs" if bus in cls.inputs else "outputs"
+            category_busses = cls.__dict__[category]
+
+            if len(category_busses) == 0:
+                logger.warning(f"The bus {bus} in facade's field is not in Adapter {cls.__name__}")
+            elif len(category_busses) == 1:
+                match = struct[list(struct.keys())[0]][category][0]
             else:
                 match = difflib.get_close_matches(
-                    name, struct["default"][category], n=1, cutoff=0.2
+                    name, struct[list(struct.keys())[0]][category], n=1, cutoff=0.2
                 )[0]
             if not match:
                 logger.warning(
-                    f"No Matching bus found for bus {bus} "
-                    f"(which is a the facade name for the bus"
+                    f"No Matching bus found for bus {bus}"
+                    f"which is a the facade name for the bus, please try to adjust BUS_NAME_MAP or structure"
                 )
                 continue
             bus_dict[bus] = match
