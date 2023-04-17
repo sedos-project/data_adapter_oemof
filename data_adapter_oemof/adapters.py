@@ -14,7 +14,7 @@ logger = logging.getLogger()
 # Todo: Add Timeseries adapter
 
 
-class AdapterToDataFrameMixin:
+class Adapter:
     extra_attributes = ("name", "type")
     """
     Adds function to return DataFrame from adapter.
@@ -31,7 +31,7 @@ class AdapterToDataFrameMixin:
         return data
 
     @classmethod
-    def default_parametrize_dataclass(cls, data: dict, struct, process_type):
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
         mapper = Mapper(data)
         defaults = get_default_mappings(cls, mapper)
         busses = mapper.get_busses(cls, struct)
@@ -89,40 +89,30 @@ def get_default_mappings(cls, mapper):
 
 
 @facade_adapter
-class CommodityAdapter(facades.Commodity, AdapterToDataFrameMixin):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+class CommodityAdapter(facades.Commodity, Adapter):
+    """CommodityAdapter"""
 
 
 @facade_adapter
-class ConversionAdapter(facades.Conversion, AdapterToDataFrameMixin):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+class ConversionAdapter(facades.Conversion, Adapter):
+    """ConversionAdapter"""
 
 
 @facade_adapter
-class LoadAdapter(facades.Load, AdapterToDataFrameMixin):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+class LoadAdapter(facades.Load, Adapter):
+    """LoadAdapter"""
 
 
 @facade_adapter
-class StorageAdapter(facades.Storage, AdapterToDataFrameMixin):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+class StorageAdapter(facades.Storage, Adapter):
+    """StorageAdapter"""
 
 
 @facade_adapter
-class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
+class VolatileAdapter(facades.Volatile, Adapter):
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super(VolatileAdapter, cls).default_parametrize_dataclass(
-            data, struct, process_type
-        )
+        defaults = super().parametrize_dataclass(data, struct, process_type)
         defaults.update({"type": "volatile"})
         return cls(**defaults)
 
