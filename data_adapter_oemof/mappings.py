@@ -67,6 +67,18 @@ class Mapper:
 
         return bus_dict
 
+    def get_default_mappings(self, cls, struct):
+        """
+        :param cls: Data-adapter which is inheriting from oemof.tabular facade
+        :param mapper: Mapper to map oemof.tabular data names to Project naming
+        :return: Dictionary for all fields that the facade can take and matching data
+        """
+        mapped_all_class_fields = {
+            field.name: self.get(field.name) for field in dataclasses.fields(cls)
+        }
+        mapped_all_class_fields.update(self.get_busses(cls, struct))
+        return mapped_all_class_fields
+
 
 def load_yaml(file_path):
     with open(file_path, "r", encoding="UTF-8") as file:

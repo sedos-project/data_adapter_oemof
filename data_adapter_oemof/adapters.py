@@ -12,18 +12,20 @@ logger = logging.getLogger()
 
 # Todo: Build all dataadapters
 # Todo: Add Timeseries adapter
+# Todo get defaults in mapper ziehen
+#  dann innerhalb von get defaults den get bus aufrufen
+# Todo: Im Adapter die jeweiligen input/output busse aufrufen.
 
 
 class Adapter:
     extra_attributes = ("name", "type")
-    """
-    Adds function to return DataFrame from adapter.
-
-    This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
-    But we add custom_attributes (i.e. "name") which would be neglected.
-    """
-
     def as_dict(self):
+        """
+            Adds function to return DataFrame from adapter.
+
+            This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
+            But we add custom_attributes (i.e. "name") which would be neglected.
+            """
         fields = dataclasses.fields(self)
         data = {field.name: getattr(self, field.name) for field in fields}
         for attr in self.extra_attributes:
@@ -33,9 +35,7 @@ class Adapter:
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
         mapper = Mapper(data)
-        defaults = get_default_mappings(cls, mapper)
-        busses = mapper.get_busses(cls, struct)
-        defaults.update(busses)
+        defaults = mapper.get_default_mappings(cls, struct)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
@@ -76,16 +76,7 @@ def facade_adapter(cls):
     return cls
 
 
-def get_default_mappings(cls, mapper):
-    """
-    :param cls: Data-adapter which is inheriting from oemof.tabular facade
-    :param mapper: Mapper to map oemof.tabular data names to Project naming
-    :return: Dictionary for all fields that the facade can take and matching data
-    """
-    mapped_all_class_fields = {
-        field.name: mapper.get(field.name) for field in dataclasses.fields(cls)
-    }
-    return mapped_all_class_fields
+
 
 
 @facade_adapter
