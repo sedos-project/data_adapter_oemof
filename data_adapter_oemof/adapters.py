@@ -12,8 +12,6 @@ logger = logging.getLogger()
 
 # Todo: Build all dataadapters
 # Todo: Add Timeseries adapter
-# Todo get defaults in mapper ziehen
-#  dann innerhalb von get defaults den get bus aufrufen
 # Todo: Im Adapter die jeweiligen input/output busse aufrufen.
 
 
@@ -101,6 +99,10 @@ class StorageAdapter(facades.Storage, Adapter):
 
 @facade_adapter
 class VolatileAdapter(facades.Volatile, Adapter):
+    # Todo: Implement rule: If one bus is in inputs or outputs: take first entry from structure.csv
+    #   else: search for close matches (like in mapper)
+    inputs = []
+    outputs = ["electricity"]
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
         defaults = super().parametrize_dataclass(data, struct, process_type)
