@@ -12,18 +12,18 @@ logger = logging.getLogger()
 
 # Todo: Build all dataadapters
 # Todo: Add Timeseries adapter
-# Todo: Im Adapter die jeweiligen input/output busse aufrufen.
 
 
 class Adapter:
     extra_attributes = ("name", "type")
+
     def as_dict(self):
         """
-            Adds function to return DataFrame from adapter.
+        Adds function to return DataFrame from adapter.
 
-            This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
-            But we add custom_attributes (i.e. "name") which would be neglected.
-            """
+        This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
+        But we add custom_attributes (i.e. "name") which would be neglected.
+        """
         fields = dataclasses.fields(self)
         data = {field.name: getattr(self, field.name) for field in fields}
         for attr in self.extra_attributes:
@@ -74,9 +74,6 @@ def facade_adapter(cls):
     return cls
 
 
-
-
-
 @facade_adapter
 class CommodityAdapter(facades.Commodity, Adapter):
     """CommodityAdapter"""
@@ -96,9 +93,11 @@ class LoadAdapter(facades.Load, Adapter):
 class StorageAdapter(facades.Storage, Adapter):
     """StorageAdapter"""
 
+
 @facade_adapter
 class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
     """StorageAdapter"""
+
     inputs = ["fuel_bus"]
     outputs = ["electricity_bus", "heat_bus"]
 
@@ -109,11 +108,11 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
         return cls(**defaults)
 
 
-
 @facade_adapter
 class VolatileAdapter(facades.Volatile, Adapter):
     inputs = []
     outputs = ["electricity"]
+
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
         defaults = super().parametrize_dataclass(data, struct, process_type)

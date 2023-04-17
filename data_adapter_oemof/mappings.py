@@ -62,7 +62,9 @@ class Mapper:
             category_busses = cls.__dict__[category]
 
             if len(category_busses) == 0:
-                logger.warning(f"The bus {bus} in facade's field is not in Adapter {cls.__name__}")
+                logger.warning(
+                    f"The bus {bus} in facade's field is not in Adapter {cls.__name__}"
+                )
             elif len(category_busses) == 1:
                 match = struct[list(struct.keys())[0]][category][0]
             else:

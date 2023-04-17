@@ -21,8 +21,9 @@ class datapackage:
 
         :return: Returns dictionary with foreign keys that is necessary for tabular `infer_metadata`
         """
+
     @staticmethod
-    def __refactor_timeseries(timeseries:pd.DataFrame):
+    def __refactor_timeseries(timeseries: pd.DataFrame):
         """
         Takes timeseries in parameter-model format (as a single line entry) And turns into
         Tabular matching format with index as timeseries timestamps and
@@ -32,7 +33,9 @@ class datapackage:
         """
 
     @classmethod
-    def build_datapackage(cls, es_structure, **process_data: dict[str, preprocessing.Process]):
+    def build_datapackage(
+        cls, es_structure, **process_data: dict[str, preprocessing.Process]
+    ):
         """
         Adapting the resource scalars for a Datapackage using adapters from adapters.py
 
@@ -43,10 +46,10 @@ class datapackage:
         parametrized_elements = {}
         struct_io: dict
         parametrized_sequences = {}
-        # Todo: Schleife ohne zip
-        #  Ohne .apply? Siehe test_adapter
+        # Todo: Schleife ohne zip bzw. Zip verkürzen
+        #  Ohne .apply? Siehe test_data_adapter.test_adapter
         for (process, data), (process, struct_io) in zip(
-                process_data.items(), es_structure.items()
+            process_data.items(), es_structure.items()
         ):
             process_type: str = PROCESS_TYPE_MAP[process]
 
@@ -70,9 +73,9 @@ class datapackage:
                 parametrized_elements[process_type] = pd.DataFrame(
                     [param.as_dict() for param in scalars.values]
                 )
-        return cls(data=parametrized_elements, struct=es_structure, process_data=process_data)
-
-
+        return cls(
+            data=parametrized_elements, struct=es_structure, process_data=process_data
+        )
 
     def get_foreign_keys(self):
         pass
