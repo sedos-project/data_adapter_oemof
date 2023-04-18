@@ -21,7 +21,7 @@ def test_adapter():
                 "region": "B",
                 "carrier": "wind",
                 "tech": tech,
-                "installed_capacity": 12,
+                "capacity": 12,
                 "sedos-marginal_cost": 1,
                 "sedos-overnight_cost": 1000,
                 "capital_costs": 100,
@@ -32,6 +32,8 @@ def test_adapter():
         for tech in ["onshore", "offshore"]
     ]
 
+    struct = {"default": {"inputs": ["onshore"], "outputs": ["electricity"]}}
+
     # collect instances of the adapters
     parametrized = {}
     for component in components:
@@ -41,10 +43,13 @@ def test_adapter():
         adapter = TYPE_MAP[component.type]
 
         parametrized[component.type].append(
-            adapter.parametrize_dataclass(component.data)
+            adapter.parametrize_dataclass(component.data, struct, None)
         )
     # create a dictionary of dataframes
-    dataframes = {type: pd.DataFrame([adapted.as_dict() for adapted in adapted_list]) for type, adapted_list in parametrized.items()}
+    dataframes = {
+        type: pd.DataFrame([adapted.as_dict() for adapted in adapted_list])
+        for type, adapted_list in parametrized.items()
+    }
     for typ, df in dataframes.items():
 
         path_default = (

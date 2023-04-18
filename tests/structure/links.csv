@@ -1,0 +1,6 @@
+process;table_name;column_name
+modex_tech_storage_battery;modex_constraint;wacc
+modex_tech_generator_gas;modex_constraint;emission_costs
+modex_tech_generator_gas;modex_constraint;wacc
+modex_tech_wind_turbine_onshore;modex_capacity_factor;onshore
+modex_tech_wind_turbine_onshore;modex_constraint;wacc

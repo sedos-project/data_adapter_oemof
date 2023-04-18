@@ -1,3 +1,9 @@
-onshore wind farm_wind energy transformation: volatile
-battery storage_electrical energy: storage
-energy transformation: dispatchable
+#modex_tech_wind_turbine_onshore: volatile
+#modex_tech_storage_battery: storage
+#modex_tech_generator_gas: dispatchable
+commodity: commodity
+conversion: conversion
+"load": load
+"storage": storage
+"volatile": volatile
+"dispatchable": dispatchable

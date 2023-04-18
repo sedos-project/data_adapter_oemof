@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 
 from oemof.tabular import facades
 from oemof.solph import Bus
@@ -6,22 +7,41 @@ from oemof.solph import Bus
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
+logger = logging.getLogger()
 
-class AdapterToDataFrameMixin:
-    extra_attributes = ("name",)
-    """
-    Adds function to return DataFrame from adapter.
-    
-    This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
-    But we add custom_attributes (i.e. "name") which would be neglected.
-    """
+
+# Todo: Build all dataadapters
+# Todo: Add Timeseries adapter
+
+
+class Adapter:
+    extra_attributes = ("name", "type")
 
     def as_dict(self):
+        """
+        Adds function to return DataFrame from adapter.
+
+        This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
+        But we add custom_attributes (i.e. "name") which would be neglected.
+        """
         fields = dataclasses.fields(self)
         data = {field.name: getattr(self, field.name) for field in fields}
         for attr in self.extra_attributes:
             data[attr] = getattr(self, attr)
         return data
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        mapper = Mapper(data)
+        defaults = mapper.get_default_mappings(cls, struct)
+        attributes = {
+            "name": calculations.get_name(
+                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+            ),
+        }
+        defaults.update(attributes)
+
+        return defaults
 
 
 def facade_adapter(cls):
@@ -54,69 +74,58 @@ def facade_adapter(cls):
     return cls
 
 
-def get_default_mappings(cls, mapper):
-    dictionary = {
-        field.name: mapper.get(field.name) for field in dataclasses.fields(cls)
-    }
-    return dictionary
+@facade_adapter
+class CommodityAdapter(facades.Commodity, Adapter):
+    """CommodityAdapter"""
 
 
 @facade_adapter
-class CommodityAdapter(facades.Commodity, AdapterToDataFrameMixin):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+class ConversionAdapter(facades.Conversion, Adapter):
+    """ConversionAdapter"""
 
 
 @facade_adapter
-class ConversionAdapter(facades.Conversion, AdapterToDataFrameMixin):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+class LoadAdapter(facades.Load, Adapter):
+    """LoadAdapter"""
 
 
 @facade_adapter
-class LoadAdapter(facades.Load, AdapterToDataFrameMixin):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+class StorageAdapter(facades.Storage, Adapter):
+    """StorageAdapter"""
 
 
 @facade_adapter
-class StorageAdapter(facades.Storage, AdapterToDataFrameMixin):
-    def parametrize_dataclass(self, data):
-        instance = self.datacls()
-        return instance
+class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
+    """StorageAdapter"""
 
+    inputs = ["fuel_bus"]
+    outputs = ["electricity_bus", "heat_bus"]
 
-@facade_adapter
-class VolatileAdapter(facades.Volatile, AdapterToDataFrameMixin):
     @classmethod
-    def parametrize_dataclass(cls, data: dict):
-        mapper = Mapper(data)
-        defaults = get_default_mappings(cls, mapper)
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "ExtractionTurbine"})
+        return cls(**defaults)
 
-        attributes = {
-            "name": calculations.get_name(
-                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
-            ),
-            "capacity_cost": calculations.get_capacity_cost(
-                mapper.get("overnight_cost"),
-                mapper.get("fixed_cost"),
-                mapper.get("lifetime"),
-                mapper.get("wacc"),
-            ),
-        }
-        defaults.update(attributes)
+
+@facade_adapter
+class VolatileAdapter(facades.Volatile, Adapter):
+    inputs = []
+    outputs = ["electricity"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "volatile"})
         return cls(**defaults)
 
 
 TYPE_MAP = {
-    "commodity": CommodityAdapter,
-    "conversion": ConversionAdapter,
-    "load": LoadAdapter,
+    "commodity": VolatileAdapter,
+    "conversion": VolatileAdapter,
+    "load": VolatileAdapter,
     "storage": VolatileAdapter,
     "volatile": VolatileAdapter,
     "dispatchable": VolatileAdapter,
-    "battery_storage": StorageAdapter,
+    "battery_storage": VolatileAdapter,
 }
