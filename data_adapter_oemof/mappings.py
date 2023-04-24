@@ -88,7 +88,9 @@ class Mapper:
         :return: Dictionary for all fields that the facade can take and matching data
         """
         mapped_all_class_fields = {
-            field.name: self.get(field.name) for field in dataclasses.fields(cls)
+            field.name: value
+            for field in dataclasses.fields(cls)
+            if (value := self.get(field.name)) is not None
         }
         mapped_all_class_fields.update(self.get_busses(cls, struct))
         return mapped_all_class_fields
