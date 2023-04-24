@@ -10,7 +10,6 @@ logger = logging.getLogger()
 
 
 class Mapper:
-
     def __init__(self, data: dict, mapping=None, busses=None):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
