@@ -23,40 +23,17 @@ path_default = (
 
 
 def test_build_tabular_datapackage():
-
-    # download_collection(
-    #     "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
-    # )
-    adapter = preprocessing.Adapter(
-        collection_name='hack-a-thon',
-        structure_name='structure',
-        links_name='links'
+    download_collection(
+        "https://energy.databus.dbpedia.org/felixmaur/collections/minimal_example/"
     )
 
-    es_structure = adapter.get_structure()
-
-    # process_data = {
-    #     process: adapter.get_process(process=process)
-    #     for process in es_structure.keys()
-    # }
-    es_structure = {
-        "modex_tech_wind_turbine_onshore":
-            es_structure["modex_tech_wind_turbine_onshore"]
-                    }
+    es_structure = get_energy_structure(structure="minimal_structure")
     process_data = {
-        "modex_tech_wind_turbine_onshore": adapter.get_process(
-            process="modex_tech_wind_turbine_onshore")
+        process: get_process("minimal_example", process, links="minimal_links")
+        for process in es_structure.keys()
     }
 
-    # es_structure = get_energy_structure(structure="minimal_structure")
-    # process_data = {
-    #     process: get_process("minimal_example", process, links="minimal_links")
-    #     for process in es_structure.keys()
-    # }
-
     dta = datapackage.build_datapackage(es_structure, **process_data)
-
-    dta.save_datapackage_to_csv(destination=PATH_TMP)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
     # FIXME: Get them closer together
