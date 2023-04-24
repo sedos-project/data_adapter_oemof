@@ -10,9 +10,6 @@ from data_adapter_oemof.mappings import Mapper
 logger = logging.getLogger()
 
 
-# Todo: Build all dataadapters
-# Todo: Add Timeseries adapter
-
 
 class Adapter:
     extra_attributes = ("name", "type")
@@ -96,8 +93,7 @@ class StorageAdapter(facades.Storage, Adapter):
 
 @facade_adapter
 class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
-    """StorageAdapter"""
-
+    """ExtractionTurbineAdapter"""
     inputs = ["fuel_bus"]
     outputs = ["electricity_bus", "heat_bus"]
 

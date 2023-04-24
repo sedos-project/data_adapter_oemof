@@ -22,7 +22,7 @@ path_default = (
 
 def test_build_tabular_datapackage():
     download_collection(
-        "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
+        "https://energy.databus.dbpedia.org/felixmaur/collections/minimal_example/"
     )
 
     es_structure = get_energy_structure(structure="minimal_structure")

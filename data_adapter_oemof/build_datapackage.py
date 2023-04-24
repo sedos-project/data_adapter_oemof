@@ -83,6 +83,4 @@ class datapackage:
     def save_datapackage_to_csv(self, destination):
         for key, value in datapackage.items():
             file_path = os.path.join(destination, key + ".csv")
-            # FIXME droping na only for tests!
-            value = value.dropna(axis="columns")
             value.to_csv(file_path, sep=";", index=False)
