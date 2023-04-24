@@ -43,24 +43,28 @@ class datapackage:
         :param process_data: preprocessing.Process
         :return:
         """
+        # Initializing empty dict for scalar data:
         parametrized_elements = {}
-        struct_io: dict
-        parametrized_sequences = {}
-        # Todo: Schleife ohne zip bzw. Zip verkürzen
-        #  Ohne .apply? Siehe test_data_adapter.test_adapter
-        for (process, data), (process, struct_io) in zip(
-            process_data.items(), es_structure.items()
-        ):
-            process_type: str = PROCESS_TYPE_MAP[process]
 
+        # Initializing empty dict for timeseries data:
+        parametrized_sequences = {}
+
+        for (process, data) in process_data.items():
+            # Getting Process parameters:
+            process_type: str = PROCESS_TYPE_MAP[process]
             adapter = TYPE_MAP[process_type]
+
+            # Apply Adapter to every instance of the Process:
             scalars = data.scalars.apply(
                 adapter.parametrize_dataclass,
-                struct=struct_io,
+                struct=es_structure[process],
                 process_type=process_type,
                 axis=1,
             )
+            # Maybe work on timeseries here:
             sequences = data.timeseries
+
+            # Add process to parametrized_elements dict:
             if process_type in parametrized_elements.keys():
                 parametrized_elements[process_type] = pd.concat(
                     [
@@ -83,4 +87,6 @@ class datapackage:
     def save_datapackage_to_csv(self, destination):
         for key, value in datapackage.items():
             file_path = os.path.join(destination, key + ".csv")
+            # FIXME dropping na only for tests!
+            value = value.dropna(axis="columns")
             value.to_csv(file_path, sep=";", index=False)
