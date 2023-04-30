@@ -34,6 +34,9 @@ class Adapter:
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
+            "region": mapper.get("region"),
+            "year": mapper.get("year"),
+            "profile": mapper.get("profile", None)
         }
         defaults.update(attributes)
 
