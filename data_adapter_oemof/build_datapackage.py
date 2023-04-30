@@ -60,14 +60,15 @@ class datapackage:
                 process_type=process_type,
                 axis=1,
             )
-            sequences = data.timeseries
+
+            scalars = pd.DataFrame(scalars.to_list())
+
+            # check if process_type already exists
             if process_type in parametrized_elements.keys():
+                # concat processes to existing
                 parametrized_elements[process_type] = pd.concat(
-                    [
-                        pd.DataFrame([param.as_dict() for param in scalars.values]),
-                        parametrized_elements[process_type],
-                    ],
-                    ignore_index=True,
+                    [parametrized_elements[process_type], scalars],
+                    axis=0, ignore_index=True,
                 )
             else:
                 parametrized_elements[process_type] = pd.DataFrame(
