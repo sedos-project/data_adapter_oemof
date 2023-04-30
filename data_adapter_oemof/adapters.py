@@ -40,7 +40,7 @@ class Adapter:
             ),
             "region": mapper.get("region"),
             "year": mapper.get("year"),
-            "profile": mapper.get("profile", None)
+            "profile": mapper.get("profile")
         }
         defaults.update(attributes)
 
