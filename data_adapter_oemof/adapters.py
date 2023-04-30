@@ -115,8 +115,10 @@ class VolatileAdapter(facades.Volatile, Adapter):
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
         defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "volatile"})
-        return cls(**defaults)
+        defaults.update({
+            "facade": "volatile",
+        })
+        return defaults
 
 
 TYPE_MAP = {
