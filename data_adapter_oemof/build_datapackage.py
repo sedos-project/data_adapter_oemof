@@ -94,6 +94,8 @@ class datapackage:
                 # timeseries with different timeindex needs to be stores in
                 # separate csv files
                 # naming convention process_year? or process_profile_year?
+                # TODO this iteration should be appended to one dataframe to
+                #  have all timeseries/periods in one file.
                 for (start, end, freq), df in data.timeseries.groupby(columns):
                     timeindex = pd.date_range(start=start,
                                   end=end,
