@@ -1,5 +1,6 @@
 import dataclasses
 import os
+import warnings
 from collections import defaultdict
 
 import pandas as pd
@@ -33,11 +34,11 @@ def refactor_timeseries(timeseries: pd.DataFrame):
         for profile_name in ts_columns:
             profile_column = df[profile_name].dropna()
             profile_column = profile_column.explode().to_frame()
-            profile_column["hour_of_year"] = profile_column.groupby(
+            profile_column["timeindex"] = profile_column.groupby(
                 level=0
             ).cumcount()
             profile_column = profile_column.reset_index().pivot(
-                index="hour_of_year", columns="index", values=profile_name
+                index="timeindex", columns="index", values=profile_name
             )
 
             # Rename columns to regions, each region should have its own row
@@ -58,9 +59,9 @@ def refactor_timeseries(timeseries: pd.DataFrame):
     return df_timeseries
 
     # name of csv file
-    # TODO change process_type to facade_type?!
-    facade_year = f"{process_type}_{year}"
-    # check if process_type already exists
+    # TODO change facade_adapter to facade_type?!
+    facade_year = f"{facade_adapter}_{year}"
+    # check if facade_adapter already exists
     if facade_year in parametrized_sequences.keys():
         # concat processes to existing
         parametrized_sequences[facade_year] = pd.concat(
@@ -68,7 +69,7 @@ def refactor_timeseries(timeseries: pd.DataFrame):
             axis=1,
         )
     else:
-        # add new process_type/facade
+        # add new facade_adapter/facade
         parametrized_sequences[facade_year] = df_timeseries_year
 
 
@@ -107,35 +108,46 @@ class datapackage:
         for (process, data), (process, struct_io) in zip(
             process_data.items(), es_structure.items()
         ):
-            process_type: str = PROCESS_TYPE_MAP[process]
+            facade_adapter: str = PROCESS_TYPE_MAP[process]
 
-            adapter = TYPE_MAP[process_type]
+            adapter = TYPE_MAP[facade_adapter]
             scalars = data.scalars.apply(
                 func=adapter.parametrize_dataclass,
                 struct=struct_io,
-                process_type=process_type,
                 axis=1,
             )
 
             scalars = pd.DataFrame(scalars.to_list())
+            if "profiles" in adapter.__dict__:
+                if not data.timeseries.empty:
+                    if not facade_adapter in parametrized_sequences.keys():
+                        parametrized_sequences[facade_adapter] = refactor_timeseries(timeseries=data.timeseries)
+                    else:
+                        parametrized_sequences[facade_adapter].update(refactor_timeseries(timeseries=data.timeseries))
+                else:
+                    warnings.warn(message=f"Please include a timeseries for facade adapter {adapter} for process {process}"
+                                          f"Or adapt links (see `get_process`) to include timeseries for this process")
+                if len(adapter.profiles) == 1:
+                    scalars[adapter.profiles[0]]
+                else:
+                    warnings.warn(message="Functionality to use more than one timeseries per process is not "
+                                          "implemented yet")
 
-            # check if process_type already exists
-            if process_type in parametrized_elements.keys():
+            ts_columns = set(data.timeseries.columns).difference(core.TIMESERIES_COLUMNS.keys())
+
+            # check if facade_adapter already exists
+            if facade_adapter in parametrized_elements.keys():
                 # concat processes to existing
-                parametrized_elements[process_type] = pd.concat(
-                    [parametrized_elements[process_type], scalars],
+                parametrized_elements[facade_adapter] = pd.concat(
+                    [parametrized_elements[facade_adapter], scalars],
                     axis=0,
                     ignore_index=True,
                 )
             else:
-                # add new process_type
-                parametrized_elements[process_type] = scalars
+                # add new facade_adapter
+                parametrized_elements[facade_adapter] = scalars
 
-            if not data.timeseries.empty:
-                if not parametrized_sequences[process_type]:
-                    parametrized_sequences[process_type] = refactor_timeseries(timeseries=data.timeseries)
-                else:
-                    parametrized_sequences[process_type].update(refactor_timeseries(timeseries=data.timeseries))
+
 
         return cls(
             parametrized_elements=parametrized_elements,
