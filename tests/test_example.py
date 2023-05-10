@@ -7,9 +7,11 @@ from data_adapter.preprocessing import get_process
 from data_adapter.structure import get_energy_structure
 
 from data_adapter.databus import download_collection
-
+from data_adapter import preprocessing
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 from data_adapter_oemof.build_datapackage import datapackage
+
+
 
 path_default = (
     PATH_TEST_FILES
