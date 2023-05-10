@@ -36,7 +36,7 @@ class Adapter:
             ),
             "region": mapper.get("region"),
             "year": mapper.get("year"),
-            "profile": mapper.get("profile")
+            "profile": mapper.get("profile"),
         }
         defaults.update(attributes)
 
@@ -115,9 +115,11 @@ class VolatileAdapter(facades.Volatile, Adapter):
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
         defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({
-            "facade": "volatile",
-        })
+        defaults.update(
+            {
+                "facade": "volatile",
+            }
+        )
         return defaults
 
 
