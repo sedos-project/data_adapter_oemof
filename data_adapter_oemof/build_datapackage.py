@@ -35,6 +35,59 @@ class datapackage:
 
         """
 
+        columns = [col for col in timeseries.columns if "timeindex" in col]
+
+        # Combine all time series into one DataFrame
+        df_timeseries = pd.DataFrame()
+        for (start, end, freq), df in timeseries.groupby(columns):
+            timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
+
+            # Get column names of timeseries only
+            ts_columns = set(df.columns).difference(core.TIMESERIES_COLUMNS.keys())
+
+            # Iterate over columns in case there are multiple timeseries
+            for profile_name in ts_columns:
+                profile_column = df[profile_name].dropna()
+                profile_column = profile_column.explode().to_frame()
+                profile_column["hour_of_year"] = profile_column.groupby(
+                    level=0
+                ).cumcount()
+                profile_column = profile_column.reset_index().pivot(
+                    index="hour_of_year", columns="index", values=profile_name
+                )
+
+                # Rename columns to regions, each region should have its own row
+                profile_column.columns = df["region"].to_dict().values()
+
+                # Add multindex level to column with tech name
+                # TODO column_name == profile_name should come from links.csv needs to be changed
+                profile_column.columns = pd.MultiIndex.from_product(
+                    [[profile_name], profile_column.columns]
+                )
+
+                # Add timeindex as index
+                profile_column.index = timeindex
+
+                # Append to timeseries DataFrame
+                df_timeseries = pd.concat([df_timeseries, profile_column], axis=1)
+
+        # Write to CSV
+        df_timeseries.to_csv("timeseries.csv")
+
+        # name of csv file
+        # TODO change process_type to facade_type?!
+        facade_year = f"{process_type}_{year}"
+        # check if process_type already exists
+        if facade_year in parametrized_sequences.keys():
+            # concat processes to existing
+            parametrized_sequences[facade_year] = pd.concat(
+                [parametrized_sequences[facade_year], df_timeseries_year],
+                axis=1,
+            )
+        else:
+            # add new process_type/facade
+            parametrized_sequences[facade_year] = df_timeseries_year
+
     @classmethod
     def build_datapackage(
         cls, es_structure, **process_data: dict[str, preprocessing.Process]
@@ -73,91 +126,22 @@ class datapackage:
                 # concat processes to existing
                 parametrized_elements[process_type] = pd.concat(
                     [parametrized_elements[process_type], scalars],
-                    axis=0, ignore_index=True,
+                    axis=0,
+                    ignore_index=True,
                 )
             else:
                 # add new process_type
                 parametrized_elements[process_type] = scalars
 
             if not data.timeseries.empty:
-
-
-                # def match_sequences_to_scalar():
-                # Add profile column to volatile facade
-                # match timeseries and row
-                # refactor timeseries add name/id
-                # place name/id in profile columns of scalar
-
-                columns = [i for i in data.timeseries.columns if 'timeindex'in i]
-                # TODO column order might not be correct in groupby? hardcode column names?
-                # iterate over different timeindex
-                # timeseries with different timeindex needs to be stores in
-                # separate csv files
-                # naming convention process_year? or process_profile_year?
-                # TODO this iteration should be appended to one dataframe to
-                #  have all timeseries/periods in one file.
-                for (start, end, freq), df in data.timeseries.groupby(columns):
-                    timeindex = pd.date_range(start=start,
-                                  end=end,
-                                  freq=pd.Timedelta(
-                                      freq))
-                    # get column names of timeseries only
-                    ts_column = set(data.timeseries.columns).difference(
-                        core.TIMESERIES_COLUMNS.keys())
-                    year = pd.to_datetime(start).year
-
-                    df_timeseries_year = pd.DataFrame()
-                    # iterate over columns in case there are multiple timeseries
-                    # e.g. extraction turbine
-                    for profile_name, profile_column in df.loc[:,
-                                                        ts_column].items():
-                        profile_column = profile_column.dropna()
-                        # unnest timeseries
-                        profile_column = profile_column.explode()
-                        profile_column = profile_column.to_frame()
-                        # add hour of year
-                        profile_column["hour_of_year"] = profile_column.groupby(
-                            axis=0,
-                            level=0).cumcount()
-                        profile_column = profile_column.reset_index().pivot(
-                            columns="index", index="hour_of_year",
-                            values="onshore")
-                        # rename columns to regions
-                        profile_column = profile_column.rename(
-                            columns=df["region"].to_dict())
-                        # add multindex level to column with tech name
-                        # TODO column_name == profile_name should come from
-                        #  links.csv needs to be changed
-                        profile_column.columns = pd.MultiIndex.from_product(
-                            [[profile_name], profile_column.columns])
-                        profile_column.index = timeindex
-                        # append other timeseries of facade e.g. extraction
-                        # turbine has multiple efficiency ts
-                        df_timeseries_year = pd.concat(
-                            [df_timeseries_year, profile_column],
-                            axis=1)
-
-                    # name of csv file
-                    # TODO change process_type to facade_type?!
-                    facade_year = f"{process_type}_{year}"
-                    # check if process_type already exists
-                    if facade_year in parametrized_sequences.keys():
-                        # concat processes to existing
-                        parametrized_sequences[facade_year] = pd.concat(
-                            [parametrized_sequences[facade_year], df_timeseries_year],
-                            axis=1,
-                        )
-                    else:
-                        # add new process_type/facade
-                        parametrized_sequences[facade_year] = df_timeseries_year
-
+                cls.__refactor_timeseries(timeseries=data.timeseries)
 
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
             process_data=process_data,
             foreign_keys=foreign_keys,
-            struct=es_structure
+            struct=es_structure,
         )
 
     def get_foreign_keys(self):
@@ -166,4 +150,5 @@ class datapackage:
     def save_datapackage_to_csv(self, destination):
         for key, value in datapackage.items():
             file_path = os.path.join(destination, key + ".csv")
+            value = value.dropna(axis="columns")
             value.to_csv(file_path, sep=";", index=False)
