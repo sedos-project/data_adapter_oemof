@@ -27,7 +27,7 @@ class Adapter:
         return data
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
+    def parametrize_dataclass(cls, data: dict, struct):
         mapper = Mapper(data)
         defaults = mapper.get_default_mappings(cls, struct)
         attributes = {
@@ -86,6 +86,8 @@ class ConversionAdapter(facades.Conversion, Adapter):
 @facade_adapter
 class LoadAdapter(facades.Load, Adapter):
     """LoadAdapter"""
+    profiles = ["profile"]
+
 
 
 @facade_adapter
@@ -101,8 +103,8 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
     outputs = ["electricity_bus", "heat_bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
+    def parametrize_dataclass(cls, data: dict, struct):
+        defaults = super().parametrize_dataclass(data, struct)
         defaults.update({"type": "ExtractionTurbine"})
         return cls(**defaults)
 
@@ -111,10 +113,11 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
 class VolatileAdapter(facades.Volatile, Adapter):
     inputs = []
     outputs = ["electricity"]
+    profiles = ["profile"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
+    def parametrize_dataclass(cls, data: dict, struct):
+        defaults = super().parametrize_dataclass(data, struct)
         defaults.update(
             {
                 "facade": "volatile",
