@@ -3,7 +3,7 @@ import setup_environment
 import pandas as pd
 
 setup_environment.setup()
-from data_adapter.preprocessing import get_process
+from data_adapter.preprocessing import Adapter
 from data_adapter.structure import get_energy_structure
 
 from data_adapter.databus import download_collection
@@ -26,10 +26,11 @@ def test_build_tabular_datapackage():
         "https://energy.databus.dbpedia.org/felixmaur/collections/minimal_example/"
     )
 
-    es_structure = get_energy_structure(structure="minimal_structure")
+    adapter =  Adapter("minimal_example", structure_name="minimal_structure", links_name="minimal_links")
     process_data = {
-        process: get_process("minimal_example", process, links="minimal_links")
-        for process in es_structure.keys()
+        process: adapter.get_process(process)
+        for process in adapter.get_structure().keys()
+
     }
 
     dta = datapackage.build_datapackage(es_structure, **process_data)
