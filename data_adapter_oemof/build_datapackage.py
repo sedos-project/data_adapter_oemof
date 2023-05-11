@@ -61,20 +61,6 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
     return df_timeseries
 
-    # name of csv file
-    # TODO change facade_adapter to facade_type?!
-    facade_year = f"{facade_adapter}_{year}"
-    # check if facade_adapter already exists
-    if facade_year in parametrized_sequences.keys():
-        # concat processes to existing
-        parametrized_sequences[facade_year] = pd.concat(
-            [parametrized_sequences[facade_year], df_timeseries_year],
-            axis=1,
-        )
-    else:
-        # add new facade_adapter/facade
-        parametrized_sequences[facade_year] = df_timeseries_year
-
 
 @dataclasses.dataclass
 class datapackage:
@@ -107,18 +93,18 @@ class datapackage:
         foreign_keys = {}
         for (process_name, struct) in es_structure.items():
             process = adapter.get_process(process_name)
-            facade_adapter: str = PROCESS_TYPE_MAP[process_name]
-            adapter = TYPE_MAP[facade_adapter]
+            facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
+            facade_adapter = TYPE_MAP[facade_adapter_name]
 
             scalars = process.scalars.apply(
-                func=adapter.parametrize_dataclass,
+                func=facade_adapter.parametrize_dataclass,
                 struct=struct,
                 axis=1,
             )
 
             scalars = pd.DataFrame(scalars.to_list())
-            if "profiles" in adapter.__dict__:
-                if len(adapter.profiles) != 1:
+            if "profiles" in facade_adapter.__dict__:
+                if len(facade_adapter.profiles) != 1:
                     warnings.warn(
                         message="Functionality to use more than one timeseries per process is not "
                         "implemented yet"
@@ -126,11 +112,11 @@ class datapackage:
 
                 else:  # only one timeseries is implemented yet
                     if not process.timeseries.empty:
-                        if not facade_adapter in parametrized_sequences.keys():
+                        if not facade_adapter_name in parametrized_sequences.keys():
                             parametrized_sequences[
-                                facade_adapter
+                                facade_adapter_name
                             ] = refactor_timeseries(timeseries=process.timeseries)
-                            scalars[adapter.profiles[0]] = (
+                            scalars[facade_adapter.profiles[0]] = (
                                 process.timeseries.columns.difference(
                                     core.TIMESERIES_COLUMNS.keys()
                                 )[0]
@@ -138,26 +124,26 @@ class datapackage:
                                 + scalars["region"]
                             )
                         else:
-                            parametrized_sequences[facade_adapter].update(
+                            parametrized_sequences[facade_adapter_name].update(
                                 refactor_timeseries(timeseries=process.timeseries)
                             )
                     else:
                         warnings.warn(
-                            message=f"Please include a timeseries for facade adapter {adapter} for process {process_name}"
+                            message=f"Please include a timeseries for facade adapter {facade_adapter} for process {process_name}"
                             f"Or adapt links (see `get_process`) to include timeseries for this process"
                         )
 
             # check if facade_adapter already exists
-            if facade_adapter in parametrized_elements.keys():
+            if facade_adapter_name in parametrized_elements.keys():
                 # concat processes to existing
-                parametrized_elements[facade_adapter] = pd.concat(
-                    [parametrized_elements[facade_adapter], scalars],
+                parametrized_elements[facade_adapter_name] = pd.concat(
+                    [parametrized_elements[facade_adapter_name], scalars],
                     axis=0,
                     ignore_index=True,
                 )
             else:
                 # add new facade_adapter
-                parametrized_elements[facade_adapter] = scalars
+                parametrized_elements[facade_adapter_name] = scalars
 
         return cls(
             parametrized_elements=parametrized_elements,
