@@ -5,7 +5,8 @@ from collections import defaultdict
 
 import pandas as pd
 
-from data_adapter import preprocessing, core
+from data_adapter import core
+from data_adapter.preprocessing import Adapter
 from data_adapter_oemof.adapters import TYPE_MAP
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP, GLOBAL_PARAMETER_MAP
 from oemof.tabular.datapackage.building import infer_metadata
@@ -41,10 +42,13 @@ def refactor_timeseries(timeseries: pd.DataFrame):
             )
 
             # Rename columns to regions, each region should have its own row
+
             profile_column.columns = [profile_name + "_" + region]
 
             # Add multindex level to column with tech name
             # TODO column_name == profile_name should come from links.csv needs to be changed
+            #   @Julian, I think we should get it from structure.csv. Links.csv will always be the same as the column
+            #   name since that is how the Adapter.get_process is getting the column for us
             # profile_column.columns = pd.MultiIndex.from_product(
             #     [[profile_name], profile_column.columns]
             # ).to_flat_index()
@@ -88,7 +92,7 @@ class datapackage:
 
     @classmethod
     def build_datapackage(
-        cls, es_structure, **process_data: dict[str, preprocessing.Process]
+        cls, adapter: Adapter
     ):
         """
         Adapting the resource scalars for a Datapackage using adapters from
@@ -98,17 +102,18 @@ class datapackage:
         :param process_data: preprocessing.Process
         :return:
         """
+        es_structure = adapter.get_structure()
         parametrized_elements = {}
-        struct_io: dict
         parametrized_sequences = {}
         foreign_keys = {}
-        for (process, data) in process_data.items():
-            facade_adapter: str = PROCESS_TYPE_MAP[process]
+        for (process_name, struct) in es_structure.items():
+            process = adapter.get_process(process_name)
+            facade_adapter: str = PROCESS_TYPE_MAP[process_name]
             adapter = TYPE_MAP[facade_adapter]
 
-            scalars = data.scalars.apply(
+            scalars = process.scalars.apply(
                 func=adapter.parametrize_dataclass,
-                struct=es_structure[process],
+                struct=struct,
                 axis=1,
             )
 
@@ -121,13 +126,13 @@ class datapackage:
                     )
 
                 else:  # only one timeseries is implemented yet
-                    if not data.timeseries.empty:
+                    if not process.timeseries.empty:
                         if not facade_adapter in parametrized_sequences.keys():
                             parametrized_sequences[
                                 facade_adapter
-                            ] = refactor_timeseries(timeseries=data.timeseries)
+                            ] = refactor_timeseries(timeseries=process.timeseries)
                             scalars[adapter.profiles[0]] = (
-                                data.timeseries.columns.difference(
+                                process.timeseries.columns.difference(
                                     core.TIMESERIES_COLUMNS.keys()
                                 )[0]
                                 + "_"
@@ -135,11 +140,11 @@ class datapackage:
                             )
                         else:
                             parametrized_sequences[facade_adapter].update(
-                                refactor_timeseries(timeseries=data.timeseries)
+                                refactor_timeseries(timeseries=process.timeseries)
                             )
                     else:
                         warnings.warn(
-                            message=f"Please include a timeseries for facade adapter {adapter} for process {process}"
+                            message=f"Please include a timeseries for facade adapter {adapter} for process {process_name}"
                             f"Or adapt links (see `get_process`) to include timeseries for this process"
                         )
 
@@ -158,9 +163,8 @@ class datapackage:
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
-            process_data=process_data,
+            adapter=adapter,
             foreign_keys=foreign_keys,
-            struct=es_structure,
         )
 
     def get_foreign_keys(self):
