@@ -10,6 +10,7 @@ from data_adapter_oemof.adapters import TYPE_MAP
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP, GLOBAL_PARAMETER_MAP
 from oemof.tabular.datapackage.building import infer_metadata
 
+
 def refactor_timeseries(timeseries: pd.DataFrame):
     """
     Takes timeseries in parameter-model format (as a single line entry) And
@@ -20,10 +21,11 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
     """
 
-
     # Combine all time series into one DataFrame
     df_timeseries = pd.DataFrame()
-    for (start, end, freq, region), df in timeseries.groupby(["timeindex_start","timeindex_stop","timeindex_resolution", "region"]):
+    for (start, end, freq, region), df in timeseries.groupby(
+        ["timeindex_start", "timeindex_stop", "timeindex_resolution", "region"]
+    ):
         timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
 
         # Get column names of timeseries only
@@ -33,15 +35,13 @@ def refactor_timeseries(timeseries: pd.DataFrame):
         for profile_name in ts_columns:
             profile_column = df[profile_name].dropna()
             profile_column = profile_column.explode().to_frame()
-            profile_column["timeindex"] = profile_column.groupby(
-                level=0
-            ).cumcount()
+            profile_column["timeindex"] = profile_column.groupby(level=0).cumcount()
             profile_column = profile_column.reset_index().pivot(
                 index="timeindex", columns="index", values=profile_name
             )
 
             # Rename columns to regions, each region should have its own row
-            profile_column.columns = [profile_name+"_"+region]
+            profile_column.columns = [profile_name + "_" + region]
 
             # Add multindex level to column with tech name
             # TODO column_name == profile_name should come from links.csv needs to be changed
@@ -114,24 +114,34 @@ class datapackage:
 
             scalars = pd.DataFrame(scalars.to_list())
             if "profiles" in adapter.__dict__:
-                if not data.timeseries.empty:
-                    if not facade_adapter in parametrized_sequences.keys():
-                        parametrized_sequences[facade_adapter] = refactor_timeseries(timeseries=data.timeseries)
-                        if len(adapter.profiles) == 1:
-                            scalars[adapter.profiles[0]] = \
-                            data.timeseries.columns.difference(core.TIMESERIES_COLUMNS.keys())[0] + "_" + scalars[
-                                "region"]
+                if len(adapter.profiles) != 1:
+                    warnings.warn(
+                        message="Functionality to use more than one timeseries per process is not "
+                        "implemented yet"
+                    )
 
+                else:  # only one timeseries is implemented yet
+                    if not data.timeseries.empty:
+                        if not facade_adapter in parametrized_sequences.keys():
+                            parametrized_sequences[
+                                facade_adapter
+                            ] = refactor_timeseries(timeseries=data.timeseries)
+                            scalars[adapter.profiles[0]] = (
+                                data.timeseries.columns.difference(
+                                    core.TIMESERIES_COLUMNS.keys()
+                                )[0]
+                                + "_"
+                                + scalars["region"]
+                            )
                         else:
-                            warnings.warn(message="Functionality to use more than one timeseries per process is not "
-                                                  "implemented yet")
-
+                            parametrized_sequences[facade_adapter].update(
+                                refactor_timeseries(timeseries=data.timeseries)
+                            )
                     else:
-                        parametrized_sequences[facade_adapter].update(refactor_timeseries(timeseries=data.timeseries))
-                else:
-                    warnings.warn(message=f"Please include a timeseries for facade adapter {adapter} for process {process}"
-                                          f"Or adapt links (see `get_process`) to include timeseries for this process")
-
+                        warnings.warn(
+                            message=f"Please include a timeseries for facade adapter {adapter} for process {process}"
+                            f"Or adapt links (see `get_process`) to include timeseries for this process"
+                        )
 
             # check if facade_adapter already exists
             if facade_adapter in parametrized_elements.keys():
@@ -144,8 +154,6 @@ class datapackage:
             else:
                 # add new facade_adapter
                 parametrized_elements[facade_adapter] = scalars
-
-
 
         return cls(
             parametrized_elements=parametrized_elements,
@@ -163,4 +171,3 @@ class datapackage:
             file_path = os.path.join(destination, key + ".csv")
             value = value.dropna(axis="columns")
             value.to_csv(file_path, sep=";", index=False)
-

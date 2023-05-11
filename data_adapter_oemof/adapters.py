@@ -86,8 +86,8 @@ class ConversionAdapter(facades.Conversion, Adapter):
 @facade_adapter
 class LoadAdapter(facades.Load, Adapter):
     """LoadAdapter"""
-    profiles = ["profile"]
 
+    profiles = ["profile"]
 
 
 @facade_adapter

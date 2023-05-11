@@ -12,7 +12,6 @@ from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 from data_adapter_oemof.build_datapackage import datapackage
 
 
-
 path_default = (
     PATH_TEST_FILES
     / "_files"
