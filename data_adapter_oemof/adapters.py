@@ -17,8 +17,8 @@ class Adapter:
         """
         Adds function to return DataFrame from adapter.
 
-        This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
-        But we add custom_attributes (i.e. "name") which would be neglected.
+        The `pd.DataFrame(dataclass_instance)` method disregards custom attributes, e.g., "name".
+        The mixin is necessary to include them as columns.
         """
         fields = dataclasses.fields(self)
         data = {field.name: getattr(self, field.name) for field in fields}
@@ -108,6 +108,7 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
 class VolatileAdapter(facades.Volatile, Adapter):
     inputs = []
     outputs = ["electricity"]
+    profile = ["profile"]
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):

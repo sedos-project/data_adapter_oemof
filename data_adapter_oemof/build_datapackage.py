@@ -1,13 +1,11 @@
 import dataclasses
 import os
-from collections import defaultdict
 
 import pandas as pd
 
 import data_adapter.preprocessing as preprocessing
 from data_adapter_oemof.adapters import TYPE_MAP
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
-from oemof.tabular.datapackage.building import infer_metadata
 
 
 @dataclasses.dataclass

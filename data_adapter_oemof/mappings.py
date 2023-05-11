@@ -1,8 +1,6 @@
 import dataclasses
 import logging
-import warnings
 from pathlib import Path
-from difflib import SequenceMatcher
 import difflib
 import yaml
 
@@ -34,16 +32,14 @@ class Mapper:
 
     def get_busses(self, cls, struct):
         """
-        Getting Busses after following rules
-            - Searching for all busses mentioned in facade
-            - for all Busses in the Facade check if they are input or output -> should be Attribute of Adapter
-            - If for the facades bus category ( input or output) there is only one Entry in the Adapter:
-                - Take (first) Entry from structure csv
-            - Else (if there are more than one entries)
-                - First check if there is a Name in BUS_NAME_MAP given for the Bus, if yes search for similarities in
-                strucutre csv
-                - If not: Search for similarities in names in Structure csv and Adapters busses -> take name from struct
-
+        Get busses by:
+            - Finding all busses in facade
+            - Checking if they're input/output in Adapter
+            - If only one entry for bus category:
+              - Use first entry from structure csv
+            - Else (if multiple entries):
+              - Check BUS_NAME_MAP for name similarity, else
+              - Search for name similarities in csv and adapter, use name from csv.
         :param cls: Child from Adapter class
         :param struct: dict
         :return: dictionary with tabular like Busses
@@ -74,7 +70,7 @@ class Mapper:
             if not match:
                 logger.warning(
                     f"No Matching bus found for bus {bus}"
-                    f"which is a the facade name for the bus, please try to adjust BUS_NAME_MAP or structure"
+                    f"Please adjust BUS_NAME_MAP or structure to match the facade name for the bus."
                 )
                 continue
             bus_dict[bus] = match

@@ -1,8 +1,8 @@
-import setup_environment
-
 import pandas as pd
 
-setup_environment.setup()
+from dotenv import load_dotenv
+
+load_dotenv()
 from data_adapter.preprocessing import get_process
 from data_adapter.structure import get_energy_structure
 
@@ -10,6 +10,7 @@ from data_adapter.databus import download_collection
 
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 from data_adapter_oemof.build_datapackage import datapackage
+
 
 path_default = (
     PATH_TEST_FILES
@@ -31,7 +32,7 @@ def test_build_tabular_datapackage():
         for process in es_structure.keys()
     }
 
-    dta = datapackage.build_datapackage(es_structure, **process_data)
+    datapackage.build_datapackage(es_structure, **process_data)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
     # FIXME: Get them closer together
