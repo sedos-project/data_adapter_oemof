@@ -81,8 +81,7 @@ class datapackage:
     parametrized_elements: dict  # datadict with scalar data in form of {type:pd.DataFrame(type)}
     parametrized_sequences: dict  # timeseries in form of {type:pd.DataFrame(type)}
     foreign_keys: dict  # foreign keys for timeseries profiles
-    struct: dict
-    process_data: dict
+    adapter: Adapter
 
     def foreign_keys_dict(self):
         """

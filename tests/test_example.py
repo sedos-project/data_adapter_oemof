@@ -27,13 +27,7 @@ def test_build_tabular_datapackage():
     )
 
     adapter =  Adapter("minimal_example", structure_name="minimal_structure", links_name="minimal_links")
-    process_data = {
-        process: adapter.get_process(process)
-        for process in adapter.get_structure().keys()
-
-    }
-
-    dta = datapackage.build_datapackage(adapter.get_structure(), **process_data)
+    dta = datapackage.build_datapackage(adapter=adapter)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
     # FIXME: Get them closer together
