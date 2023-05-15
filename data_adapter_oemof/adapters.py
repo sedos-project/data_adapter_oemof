@@ -7,6 +7,10 @@ from oemof.solph import Bus
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
+import oemof.tabular.facades
+
+import oemof.tabular.datapackage
+
 logger = logging.getLogger()
 
 
@@ -75,28 +79,203 @@ def facade_adapter(cls):
 
 
 @facade_adapter
+class DispatchableAdapter(facades.Dispatchable, Adapter):
+    """
+    Dispatchable Adapter
+    """
+
+    inputs = []
+    outputs = ["bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Dispatchable"})
+        return cls(**defaults)
+
+
+@facade_adapter
+class GeneratorAdapter(facades.Generator, Adapter):
+    """
+    Generator Adapter
+    """
+
+    inputs = []
+    outputs = ["bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Generator"})
+        return cls(**defaults)
+
+
+@facade_adapter
+class HeatPumpAdapter(facades.HeatPump, Adapter):
+    """
+    HeatPump Adapter
+    """
+
+    inputs = ["electricity_bus", "low_temperature_bus"]
+    outputs = ["high_temperature_bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "HeatPump"})
+        return cls(**defaults)
+
+
+@facade_adapter
+class Link(facades.Link, Adapter):
+    """
+    Link Adapter
+    """
+
+    inputs = ["from_bus"]
+    outputs = ["to_bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Link"})
+        return cls(**defaults)
+
+
+@facade_adapter
+class ReservoirAdapter(facades.Reservoir, Adapter):
+    """
+    Reservoir Adapter
+    """
+
+    inputs = []
+    outputs = ["bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Reservoir"})
+        return cls(**defaults)
+
+
+@facade_adapter
+class ShortageAdapter(facades.Reservoir, Adapter):
+    """
+    Shortage Adapter
+    """
+
+    inputs = []
+    outputs = ["bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Shortage"})
+        return cls(**defaults)
+
+
+@facade_adapter
+class ExcessAdapter(facades.Excess, Adapter):
+    """
+    Excess Adapter
+    """
+
+    inputs = ["Excess"]
+    outputs = []
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Excess"})
+        return cls(**defaults)
+
+
+@facade_adapter
+class BackpressureTurbineAdapter(facades.BackpressureTurbine, Adapter):
+    """
+    BackpressureTurbine Adapter
+    """
+
+    inputs = ["fuel_bus"]
+    outputs = ["heat_bus", "electricity_bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "BackpressureTurbine"})
+        return cls(**defaults)
+
+
+@facade_adapter
 class CommodityAdapter(facades.Commodity, Adapter):
-    """CommodityAdapter"""
+    """
+    CommodityAdapter
+    """
+
+    inputs = []
+    outputs = ["bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Commodity"})
+        return cls(**defaults)
 
 
 @facade_adapter
 class ConversionAdapter(facades.Conversion, Adapter):
-    """ConversionAdapter"""
+    """
+    ConversionAdapter
+    To use Conversion, map the inputs and outputs within the structure to avoid deduction failure.
+    """
+
+    inputs = ["from_bus"]
+    outputs = ["to_bus"]
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Conversion"})
+        return cls(**defaults)
 
 
 @facade_adapter
 class LoadAdapter(facades.Load, Adapter):
-    """LoadAdapter"""
+    """
+    LoadAdapter
+    """
+
+    inputs = ["bus"]
+    outputs = []
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Load"})
+        return cls(**defaults)
 
 
 @facade_adapter
 class StorageAdapter(facades.Storage, Adapter):
-    """StorageAdapter"""
+    """
+    StorageAdapter
+    """
+
+    inputs = ["bus"]
+    outputs = []
+
+    @classmethod
+    def parametrize_dataclass(cls, data: dict, struct, process_type):
+        defaults = super().parametrize_dataclass(data, struct, process_type)
+        defaults.update({"type": "Storage"})
+        return cls(**defaults)
 
 
 @facade_adapter
 class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
-    """StorageAdapter"""
+    """
+    StorageAdapter
+    """
 
     inputs = ["fuel_bus"]
     outputs = ["electricity_bus", "heat_bus"]
@@ -116,7 +295,7 @@ class VolatileAdapter(facades.Volatile, Adapter):
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
         defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "volatile"})
+        defaults.update({"type": "Volatile"})
         return cls(**defaults)
 
 
