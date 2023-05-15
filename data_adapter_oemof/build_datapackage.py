@@ -1,14 +1,12 @@
 import dataclasses
-import os
 import warnings
-from collections import defaultdict
 
 import pandas as pd
 
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
 from data_adapter_oemof.adapters import TYPE_MAP
-from data_adapter_oemof.mappings import PROCESS_TYPE_MAP, GLOBAL_PARAMETER_MAP
+from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
 from oemof.tabular.datapackage.building import infer_metadata
 
 
@@ -45,7 +43,7 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
             profile_column.columns = [profile_name + "_" + region]
 
-            # Add multindex level to column with tech name
+            # Add multiindex level to column with tech name
             # TODO column_name == profile_name should come from links.csv needs to be changed
             #   @Julian, I think we should get it from structure.csv. Links.csv will always be the same as the column
             #   name since that is how the Adapter.get_process is getting the column for us
@@ -63,7 +61,7 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
 
 @dataclasses.dataclass
-class datapackage:
+class DataPackage:
     parametrized_elements: dict  # datadict with scalar data in form of {type:pd.DataFrame(type)}
     parametrized_sequences: dict  # timeseries in form of {type:pd.DataFrame(type)}
     foreign_keys: dict  # foreign keys for timeseries profiles
@@ -74,6 +72,30 @@ class datapackage:
 
         :return: Returns dictionary with foreign keys that is necessary for tabular `infer_metadata`
         """
+        pass
+
+    @staticmethod
+    def __split_timeseries_into_years(parametrized_sequences):
+        split_dataframes = {}
+        for (sequence_name, sequence_dataframe) in parametrized_sequences.items():
+            # Group the DataFrame by year using pd.Grouper
+            grouped = sequence_dataframe.resample("Y")
+
+            # Iterate over the groups and store each year's DataFrame
+            for year, group in grouped:
+                split_dataframes[sequence_name+"_"+str(year.year)] = group.copy()
+
+        return split_dataframes
+
+    def get_foreign_keys(self):
+        pass
+
+    def save_datapackage_to_csv(self, destination):
+        """
+        Saving the datapackage to a given destination in oemof.tabular readable format
+        :param destination:
+        :return:
+        """
 
     @classmethod
     def build_datapackage(
@@ -82,10 +104,9 @@ class datapackage:
         """
         Adapting the resource scalars for a Datapackage using adapters from
         adapters.py
+        :type adapter: Adapter class from preprocessing
+        :return: Instance of datapackage class
 
-        :param es_structure:
-        :param process_data: preprocessing.Process
-        :return:
         """
         es_structure = adapter.get_structure()
         parametrized_elements = {}
@@ -112,24 +133,31 @@ class datapackage:
 
                 else:  # only one timeseries is implemented yet
                     if not process.timeseries.empty:
-                        if not facade_adapter_name in parametrized_sequences.keys():
+                        # Creating Sequences Dataframes
+                        if facade_adapter_name not in parametrized_sequences.keys():
                             parametrized_sequences[
                                 facade_adapter_name
                             ] = refactor_timeseries(timeseries=process.timeseries)
-                            scalars[facade_adapter.profiles[0]] = (
-                                process.timeseries.columns.difference(
-                                    core.TIMESERIES_COLUMNS.keys()
-                                )[0]
-                                + "_"
-                                + scalars["region"]
-                            )
+
                         else:
                             parametrized_sequences[facade_adapter_name].update(
                                 refactor_timeseries(timeseries=process.timeseries)
                             )
+
+                        # Adding profile column and naming to scalars:
+                        # Tabular will search for this
+                        column_name = facade_adapter.profiles[0]
+
+                        scalars[column_name] = (
+                                # Name of
+                                process.timeseries.columns.difference(core.TIMESERIES_COLUMNS.keys())[0]
+                                + "_"
+                                + scalars["region"]
+                        )
                     else:
                         warnings.warn(
-                            message=f"Please include a timeseries for facade adapter {facade_adapter} for process {process_name}"
+                            message=f"Please include a timeseries for facade adapter {facade_adapter} "
+                                    f"for process {process_name}"
                             f"Or adapt links (see `get_process`) to include timeseries for this process"
                         )
 
@@ -145,18 +173,13 @@ class datapackage:
                 # add new facade_adapter
                 parametrized_elements[facade_adapter_name] = scalars
 
+        # Splitting timeseries into multiple timeseries.
+        # We don't know yet what requirements multiple year optimisation will have.
+        parametrized_sequences = cls.__split_timeseries_into_years(parametrized_sequences)
+
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
             adapter=adapter,
             foreign_keys=foreign_keys,
         )
-
-    def get_foreign_keys(self):
-        pass
-
-    def save_datapackage_to_csv(self, destination):
-        for key, value in datapackage.items():
-            file_path = os.path.join(destination, key + ".csv")
-            value = value.dropna(axis="columns")
-            value.to_csv(file_path, sep=";", index=False)
