@@ -26,7 +26,11 @@ def test_build_tabular_datapackage():
         "https://energy.databus.dbpedia.org/felixmaur/collections/minimal_example/"
     )
 
-    adapter =  Adapter("minimal_example", structure_name="minimal_structure", links_name="minimal_links")
+    adapter = Adapter(
+        "minimal_example",
+        structure_name="minimal_structure",
+        links_name="minimal_links",
+    )
     dta = DataPackage.build_datapackage(adapter=adapter)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)

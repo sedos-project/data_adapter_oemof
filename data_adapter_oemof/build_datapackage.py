@@ -83,7 +83,7 @@ class DataPackage:
 
             # Iterate over the groups and store each year's DataFrame
             for year, group in grouped:
-                split_dataframes[sequence_name+"_"+str(year.year)] = group.copy()
+                split_dataframes[sequence_name + "_" + str(year.year)] = group.copy()
 
         return split_dataframes
 
@@ -98,9 +98,7 @@ class DataPackage:
         """
 
     @classmethod
-    def build_datapackage(
-        cls, adapter: Adapter
-    ):
+    def build_datapackage(cls, adapter: Adapter):
         """
         Adapting the resource scalars for a Datapackage using adapters from
         adapters.py
@@ -149,15 +147,16 @@ class DataPackage:
                         column_name = facade_adapter.profiles[0]
 
                         scalars[column_name] = (
-                                # Name of
-                                process.timeseries.columns.difference(core.TIMESERIES_COLUMNS.keys())[0]
-                                + "_"
-                                + scalars["region"]
+                            process.timeseries.columns.difference(
+                                core.TIMESERIES_COLUMNS.keys()
+                            )[0]
+                            + "_"
+                            + scalars["region"]
                         )
                     else:
                         warnings.warn(
                             message=f"Please include a timeseries for facade adapter {facade_adapter} "
-                                    f"for process {process_name}"
+                            f"for process {process_name}"
                             f"Or adapt links (see `get_process`) to include timeseries for this process"
                         )
 
@@ -175,7 +174,9 @@ class DataPackage:
 
         # Splitting timeseries into multiple timeseries.
         # We don't know yet what requirements multiple year optimisation will have.
-        parametrized_sequences = cls.__split_timeseries_into_years(parametrized_sequences)
+        parametrized_sequences = cls.__split_timeseries_into_years(
+            parametrized_sequences
+        )
 
         return cls(
             parametrized_elements=parametrized_elements,
