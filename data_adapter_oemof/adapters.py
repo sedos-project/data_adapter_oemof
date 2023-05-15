@@ -292,11 +292,11 @@ class VolatileAdapter(facades.Volatile, Adapter):
 
 
 TYPE_MAP = {
-    "commodity": VolatileAdapter,
-    "conversion": VolatileAdapter,
-    "load": VolatileAdapter,
-    "storage": VolatileAdapter,
+    "commodity": CommodityAdapter,
+    "conversion": ConversionAdapter,
+    "load": LoadAdapter,
+    "storage": StorageAdapter,
     "volatile": VolatileAdapter,
-    "dispatchable": VolatileAdapter,
-    "battery_storage": VolatileAdapter,
+    "dispatchable": DispatchableAdapter,
+    "battery_storage": StorageAdapter,
 }
