@@ -7,6 +7,10 @@ from oemof.solph import Bus
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
+import oemof.tabular.facades
+
+import oemof.tabular.datapackage
+
 logger = logging.getLogger()
 
 
