@@ -116,9 +116,8 @@ class DataPackage:
 
             components = []
             for component_data in process_data.scalars.to_dict(orient="records"):
-                components.append(
-                    facade_adapter.parametrize_dataclass(component_data, struct).as_dict()
-                )
+                component = facade_adapter.parametrize_dataclass(component_data, struct)
+                components.append(component.as_dict())
 
             scalars = pd.DataFrame(components)
             if "profiles" in facade_adapter.__dict__:
