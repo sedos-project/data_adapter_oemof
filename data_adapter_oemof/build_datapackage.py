@@ -7,7 +7,6 @@ from data_adapter import core
 from data_adapter.preprocessing import Adapter
 from data_adapter_oemof.adapters import TYPE_MAP
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
-from oemof.tabular.datapackage.building import infer_metadata
 
 
 def refactor_timeseries(timeseries: pd.DataFrame):
@@ -111,17 +110,17 @@ class DataPackage:
         parametrized_sequences = {}
         foreign_keys = {}
         for (process_name, struct) in es_structure.items():
-            process = adapter.get_process(process_name)
+            process_data = adapter.get_process(process_name)
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = TYPE_MAP[facade_adapter_name]
 
-            scalars = process.scalars.apply(
-                func=facade_adapter.parametrize_dataclass,
-                struct=struct,
-                axis=1,
-            )
+            components = []
+            for component_data in process_data.scalars.to_dict(orient="records"):
+                components.append(
+                    facade_adapter.parametrize_dataclass(component_data, struct).as_dict()
+                )
 
-            scalars = pd.DataFrame(scalars.to_list())
+            scalars = pd.DataFrame(components)
             if "profiles" in facade_adapter.__dict__:
                 if len(facade_adapter.profiles) != 1:
                     warnings.warn(
@@ -130,16 +129,16 @@ class DataPackage:
                     )
 
                 else:  # only one timeseries is implemented yet
-                    if not process.timeseries.empty:
+                    if not process_data.timeseries.empty:
                         # Creating Sequences Dataframes
                         if facade_adapter_name not in parametrized_sequences.keys():
                             parametrized_sequences[
                                 facade_adapter_name
-                            ] = refactor_timeseries(timeseries=process.timeseries)
+                            ] = refactor_timeseries(timeseries=process_data.timeseries)
 
                         else:
                             parametrized_sequences[facade_adapter_name].update(
-                                refactor_timeseries(timeseries=process.timeseries)
+                                refactor_timeseries(timeseries=process_data.timeseries)
                             )
 
                         # Adding profile column and naming to scalars:
@@ -147,7 +146,7 @@ class DataPackage:
                         column_name = facade_adapter.profiles[0]
 
                         scalars[column_name] = (
-                            process.timeseries.columns.difference(
+                            process_data.timeseries.columns.difference(
                                 core.TIMESERIES_COLUMNS.keys()
                             )[0]
                             + "_"
