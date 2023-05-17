@@ -1,13 +1,7 @@
-import setup_environment
 
-import pandas as pd
-
-setup_environment.setup()
 from data_adapter.preprocessing import Adapter
-from data_adapter.structure import get_energy_structure
 
 from data_adapter.databus import download_collection
-from data_adapter import preprocessing
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 from data_adapter_oemof.build_datapackage import DataPackage
 
@@ -23,13 +17,13 @@ path_default = (
 
 def test_build_tabular_datapackage():
     download_collection(
-        "https://energy.databus.dbpedia.org/felixmaur/collections/minimal_example/"
+        "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
     )
 
     adapter = Adapter(
-        "minimal_example",
-        structure_name="minimal_structure",
-        links_name="minimal_links",
+        "hack-a-thon",
+        structure_name="structure",
+        links_name="links",
     )
     dta = DataPackage.build_datapackage(adapter=adapter)
 

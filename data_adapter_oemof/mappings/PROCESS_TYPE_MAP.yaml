@@ -2,8 +2,8 @@
 #modex_tech_storage_battery: storage
 #modex_tech_generator_gas: dispatchable
 commodity: commodity
-conversion: conversion
+modex_tech_generator_gas: conversion
 "load": load
-"storage": storage
+"modex_tech_storage_battery": storage
 "volatile": volatile
 "dispatchable": dispatchable
