@@ -1,3 +1,4 @@
+import pandas
 
 from data_adapter.preprocessing import Adapter
 
@@ -16,14 +17,28 @@ path_default = (
 
 
 def test_refactor_timeseries():
-    adapter = Adapter(
-        "hack-a-thon",
-        structure_name="structure",
-        links_name="links",
+    timeseries = pandas.DataFrame(
+        {
+            "timeindex_start": ["01:00:00", "01:00:00", "09:00:00"],
+            "timeindex_stop": ["03:00:00", "03:00:00", "10:00:00"],
+            "timeindex_resolution": ["P0DT01H00M00S", "P0DT01H00M00S", "P0DT01H00M00S"],
+            "region": ["BB", "HH", "HH"],
+            "onshore": [[1, 2, 3], [4, 5, 6], [33, 34]],
+            "offshore": [[7, 8, 9], [10, 11, 12], [35, 36]],
+        }
     )
-    process_data = adapter.get_process("modex_tech_wind_turbine_onshore")
-    refactored_ts = refactor_timeseries(process_data.timeseries)
-    print(refactored_ts)
+
+    refactored_ts = refactor_timeseries(timeseries)
+    expected_df = pandas.DataFrame(
+        {
+            "onshore_BB": [1, 2, 3, None, None],
+            "onshore_HH": [7, 8, 9, 33, 34],
+            "offshore_BB": [7, 8, 9, None, None],
+            "offshore_HH": [10, 11, 12, 35, 36],
+        },
+        index=pandas.DatetimeIndex(["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"])
+    )
+    pandas.testing.assert_frame_equal(expected_df, refactored_ts)
 
 
 def test_build_tabular_datapackage():
