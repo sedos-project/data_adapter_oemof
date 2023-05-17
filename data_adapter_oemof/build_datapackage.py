@@ -23,31 +23,25 @@ def refactor_timeseries(timeseries: pd.DataFrame):
     df_timeseries = pd.DataFrame()
     if timeseries.empty:
         return df_timeseries
-    for (start, end, freq, region), df in timeseries.groupby(
-        ["timeindex_start", "timeindex_stop", "timeindex_resolution", "region"]
+    for (start, end, freq), df in timeseries.groupby(
+        ["timeindex_start", "timeindex_stop", "timeindex_resolution"]
     ):
-        timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
-
         # Get column names of timeseries only
         ts_columns = set(df.columns).difference(core.TIMESERIES_COLUMNS.keys())
 
         # Iterate over columns in case there are multiple timeseries
+        profiles = []
         for profile_name in ts_columns:
-            profile_column = df[profile_name].dropna()
-            profile_column = profile_column.explode().to_frame()
-            profile_column["timeindex"] = profile_column.groupby(level=0).cumcount()
-            profile_column = profile_column.reset_index().pivot(
-                index="timeindex", columns="index", values=profile_name
-            )
+            profile_column = df[["region", profile_name]].explode()
+            profile_column.name = profile_name + "_" + region
+            profiles.append(profile_column)
 
-            # Rename columns to regions, each region should have its own row
-            profile_column.columns = [profile_name + "_" + region]
-
-            # Add timeindex as index
-            profile_column.index = timeindex
-
-            # Append to timeseries DataFrame
-            df_timeseries = pd.concat([df_timeseries, profile_column], axis=1)
+        df_timeseries = pd.concat(profiles, axis=1)
+        timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
+        df_timeseries.index = timeindex
+        return df_timeseries  # FIXME: Only to prove
+        # TODO: Regions have not be filtered in group by, but instead build to columns
+        # TODO: Timeseries with different timeindex have to appended with axis=0
 
     return df_timeseries
 
