@@ -21,6 +21,8 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
     # Combine all time series into one DataFrame
     df_timeseries = pd.DataFrame()
+    if timeseries.empty:
+        return df_timeseries
     for (start, end, freq, region), df in timeseries.groupby(
         ["timeindex_start", "timeindex_stop", "timeindex_resolution", "region"]
     ):
@@ -39,16 +41,7 @@ def refactor_timeseries(timeseries: pd.DataFrame):
             )
 
             # Rename columns to regions, each region should have its own row
-
             profile_column.columns = [profile_name + "_" + region]
-
-            # Add multiindex level to column with tech name
-            # TODO column_name == profile_name should come from links.csv needs to be changed
-            #   @Julian, I think we should get it from structure.csv. Links.csv will always be the same as the column
-            #   name since that is how the Adapter.get_process is getting the column for us
-            # profile_column.columns = pd.MultiIndex.from_product(
-            #     [[profile_name], profile_column.columns]
-            # ).to_flat_index()
 
             # Add timeindex as index
             profile_column.index = timeindex
@@ -111,52 +104,16 @@ class DataPackage:
         foreign_keys = {}
         for (process_name, struct) in es_structure.items():
             process_data = adapter.get_process(process_name)
+            timeseries = refactor_timeseries(process_data.timeseries)
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = TYPE_MAP[facade_adapter_name]
 
             components = []
             for component_data in process_data.scalars.to_dict(orient="records"):
-                component = facade_adapter.parametrize_dataclass(component_data, struct)
+                component = facade_adapter.parametrize_dataclass(component_data, timeseries, struct)
                 components.append(component.as_dict())
 
             scalars = pd.DataFrame(components)
-            if "profiles" in facade_adapter.__dict__:
-                if len(facade_adapter.profiles) != 1:
-                    warnings.warn(
-                        message="Functionality to use more than one timeseries per process is not "
-                        "implemented yet"
-                    )
-
-                else:  # only one timeseries is implemented yet
-                    if not process_data.timeseries.empty:
-                        # Creating Sequences Dataframes
-                        if facade_adapter_name not in parametrized_sequences.keys():
-                            parametrized_sequences[
-                                facade_adapter_name
-                            ] = refactor_timeseries(timeseries=process_data.timeseries)
-
-                        else:
-                            parametrized_sequences[facade_adapter_name].update(
-                                refactor_timeseries(timeseries=process_data.timeseries)
-                            )
-
-                        # Adding profile column and naming to scalars:
-                        # Tabular will search for this
-                        column_name = facade_adapter.profiles[0]
-
-                        scalars[column_name] = (
-                            process_data.timeseries.columns.difference(
-                                core.TIMESERIES_COLUMNS.keys()
-                            )[0]
-                            + "_"
-                            + scalars["region"]
-                        )
-                    else:
-                        warnings.warn(
-                            message=f"Please include a timeseries for facade adapter {facade_adapter} "
-                            f"for process {process_name}"
-                            f"Or adapt links (see `get_process`) to include timeseries for this process"
-                        )
 
             # check if facade_adapter already exists
             if facade_adapter_name in parametrized_elements.keys():
@@ -169,6 +126,8 @@ class DataPackage:
             else:
                 # add new facade_adapter
                 parametrized_elements[facade_adapter_name] = scalars
+
+            parametrized_sequences = {process_name: timeseries}
 
         # Splitting timeseries into multiple timeseries.
         # We don't know yet what requirements multiple year optimisation will have.
