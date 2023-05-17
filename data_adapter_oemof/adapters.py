@@ -28,7 +28,11 @@ class Adapter:
         return data
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, struct):
+    def parametrize_dataclass(cls, data: dict, struct) -> "Adapter":
+        return cls(**cls.get_default_parameters(data, struct))
+
+    @classmethod
+    def get_default_parameters(cls, data: dict, struct) -> dict:
         mapper = Mapper(data)
         defaults = mapper.get_default_mappings(cls, struct)
         attributes = {
@@ -41,7 +45,7 @@ class Adapter:
         }
         defaults.update(attributes)
 
-        return cls(**defaults)
+        return defaults
 
 
 def facade_adapter(cls):
@@ -85,7 +89,7 @@ class DispatchableAdapter(facades.Dispatchable, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Dispatchable"})
         return cls(**defaults)
 
@@ -101,7 +105,7 @@ class GeneratorAdapter(facades.Generator, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Generator"})
         return cls(**defaults)
 
@@ -117,7 +121,7 @@ class HeatPumpAdapter(facades.HeatPump, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "HeatPump"})
         return cls(**defaults)
 
@@ -133,7 +137,7 @@ class Link(facades.Link, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Link"})
         return cls(**defaults)
 
@@ -149,7 +153,7 @@ class ReservoirAdapter(facades.Reservoir, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Reservoir"})
         return cls(**defaults)
 
@@ -165,7 +169,7 @@ class ShortageAdapter(facades.Reservoir, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Shortage"})
         return cls(**defaults)
 
@@ -181,7 +185,7 @@ class ExcessAdapter(facades.Excess, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Excess"})
         return cls(**defaults)
 
@@ -197,7 +201,7 @@ class BackpressureTurbineAdapter(facades.BackpressureTurbine, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "BackpressureTurbine"})
         return cls(**defaults)
 
@@ -213,7 +217,7 @@ class CommodityAdapter(facades.Commodity, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Commodity"})
         return cls(**defaults)
 
@@ -230,7 +234,7 @@ class ConversionAdapter(facades.Conversion, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Conversion"})
         return cls(**defaults)
 
@@ -246,7 +250,7 @@ class LoadAdapter(facades.Load, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Load"})
         return cls(**defaults)
 
@@ -262,7 +266,7 @@ class StorageAdapter(facades.Storage, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Storage"})
         return cls(**defaults)
 
@@ -278,7 +282,7 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "ExtractionTurbine"})
         return cls(**defaults)
 
@@ -291,7 +295,7 @@ class VolatileAdapter(facades.Volatile, Adapter):
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct):
-        defaults = super().parametrize_dataclass(data, struct)
+        defaults = cls.get_default_parameters(data, struct)
         defaults.update({"type": "Volatile"})
         return cls(**defaults)
 
