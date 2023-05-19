@@ -55,13 +55,34 @@ class Mapper:
             logger.warning(
                 f"No busses found in facades fields for Dataadapter {cls.__name__}"
             )
+
         bus_dict = {}
         for bus in bus_occurrences_in_fields:
-            name = self.bus_map[cls.__name__][bus]
+            # Check if there is only one bus or only `from_bus` and `to_bus`
+            # -> if yes logic is not needed since there is only one possibility
+            # What the bus has to be (from structure.csv)
+            if len(bus_occurrences_in_fields) == 1:
+                if struct[list(struct.keys())[0]]["inputs"]:
+                    match = struct[list(struct.keys())[0]]["inputs"]
+                    bus_dict[bus] = match
+                    continue
+                elif struct[list(struct.keys())[0]]["outputs"]:
+                    match = struct[list(struct.keys())[0]]["outputs"]
+                    bus_dict[bus] = match
+                    continue
+                else:
+                    warnings.warn(f"Please provide explicit bus for {cls.__name__} in structure")
+            elif len(bus_occurrences_in_fields) == 2 and all([i in "from_bus", "to_bus"] for i in bus_occurrences_in_fields):
+                return {"from_bus":struct[list(struct.keys())[0]]["inputs"],
+                        "to_bus": struct[list(struct.keys())[0]]["outputs"]}
+
+
+            # Category for busses is either input or output bus.
             category = (
-                "inputs" if bus in (cls.inputs | {"from_bus", "bus"}) else "outputs"
+                "inputs" if (bus in cls.inputs or bus in ["from_bus", "bus"]) else "outputs"
             )
 
+            # Category busses are busses that are found within the category where the bus originates from
             category_busses = cls.__dict__[category]
 
             if len(category_busses) == 0:
@@ -69,10 +90,17 @@ class Mapper:
                     f"The bus {bus} in facade's field is not in Adapter {cls.__name__}"
                 )
             elif len(category_busses) == 1:
-                match = struct[list(struct.keys())[0]][category][0]
+                match = struct[category][0]
+
+            # If there are is more than one bus and there is no mapping, a matching is tried:
             else:
+                # Check if this bus is mentioned in BUS_NAME_MAP:
+                if bus in self.bus_map[cls.__name__]:
+                    name = self.bus_map[cls.__name__][bus]
+                else:
+                    name = bus
                 match = difflib.get_close_matches(
-                    name, struct[list(struct.keys())[0]][category], n=1, cutoff=0.2
+                    name, struct[category], n=1, cutoff=0.2
                 )[0]
             if not match:
                 logger.warning(

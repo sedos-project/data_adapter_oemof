@@ -26,4 +26,19 @@ def test_get_defaults():
 
 
 def test_get_busses():
-    pass
+    mapping = {"region": "custom_region", "capacity": "custom_capacity"}
+    data = {
+        "custom_region": "TH",
+        "custom_capacity": 100.0,
+    }
+
+    bus_map = {"ExtractionTurbineAdapter": {"electricity_bus": "electricity",
+                                            "heat_bus": "heat",
+                                            #"fuel_bus": "ch4"
+                                            }}
+
+    struct = {'inputs': ['ch4'], 'outputs': ['electricity', 'heat']}
+
+    mapper = Mapper(mapping=mapping, data=data, bus_map=bus_map)
+    mapper.get_busses(cls=ExtractionTurbineAdapter, struct=struct)
+    print(mapper.get_busses(cls=ExtractionTurbineAdapter, struct=struct))
