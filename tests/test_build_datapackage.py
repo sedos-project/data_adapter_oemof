@@ -31,10 +31,10 @@ def test_refactor_timeseries():
     refactored_ts = refactor_timeseries(timeseries)
     expected_df = pandas.DataFrame(
         {
-            "onshore_BB": [1, 2, 3, None, None],
-            "onshore_HH": [7, 8, 9, 33, 34],
-            "offshore_BB": [7, 8, 9, None, None],
-            "offshore_HH": [10, 11, 12, 35, 36],
+            "onshore_BB": [1.0, 2, 3, None, None],
+            "onshore_HH": [4.0, 5, 6, 33, 34],
+            "offshore_BB": [7.0, 8, 9, None, None],
+            "offshore_HH": [10.0, 11, 12, 35, 36],
         },
         index=pandas.DatetimeIndex(["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"])
     )
