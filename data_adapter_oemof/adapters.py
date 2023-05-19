@@ -29,11 +29,15 @@ class Adapter:
         return data
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct) -> "Adapter":
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct
+    ) -> "Adapter":
         return cls(**cls.get_default_parameters(data, timeseries, struct))
 
     @classmethod
-    def get_default_parameters(cls, data: dict, timeseries: pandas.DataFrame, struct: dict) -> dict:
+    def get_default_parameters(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ) -> dict:
         mapper = Mapper(data, timeseries)
         defaults = mapper.get_default_mappings(cls, struct)
         attributes = {
@@ -88,7 +92,9 @@ class DispatchableAdapter(facades.Dispatchable, Adapter):
     outputs = ["bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Dispatchable"})
         return cls(**defaults)
@@ -104,7 +110,9 @@ class GeneratorAdapter(facades.Generator, Adapter):
     outputs = ["bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Generator"})
         return cls(**defaults)
@@ -120,7 +128,9 @@ class HeatPumpAdapter(facades.HeatPump, Adapter):
     outputs = ["high_temperature_bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "HeatPump"})
         return cls(**defaults)
@@ -136,7 +146,9 @@ class Link(facades.Link, Adapter):
     outputs = ["to_bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Link"})
         return cls(**defaults)
@@ -152,7 +164,9 @@ class ReservoirAdapter(facades.Reservoir, Adapter):
     outputs = ["bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Reservoir"})
         return cls(**defaults)
@@ -168,7 +182,9 @@ class ShortageAdapter(facades.Reservoir, Adapter):
     outputs = ["bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Shortage"})
         return cls(**defaults)
@@ -184,7 +200,9 @@ class ExcessAdapter(facades.Excess, Adapter):
     outputs = []
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Excess"})
         return cls(**defaults)
@@ -200,7 +218,9 @@ class BackpressureTurbineAdapter(facades.BackpressureTurbine, Adapter):
     outputs = ["heat_bus", "electricity_bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "BackpressureTurbine"})
         return cls(**defaults)
@@ -216,7 +236,9 @@ class CommodityAdapter(facades.Commodity, Adapter):
     outputs = ["bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Commodity"})
         return cls(**defaults)
@@ -233,13 +255,11 @@ class ConversionAdapter(facades.Conversion, Adapter):
     outputs = ["to_bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({
-            "type": "Conversion",
-            "carrier": "carrier",
-            "tech": "tech"
-        })
+        defaults.update({"type": "Conversion", "carrier": "carrier", "tech": "tech"})
         return cls(**defaults)
 
 
@@ -253,7 +273,9 @@ class LoadAdapter(facades.Load, Adapter):
     outputs = []
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Load"})
         return cls(**defaults)
@@ -269,13 +291,11 @@ class StorageAdapter(facades.Storage, Adapter):
     outputs = []
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({
-            "type": "Storage",
-            "carrier": "carrier",
-            "tech": "tech"
-        })
+        defaults.update({"type": "Storage", "carrier": "carrier", "tech": "tech"})
         return cls(**defaults)
 
 
@@ -289,7 +309,9 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
     outputs = ["electricity_bus", "heat_bus"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "ExtractionTurbine"})
         return cls(**defaults)
@@ -301,7 +323,9 @@ class VolatileAdapter(facades.Volatile, Adapter):
     outputs = ["electricity"]
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, timeseries: pandas.DataFrame, struct: dict):
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Volatile"})
         return cls(**defaults)

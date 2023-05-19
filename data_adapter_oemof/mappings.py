@@ -10,7 +10,9 @@ logger = logging.getLogger()
 
 
 class Mapper:
-    def __init__(self, data: dict, timeseries: pandas.DataFrame, mapping=None, busses=None):
+    def __init__(
+        self, data: dict, timeseries: pandas.DataFrame, mapping=None, busses=None
+    ):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
         if busses is None:
@@ -20,7 +22,7 @@ class Mapper:
         self.mapping = mapping
         self.bus_map = busses
 
-    def get(self, key, field_type: Optional[Type]=None):
+    def get(self, key, field_type: Optional[Type] = None):
         if key in self.mapping:
             mapped_key = self.mapping[key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
@@ -37,14 +39,17 @@ class Mapper:
                 return mapped_key
             if len(self.timeseries) == 1:
                 timeseries_key = self.timeseries.columns[0]
-                logger.info(f"Key not found in timeseries. Using existing timeseries column '{timeseries_key}'.")
+                logger.info(
+                    f"Key not found in timeseries. Using existing timeseries column '{timeseries_key}'."
+                )
                 return timeseries_key
-            logger.warning(f"Could not find timeseries entry for mapped key '{mapped_key}'")
+            logger.warning(
+                f"Could not find timeseries entry for mapped key '{mapped_key}'"
+            )
             return None
 
         logger.warning(f"Could not get data for mapped key '{mapped_key}'")
         return None
-
 
     def get_busses(self, cls, struct):
         """

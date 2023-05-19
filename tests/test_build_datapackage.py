@@ -36,7 +36,9 @@ def test_refactor_timeseries():
             "offshore_BB": [7.0, 8, 9, None, None],
             "offshore_HH": [10.0, 11, 12, 35, 36],
         },
-        index=pandas.DatetimeIndex(["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"])
+        index=pandas.DatetimeIndex(
+            ["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"]
+        ),
     )
     pandas.testing.assert_frame_equal(expected_df, refactored_ts)
 

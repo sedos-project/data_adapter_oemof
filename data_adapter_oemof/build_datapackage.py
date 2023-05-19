@@ -37,10 +37,14 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
             # Creating cumcount index for Regions:
             profile_column["index"] = profile_column.groupby("region").cumcount()
-            profile_column_pivot = pd.pivot_table(profile_column, values=profile_name, index=["index"], columns=["region"])
+            profile_column_pivot = pd.pivot_table(
+                profile_column, values=profile_name, index=["index"], columns=["region"]
+            )
             profile_column_pivot.reset_index(drop=True)
             # Rename the columns
-            profile_column_pivot.columns = [f"{profile_name}_{col}" for col in profile_column_pivot.columns]
+            profile_column_pivot.columns = [
+                f"{profile_name}_{col}" for col in profile_column_pivot.columns
+            ]
 
             # Reset the index
             profiles.append(profile_column_pivot)
@@ -52,7 +56,7 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
         # TODO: Regions have not be filtered in group by, but instead build to columns
         # TODO: Timeseries with different timeindex have to appended with axis=0
-    df_timeseries = pd.concat(timeseries_timesteps, axis = 0)
+    df_timeseries = pd.concat(timeseries_timesteps, axis=0)
     return df_timeseries
 
 
@@ -114,7 +118,9 @@ class DataPackage:
 
             components = []
             for component_data in process_data.scalars.to_dict(orient="records"):
-                component = facade_adapter.parametrize_dataclass(component_data, timeseries, struct)
+                component = facade_adapter.parametrize_dataclass(
+                    component_data, timeseries, struct
+                )
                 components.append(component.as_dict())
 
             scalars = pd.DataFrame(components)
