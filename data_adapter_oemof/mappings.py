@@ -71,15 +71,22 @@ class Mapper:
                     bus_dict[bus] = match
                     continue
                 else:
-                    warnings.warn(f"Please provide explicit bus for {cls.__name__} in structure")
-            elif len(bus_occurrences_in_fields) == 2 and all([i in "from_bus", "to_bus"] for i in bus_occurrences_in_fields):
-                return {"from_bus":struct[list(struct.keys())[0]]["inputs"],
-                        "to_bus": struct[list(struct.keys())[0]]["outputs"]}
-
+                    warnings.warn(
+                        f"Please provide explicit bus for {cls.__name__} in structure"
+                    )
+            elif len(bus_occurrences_in_fields) == 2 and all(
+                [i in "from_bus", "to_bus"] for i in bus_occurrences_in_fields
+            ):
+                return {
+                    "from_bus": struct[list(struct.keys())[0]]["inputs"],
+                    "to_bus": struct[list(struct.keys())[0]]["outputs"],
+                }
 
             # Category for busses is either input or output bus.
             category = (
-                "inputs" if (bus in cls.inputs or bus in ["from_bus", "bus"]) else "outputs"
+                "inputs"
+                if (bus in cls.inputs or bus in ["from_bus", "bus"])
+                else "outputs"
             )
 
             # Category busses are busses that are found within the category where the bus originates from

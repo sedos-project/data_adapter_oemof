@@ -32,12 +32,15 @@ def test_get_busses():
         "custom_capacity": 100.0,
     }
 
-    bus_map = {"ExtractionTurbineAdapter": {"electricity_bus": "electricity",
-                                            "heat_bus": "heat",
-                                            #"fuel_bus": "ch4"
-                                            }}
+    bus_map = {
+        "ExtractionTurbineAdapter": {
+            "electricity_bus": "electricity",
+            "heat_bus": "heat",
+            # "fuel_bus": "ch4"
+        }
+    }
 
-    struct = {'inputs': ['ch4'], 'outputs': ['electricity', 'heat']}
+    struct = {"inputs": ["ch4"], "outputs": ["electricity", "heat"]}
 
     mapper = Mapper(mapping=mapping, data=data, bus_map=bus_map)
     mapper.get_busses(cls=ExtractionTurbineAdapter, struct=struct)
