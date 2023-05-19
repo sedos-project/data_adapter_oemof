@@ -10,14 +10,14 @@ logger = logging.getLogger()
 
 
 class Mapper:
-    def __init__(self, data: dict, mapping=None, busses=None):
+    def __init__(self, data: dict, mapping=None, bus_map=None):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
-        if busses is None:
-            busses = BUS_NAME_MAP
+        if bus_map is None:
+            bus_map = BUS_NAME_MAP
         self.data = data
         self.mapping = mapping
-        self.bus_map = busses
+        self.bus_map = bus_map
 
     def get(self, key):
         if key in self.mapping:
@@ -58,7 +58,10 @@ class Mapper:
         bus_dict = {}
         for bus in bus_occurrences_in_fields:
             name = self.bus_map[cls.__name__][bus]
-            category = "inputs" if bus in cls.inputs else "outputs"
+            category = (
+                "inputs" if bus in (cls.inputs | {"from_bus", "bus"}) else "outputs"
+            )
+
             category_busses = cls.__dict__[category]
 
             if len(category_busses) == 0:
@@ -83,6 +86,7 @@ class Mapper:
 
     def get_default_mappings(self, cls, struct):
         """
+        :param struct: dict
         :param cls: Data-adapter which is inheriting from oemof.tabular facade
         :param mapper: Mapper to map oemof.tabular data names to Project naming
         :return: Dictionary for all fields that the facade can take and matching data
