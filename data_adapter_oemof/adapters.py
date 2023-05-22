@@ -286,7 +286,7 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
 @facade_adapter
 class VolatileAdapter(facades.Volatile, Adapter):
     inputs = []
-    outputs = ["electricity"]
+    outputs = ["bus"]
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
