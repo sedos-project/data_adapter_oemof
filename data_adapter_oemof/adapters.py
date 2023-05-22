@@ -123,7 +123,7 @@ class HeatPumpAdapter(facades.HeatPump, Adapter):
 
 
 @facade_adapter
-class Link(facades.Link, Adapter):
+class LinkAdapter(facades.Link, Adapter):
     """
     Link Adapter
     """

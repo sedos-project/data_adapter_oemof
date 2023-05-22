@@ -62,12 +62,12 @@ class Mapper:
             # -> if yes logic is not needed since there is only one possibility
             # What the bus has to be (from structure.csv)
             if len(bus_occurrences_in_fields) == 1:
-                if struct[list(struct.keys())[0]]["inputs"]:
-                    match = struct[list(struct.keys())[0]]["inputs"]
+                if struct["inputs"]:
+                    match = struct["inputs"][0]
                     bus_dict[bus] = match
                     continue
-                elif struct[list(struct.keys())[0]]["outputs"]:
-                    match = struct[list(struct.keys())[0]]["outputs"]
+                elif struct["outputs"]:
+                    match = struct["outputs"][0]
                     bus_dict[bus] = match
                     continue
                 else:
@@ -78,8 +78,8 @@ class Mapper:
                 [i in "from_bus", "to_bus"] for i in bus_occurrences_in_fields
             ):
                 return {
-                    "from_bus": struct[list(struct.keys())[0]]["inputs"],
-                    "to_bus": struct[list(struct.keys())[0]]["outputs"],
+                    "from_bus": struct["inputs"][0],
+                    "to_bus": struct["outputs"][0],
                 }
 
             # Category for busses is either input or output bus.
@@ -99,7 +99,7 @@ class Mapper:
             elif len(category_busses) == 1:
                 match = struct[category][0]
 
-            # If there are is more than one bus and there is no mapping, a matching is tried:
+            # If there are is more than one bus and DEFAULTS dont match lookup in BUS_NAME_MAP
             else:
                 # Check if this bus is mentioned in BUS_NAME_MAP:
                 if bus in self.bus_map[cls.__name__]:
