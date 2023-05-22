@@ -4,7 +4,6 @@ from data_adapter_oemof.adapters import (
     VolatileAdapter,
     LinkAdapter,
 )
-import dataclasses
 
 
 def test_get_with_mapping():
@@ -47,11 +46,6 @@ def test_get_busses():
 
     struct = {"inputs": ["ch4"], "outputs": ["electricity", "heat"]}
 
-    bus_occurrences_in_fields = [
-        field.name
-        for field in dataclasses.fields(ExtractionTurbineAdapter)
-        if "bus" in field.name
-    ]
     expected = {"electricity_bus": "electricity", "heat_bus": "heat", "fuel_bus": "ch4"}
 
     mapper = Mapper(mapping=mapping, data=data, bus_map=bus_map)
