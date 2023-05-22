@@ -40,7 +40,7 @@ def test_get_busses():
         "ExtractionTurbineAdapter": {
             "electricity_bus": "electricity",
             "heat_bus": "heat",
-            # "fuel_bus": "ch4"
+            "fuel_bus": "ch4"
         }
     }
 
