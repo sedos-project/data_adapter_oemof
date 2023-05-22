@@ -1,11 +1,14 @@
 import dataclasses
 import logging
-import warnings
 from pathlib import Path
 import difflib
 import yaml
 
 logger = logging.getLogger()
+
+
+class MappingError(Exception):
+    """Raised if mapping fails"""
 
 
 class Mapper:
@@ -31,48 +34,6 @@ class Mapper:
             return None
         return self.data[mapped_key]
 
-    @staticmethod
-    def __get_default_busses(bus, struct, cls):
-        """
-        This Function checks the FacadeAdapters entries for inputs/outputs
-
-        The Dataclass `bus category` variables `inputs` and `outputs` are searched for `bus`
-        If there's only one "bus category":
-         the "bus" will be assigned to the "category" entry from the "structure."
-
-        :param bus:str
-        :param struct:dict
-        :param cls:adapters.Adapter
-        :return:dict | None
-        """
-
-        bus_category = (
-            "inputs"
-            if bus in cls.inputs
-            else ("outputs" if bus in cls.outputs else None)
-        )
-        if bus_category is None:
-            warnings.warn(
-                f"Bus {bus} not found within the Adapter {cls.__name__} inputs or output variables"
-            )
-            return None
-
-        if len(getattr(cls, bus_category)) == 1:
-            if struct[bus_category]:
-                return {bus: struct[bus_category][0]}
-            else:
-                try:
-                    return {bus: struct[bus_category][0]}
-                except ValueError or IndexError:
-                    warnings.warn(
-                        f"Bus Category {bus_category} not found in struct. Check {cls.__name__}"
-                        f"and structure.csv"
-                    )
-                    return None
-
-        else:
-            return None
-
     def get_busses(self, cls, struct):
         """
         Identify mentioned buses in the facade.
@@ -89,38 +50,49 @@ class Mapper:
         :param struct: dict
         :return: dictionary with tabular like Busses
         """
-
-        busses_in_Adapter = cls.inputs + cls.outputs
-
-        if len(busses_in_Adapter) == 0:
-            logger.warning(f"No busses found in facades Adapter {cls.__name__}")
+        bus_occurrences_in_fields = [
+            field.name for field in dataclasses.fields(cls) if "bus" in field.name
+        ]
+        if len(bus_occurrences_in_fields) == 0:
+            logger.warning(
+                f"No busses found in facades fields for Dataadapter {cls.__name__}"
+            )
 
         bus_dict = {}
-        for bus in busses_in_Adapter:
-            match = self.__get_default_busses(bus, struct, cls)
-            if match is not None:
-                bus_dict.update(match)
+        for bus in bus_occurrences_in_fields:
+            # 1. Check for existing mappings
+            try:
+                bus_dict[bus] = self.bus_map[cls.__name__][bus]
                 continue
-            else:
-                bus_category = "inputs" if bus in cls.inputs else "outputs"
-                # If there are is more than one bus and DEFAULTS dont match lookup in BUS_NAME_MAP
-                # Check if this bus is mentioned in BUS_NAME_MAP:
-                if bus in self.bus_map[cls.__name__]:
-                    name = self.bus_map[cls.__name__][bus]
-                else:
-                    name = bus
+            except KeyError:
+                pass
 
-                match = difflib.get_close_matches(
-                    name, struct[bus_category], n=1, cutoff=0.2
-                )[0]
+            # 2. Check for default busses
+            if bus in ("bus", "from_bus", "to_bus"):
+                if bus == "bus":
+                    busses = struct["inputs"] + struct["outputs"]
+                if bus == "from_bus":
+                    busses = struct["inputs"]
+                if bus == "to_bus":
+                    busses = struct["outputs"]
+                if len(busses) != 1:
+                    raise MappingError(f"Could not map {bus=} to default bus - too many options")
+                bus_dict[bus] = busses[0]
+                continue
 
-                if not match:
-                    logger.warning(
-                        f"No Matching bus found for bus with `bus facade name` {bus}"
-                        f" please adjust BUS_NAME_MAP or structure"
-                    )
-                    continue
-                bus_dict.update({bus: match})
+            # 3. Try to find closes match
+            match = difflib.get_close_matches(
+                bus, struct["inputs"] + struct["outputs"], n=1, cutoff=0.2
+            )[0]
+            if match:
+                bus_dict[bus] = match
+                continue
+
+            # 4. No mapping found
+            raise MappingError(
+                f"No Matching bus found for bus with `bus facade name` {bus}"
+                f" please adjust BUS_NAME_MAP or structure"
+            )
 
         return bus_dict
 
