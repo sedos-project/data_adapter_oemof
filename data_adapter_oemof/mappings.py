@@ -32,6 +32,63 @@ class Mapper:
             return None
         return self.data[mapped_key]
 
+    @staticmethod
+    def __get_default_busses(bus_occurrences_in_fields, bus_dict, bus, struct, cls):
+       """
+       This Function checks the FacadeAdapters entries for inputs/outputs
+
+       The Dataclass `bus category` variables `inputs` and `outputs` are searched for `bus`
+       If there is only one "category bus," the "bus" will be assigned to the "category" entry from the "structure."
+
+       :param bus_occurrences_in_fields:
+       :param bus_dict:
+       :param bus:
+       :param struct:
+       :param cls:
+       :return:
+       """
+
+       if len(bus_occurrences_in_fields) == 1:
+            if struct["inputs"]:
+                match = struct["inputs"][0]
+                bus_dict[bus] = match
+                return match
+            elif struct["outputs"]:
+                match = struct["outputs"][0]
+                bus_dict[bus] = match
+                return match
+            else:
+                warnings.warn(
+                    f"Please provide explicit bus for {cls.__name__} in structure"
+                )
+       elif len(bus_occurrences_in_fields) == 2 and all(
+                [i in "from_bus", "to_bus"] for i in bus_occurrences_in_fields
+        ):
+            return {
+                "from_bus": struct["inputs"][0],
+                "to_bus": struct["outputs"][0],
+            }
+
+        # Category for busses is either input or output bus.
+       category = (
+            "inputs"
+            if (bus in cls.inputs or bus in ["from_bus", "bus"])
+            else "outputs"
+        )
+
+        # Category busses are busses that are found within the category where the bus originates from
+        category_busses = cls.__dict__[category]
+
+        if len(category_busses) == 0:
+            logger.warning(
+                f"The bus {bus} in facade's field is not in Adapter {cls.__name__}"
+            )
+        elif len(category_busses) == 1:
+            match = struct[category][0]
+
+        return match
+
+
     def get_busses(self, cls, struct):
         """
         Getting Busses after following rules
@@ -48,6 +105,10 @@ class Mapper:
         :param struct: dict
         :return: dictionary with tabular like Busses
         """
+
+
+
+
         bus_occurrences_in_fields = [
             field.name for field in dataclasses.fields(cls) if "bus" in field.name
         ]
@@ -58,47 +119,7 @@ class Mapper:
 
         bus_dict = {}
         for bus in bus_occurrences_in_fields:
-            # Check if there is only one bus or only `from_bus` and `to_bus`
-            # -> if yes logic is not needed since there is only one possibility
-            # What the bus has to be (from structure.csv)
-            if len(bus_occurrences_in_fields) == 1:
-                if struct["inputs"]:
-                    match = struct["inputs"][0]
-                    bus_dict[bus] = match
-                    continue
-                elif struct["outputs"]:
-                    match = struct["outputs"][0]
-                    bus_dict[bus] = match
-                    continue
-                else:
-                    warnings.warn(
-                        f"Please provide explicit bus for {cls.__name__} in structure"
-                    )
-            elif len(bus_occurrences_in_fields) == 2 and all(
-                [i in "from_bus", "to_bus"] for i in bus_occurrences_in_fields
-            ):
-                return {
-                    "from_bus": struct["inputs"][0],
-                    "to_bus": struct["outputs"][0],
-                }
-
-            # Category for busses is either input or output bus.
-            category = (
-                "inputs"
-                if (bus in cls.inputs or bus in ["from_bus", "bus"])
-                else "outputs"
-            )
-
-            # Category busses are busses that are found within the category where the bus originates from
-            category_busses = cls.__dict__[category]
-
-            if len(category_busses) == 0:
-                logger.warning(
-                    f"The bus {bus} in facade's field is not in Adapter {cls.__name__}"
-                )
-            elif len(category_busses) == 1:
-                match = struct[category][0]
-
+            if self.__get_default_busses()
             # If there are is more than one bus and DEFAULTS dont match lookup in BUS_NAME_MAP
             else:
                 # Check if this bus is mentioned in BUS_NAME_MAP:
@@ -133,6 +154,8 @@ class Mapper:
         }
         mapped_all_class_fields.update(self.get_busses(cls, struct))
         return mapped_all_class_fields
+
+
 
 
 def load_yaml(file_path):
