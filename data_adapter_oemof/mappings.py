@@ -2,7 +2,6 @@ import dataclasses
 import logging
 import warnings
 from pathlib import Path
-from difflib import SequenceMatcher
 import difflib
 import yaml
 
@@ -35,20 +34,27 @@ class Mapper:
     @staticmethod
     def __get_default_busses(bus, struct, cls):
         """
-       This Function checks the FacadeAdapters entries for inputs/outputs
+        This Function checks the FacadeAdapters entries for inputs/outputs
 
-       The Dataclass `bus category` variables `inputs` and `outputs` are searched for `bus`
-       If there is only one "bus category," the "bus" will be assigned to the "category" entry from the "structure."
+        The Dataclass `bus category` variables `inputs` and `outputs` are searched for `bus`
+        If there's only one "bus category":
+         the "bus" will be assigned to the "category" entry from the "structure."
 
-       :param bus:str
-       :param struct:dict
-       :param cls:adapters.Adapter
-       :return:dict | None
-       """
+        :param bus:str
+        :param struct:dict
+        :param cls:adapters.Adapter
+        :return:dict | None
+        """
 
-        bus_category = "inputs" if bus in cls.inputs else ("outputs" if bus in cls.outputs else None)
+        bus_category = (
+            "inputs"
+            if bus in cls.inputs
+            else ("outputs" if bus in cls.outputs else None)
+        )
         if bus_category is None:
-            warnings.warn(f"Bus {bus} not found within the Adapter {cls.__name__} inputs or output variables")
+            warnings.warn(
+                f"Bus {bus} not found within the Adapter {cls.__name__} inputs or output variables"
+            )
             return None
 
         if len(getattr(cls, bus_category)) == 1:
@@ -58,80 +64,40 @@ class Mapper:
                 try:
                     return {bus: struct[bus_category][0]}
                 except ValueError or IndexError:
-                    warnings.warn(f"Bus Category {bus_category} not found within struct. Please check {cls.__name__}"
-                                  f"and structure.csv")
+                    warnings.warn(
+                        f"Bus Category {bus_category} not found in struct. Check {cls.__name__}"
+                        f"and structure.csv"
+                    )
                     return None
 
         else:
             return None
 
-        # if len(bus_occurrences_in_fields) == 1:
-        #     if struct["inputs"]:
-        #         match = struct["inputs"][0]
-        #         bus_dict[bus] = match
-        #         return match
-        #     elif struct["outputs"]:
-        #         match = struct["outputs"][0]
-        #         bus_dict[bus] = match
-        #         return match
-        #     else:
-        #         warnings.warn(
-        #             f"Please provide explicit bus for {cls.__name__} in structure"
-        #         )
-        # elif len(bus_occurrences_in_fields) == 2 and all(
-        #         [i in "from_bus", "to_bus"] for i in bus_occurrences_in_fields
-        # ):
-        #     return {
-        #         "from_bus": struct["inputs"][0],
-        #         "to_bus": struct["outputs"][0],
-        #     }
-        # 
-        # # Category for busses is either input or output bus.
-        # category = (
-        #     "inputs"
-        #     if (bus in cls.inputs or bus in ["from_bus", "bus"])
-        #     else "outputs"
-        # )
-        # 
-        # # Category busses are busses that are found within the category where the bus originates from
-        # category_busses = cls.__dict__[category]
-        # 
-        # if len(category_busses) == 0:
-        #     logger.warning(
-        #         f"The bus {bus} in facade's field is not in Adapter {cls.__name__}"
-        #     )
-        # elif len(category_busses) == 1:
-        #     match = struct[category][0]
-        # 
-        # return match
-
     def get_busses(self, cls, struct):
         """
-        Getting Busses after following rules
-            - Searching for all busses mentioned in facade
-            - for all Busses in the Facade check if they are input or output -> should be Attribute of Adapter
-            - If for the facades `bus category` ( input or output) there is only one Entry in the Adapter:
-                - Take (first) Entry from structure csv ->__get_default_busses(bus, struct, cls)
-            - Else (if there are more than one entries)
-                - First check if there is a Name in BUS_NAME_MAP given for the Bus, if yes search for similarities in
-                strucutre csv
-                - If not: Search for similarities in names in Structure csv and Adapters busses -> take name from struct
+        Identify mentioned buses in the facade.
+        Determine if each bus in the facade is classified as an "input"/"output".
+        If there is only one entry in the adapter for the facade's bus category:
+         Select the first entry from the structure CSV __get_default_busses(bus, struct, cls).
+        If there are multiple entries:
+         first check if there is a corresponding name in the BUS_NAME_MAP.
+            If found, search for similarities in the structure CSV.
+            If not, search for name similarities:
+                Between the structure CSV and the adapter's buses take name from the structure.
 
         :param cls: Child from Adapter class
         :param struct: dict
         :return: dictionary with tabular like Busses
         """
 
-        busses_in_Adapter = cls.inputs+cls.outputs
+        busses_in_Adapter = cls.inputs + cls.outputs
 
         if len(busses_in_Adapter) == 0:
-            logger.warning(
-                f"No busses found in facades Adapter {cls.__name__}"
-            )
+            logger.warning(f"No busses found in facades Adapter {cls.__name__}")
 
         bus_dict = {}
         for bus in busses_in_Adapter:
-            match = self.__get_default_busses(bus, struct, cls) 
+            match = self.__get_default_busses(bus, struct, cls)
             if match is not None:
                 bus_dict.update(match)
                 continue
@@ -150,11 +116,11 @@ class Mapper:
 
                 if not match:
                     logger.warning(
-                        f"No Matching bus found for bus {bus}"
-                        f"which is a the facade name for the bus, please try to adjust BUS_NAME_MAP or structure"
+                        f"No Matching bus found for bus with `bus facade name` {bus}"
+                        f" please adjust BUS_NAME_MAP or structure"
                     )
                     continue
-                bus_dict.update({bus:match})
+                bus_dict.update({bus: match})
 
         return bus_dict
 

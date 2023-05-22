@@ -21,7 +21,8 @@ class Adapter:
         """
         Adds function to return DataFrame from adapter.
 
-        This mixin is necessary as `pd.DataFrame(dataclass_instance)` will only create columns for attributes already present in dataclass.
+        This mixin is needed because `pd.DataFrame(dataclass_instance)` creates columns
+         only for existing dataclass attributes.
         But we add custom_attributes (i.e. "name") which would be neglected.
         """
         fields = dataclasses.fields(self)

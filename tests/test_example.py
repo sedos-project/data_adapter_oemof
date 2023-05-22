@@ -32,7 +32,7 @@ def test_build_tabular_datapackage():
     }
 
     dta = datapackage.build_datapackage(es_structure, **process_data)
-
+    dta.save_datapackage_to_csv()
     check_if_csv_dirs_equal(PATH_TMP, path_default)
     # FIXME: Get them closer together
     #  - Bus naming with regions -> get regions funktion von Hendrik
