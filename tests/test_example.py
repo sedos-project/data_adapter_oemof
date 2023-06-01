@@ -2,7 +2,7 @@ import pandas as pd
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(".env")
 from data_adapter.preprocessing import get_process
 from data_adapter.structure import get_energy_structure
 
