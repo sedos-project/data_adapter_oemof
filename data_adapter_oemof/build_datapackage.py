@@ -33,9 +33,9 @@ def refactor_timeseries(timeseries: pd.DataFrame):
         # Get column names of timeseries only
         ts_columns = set(df.columns).difference(core.TIMESERIES_COLUMNS.keys())
 
-        profiles = []
         # Iterate over timeseries columns/technologies
         # e.g. multiple efficiencies, onshore/offshore
+        df_timeseries_year = pd.DataFrame()
         for profile_name in ts_columns:
             # Unnest timeseries arrays for all regions
             profile_column = df[["region", profile_name]].explode(profile_name)
@@ -48,21 +48,17 @@ def refactor_timeseries(timeseries: pd.DataFrame):
             profile_column_pivot.reset_index(drop=True)
             # Rename column to: profile_name/technology + region
             profile_column_pivot.columns = [
-                f"{profile_name}_{col}" for col in profile_column_pivot.columns
+                f"{profile_name}_{region}" for region in profile_column_pivot.columns
             ]
             # Add additional timeseries for same timeindex as columns
+            df_timeseries_year = pd.concat([df_timeseries_year, profile_column_pivot], axis=1)
 
-            # Reset the index
-            profiles.append(profile_column_pivot)
-
-        df_timeseries = pd.concat(profiles, axis=1)
         # Replace timeindex with actual date range
         timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
-        df_timeseries.index = timeindex
-        timeseries_timesteps.append(df_timeseries)
+        df_timeseries_year.index = timeindex
         # Append additional date ranges
+        df_timeseries = pd.concat([df_timeseries, df_timeseries_year], axis=0)
 
-    df_timeseries = pd.concat(timeseries_timesteps, axis=0)
     return df_timeseries
 
 
