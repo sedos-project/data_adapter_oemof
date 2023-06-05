@@ -99,7 +99,7 @@ class DispatchableAdapter(facades.Dispatchable, Adapter):
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Dispatchable"})
-        for key, value in {"type": "Dispatchable", "carrier": "carrier", "tech": "tech"}:
+        for key, value in {"type": "Dispatchable", "carrier": "carrier", "tech": "tech"}.items():
             if key not in defaults:
                 defaults.update({key: value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -123,7 +123,7 @@ class HeatPumpAdapter(facades.HeatPump, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        for key, value in {"type": "HeatPump", "carrier": "carrier", "tech":"tech", "cop":1}:
+        for key, value in {"type": "HeatPump", "carrier": "carrier", "tech":"tech", "cop":1}.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -165,7 +165,7 @@ class ReservoirAdapter(facades.Reservoir, Adapter):
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Reservoir"})
-        for key, value in {"type": "Reservoir", "carrier": 1, "tech":"tech", "efficiency":1, "profile": "profile"}:
+        for key, value in {"type": "Reservoir", "carrier": 1, "tech":"tech", "efficiency":1, "profile": "profile"}.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -187,7 +187,7 @@ class ExcessAdapter(facades.Excess, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        for key, value in {"type": "Excess", "marginal_cost": 1}:
+        for key, value in {"type": "Excess", "marginal_cost": 1}.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -217,7 +217,7 @@ class BackpressureTurbineAdapter(facades.BackpressureTurbine, Adapter):
                          "fuel_bus": "fuel_bus",
                          "electric_efficiency": 1,
                          "thermal_efficiency": 1,
-                         }:
+                         }.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -239,7 +239,7 @@ class CommodityAdapter(facades.Commodity, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        for key, value in {"type": "Commodity", "carrier": "carrier", "amount": 1}:
+        for key, value in {"type": "Commodity", "carrier": "carrier", "amount": 1}.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -262,7 +262,7 @@ class ConversionAdapter(facades.Conversion, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        for key, value in {"type": "Conversion", "carrier": "carrier", "tech": "tech"}:
+        for key, value in {"type": "Conversion", "carrier": "carrier", "tech": "tech"}.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -284,7 +284,7 @@ class LoadAdapter(facades.Load, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        for key, value in {"type": "Load", "bus": "electricity_bus", "amount": 1,"profile": "profile"}:
+        for key, value in {"type": "Load", "bus": "electricity_bus", "amount": 1,"profile": "profile"}.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -306,7 +306,7 @@ class StorageAdapter(facades.Storage, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        for key, value in {"type": "Storage", "carrier": "carrier", "tech": "tech"}:
+        for key, value in {"type": "Storage", "carrier": "carrier", "tech": "tech"}.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -337,7 +337,7 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
                          "condensing_efficiency": 1,
                          "electric_efficiency": 1,
                          "thermal_efficiency": 1,
-                         }:
+                         }.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
@@ -357,7 +357,7 @@ class VolatileAdapter(facades.Volatile, Adapter):
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update()
-        for key, value in {"type": "Volatile", "carrier": "carrier", "tech": "tech", "profile": "profile"}:
+        for key, value in {"type": "Volatile", "carrier": "carrier", "tech": "tech", "profile": "profile"}.items():
             if key not in defaults:
                 defaults.update({key:value})
                 warnings.warn(f"Facade requires {key} as input. None provided or found within "
