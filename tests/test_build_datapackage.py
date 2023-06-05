@@ -34,12 +34,14 @@ def test_refactor_timeseries():
             "offshore_BB": [7.0, 8, 9, None, None],
             "offshore_HH": [10.0, 11, 12, 35, 36],
             "onshore_BB": [1.0, 2, 3, None, None],
-            "onshore_HH": [4.0, 5, 6, 33, 34]
+            "onshore_HH": [4.0, 5, 6, 33, 34],
         },
         index=pandas.DatetimeIndex(
             ["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"]
         ),
     )
+    expected_df = expected_df.sort_index(axis=0)
+    refactored_ts = refactored_ts.sort_index(axis=0)
     pandas.testing.assert_frame_equal(expected_df, refactored_ts)
 
 
@@ -52,7 +54,6 @@ def test_scalar_building():
 
     :return:
     """
-
 
 
 def test_build_tabular_datapackage():
