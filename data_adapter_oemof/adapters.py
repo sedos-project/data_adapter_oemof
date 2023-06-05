@@ -1,5 +1,7 @@
 import dataclasses
 import logging
+import warnings
+
 import pandas
 
 from oemof.tabular import facades
@@ -97,25 +99,14 @@ class DispatchableAdapter(facades.Dispatchable, Adapter):
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Dispatchable"})
+        for key, value in {"type": "Dispatchable", "carrier": "carrier", "tech": "tech"}:
+            if key not in defaults:
+                defaults.update({key: value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
+        #
         return cls(**defaults)
 
-
-@facade_adapter
-class GeneratorAdapter(facades.Generator, Adapter):
-    """
-    Generator Adapter
-    """
-
-    inputs = []
-    outputs = ["bus"]
-
-    @classmethod
-    def parametrize_dataclass(
-        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
-    ):
-        defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "Generator"})
-        return cls(**defaults)
 
 
 @facade_adapter
@@ -132,7 +123,12 @@ class HeatPumpAdapter(facades.HeatPump, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "HeatPump"})
+        for key, value in {"type": "HeatPump", "carrier": "carrier", "tech":"tech", "cop":1}:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
+        #
         return cls(**defaults)
 
 
@@ -169,24 +165,11 @@ class ReservoirAdapter(facades.Reservoir, Adapter):
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
         defaults.update({"type": "Reservoir"})
-        return cls(**defaults)
-
-
-@facade_adapter
-class ShortageAdapter(facades.Reservoir, Adapter):
-    """
-    Shortage Adapter
-    """
-
-    inputs = []
-    outputs = ["bus"]
-
-    @classmethod
-    def parametrize_dataclass(
-        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
-    ):
-        defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "Shortage"})
+        for key, value in {"type": "Reservoir", "carrier": 1, "tech":"tech", "efficiency":1, "profile": "profile"}:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
         return cls(**defaults)
 
 
@@ -204,7 +187,11 @@ class ExcessAdapter(facades.Excess, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "Excess"})
+        for key, value in {"type": "Excess", "marginal_cost": 1}:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
         return cls(**defaults)
 
 
@@ -222,7 +209,19 @@ class BackpressureTurbineAdapter(facades.BackpressureTurbine, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "BackpressureTurbine"})
+        for key, value in {"type": "BackpressureTurbine",
+                         "carrier": "carrier",
+                         "tech": "tech",
+                         "electricity_bus": "electricity_bus",
+                         "heat_bus": "heat_bus",
+                         "fuel_bus": "fuel_bus",
+                         "electric_efficiency": 1,
+                         "thermal_efficiency": 1,
+                         }:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
         return cls(**defaults)
 
 
@@ -240,7 +239,11 @@ class CommodityAdapter(facades.Commodity, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "Commodity"})
+        for key, value in {"type": "Commodity", "carrier": "carrier", "amount": 1}:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
         return cls(**defaults)
 
 
@@ -259,7 +262,11 @@ class ConversionAdapter(facades.Conversion, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "Conversion", "carrier": "carrier", "tech": "tech"})
+        for key, value in {"type": "Conversion", "carrier": "carrier", "tech": "tech"}:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
         return cls(**defaults)
 
 
@@ -277,7 +284,11 @@ class LoadAdapter(facades.Load, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "Load"})
+        for key, value in {"type": "Load", "bus": "electricity_bus", "amount": 1,"profile": "profile"}:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
         return cls(**defaults)
 
 
@@ -295,7 +306,11 @@ class StorageAdapter(facades.Storage, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "Storage", "carrier": "carrier", "tech": "tech"})
+        for key, value in {"type": "Storage", "carrier": "carrier", "tech": "tech"}:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
         return cls(**defaults)
 
 
@@ -313,7 +328,21 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "ExtractionTurbine"})
+        for key, value in {"type": "ExtractionTurbine",
+                         "carrier": "carrier",
+                         "tech": "tech",
+                         "electricity_bus": "electricity_bus",
+                         "heat_bus": "heat_bus",
+                         "fuel_bus": "fuel_bus",
+                         "condensing_efficiency": 1,
+                         "electric_efficiency": 1,
+                         "thermal_efficiency": 1,
+                         }:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
+
         return cls(**defaults)
 
 
@@ -327,7 +356,12 @@ class VolatileAdapter(facades.Volatile, Adapter):
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ):
         defaults = cls.get_default_parameters(data, timeseries, struct)
-        defaults.update({"type": "Volatile"})
+        defaults.update()
+        for key, value in {"type": "Volatile", "carrier": "carrier", "tech": "tech", "profile": "profile"}:
+            if key not in defaults:
+                defaults.update({key:value})
+                warnings.warn(f"Facade requires {key} as input. None provided or found within "
+                              f"data, proceeding with {value} as {key}")
         return cls(**defaults)
 
 

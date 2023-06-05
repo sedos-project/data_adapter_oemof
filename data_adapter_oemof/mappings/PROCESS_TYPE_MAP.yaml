@@ -1,4 +1,4 @@
-#modex_tech_wind_turbine_onshore: volatile
+modex_tech_wind_turbine_onshore: volatile
 #modex_tech_storage_battery: storage
 #modex_tech_generator_gas: dispatchable
 commodity: commodity
