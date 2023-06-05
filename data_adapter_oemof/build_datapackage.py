@@ -11,12 +11,14 @@ from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
 
 def refactor_timeseries(timeseries: pd.DataFrame):
     """
-    Takes timeseries in parameter-model format (as a single line entry) And
-    turns into Tabular matching format with index as timeseries timestamps
-    and columns containing data
+    Takes timeseries in single line parameter-model format (start, end, freq,
+    region, ts-array...) and turns into Tabular matching format with timeindex
+    as timeseries timestamps,  technology-region as header and columns
+    containing data.
 
     :return: pd.DataFrame:
-
+        Tabular form of timeseries for multiple periods of similar
+        technologies and regions.
     """
 
     # Combine all time series into one DataFrame
@@ -24,38 +26,42 @@ def refactor_timeseries(timeseries: pd.DataFrame):
     timeseries_timesteps = []
     if timeseries.empty:
         return df_timeseries
+    # Iterate over different time periods/years
     for (start, end, freq), df in timeseries.groupby(
         ["timeindex_start", "timeindex_stop", "timeindex_resolution"]
     ):
         # Get column names of timeseries only
         ts_columns = set(df.columns).difference(core.TIMESERIES_COLUMNS.keys())
 
-        # Iterate over columns in case there are multiple timeseries
         profiles = []
+        # Iterate over timeseries columns/technologies
+        # e.g. multiple efficiencies, onshore/offshore
         for profile_name in ts_columns:
+            # Unnest timeseries arrays for all regions
             profile_column = df[["region", profile_name]].explode(profile_name)
-
-            # Creating cumcount index for Regions:
+            # Creating cumcount index as fake-timeindex for every region
             profile_column["index"] = profile_column.groupby("region").cumcount()
+            # Pivot table to have regions as columns
             profile_column_pivot = pd.pivot_table(
                 profile_column, values=profile_name, index=["index"], columns=["region"]
             )
             profile_column_pivot.reset_index(drop=True)
-            # Rename the columns
+            # Rename column to: profile_name/technology + region
             profile_column_pivot.columns = [
                 f"{profile_name}_{col}" for col in profile_column_pivot.columns
             ]
+            # Add additional timeseries for same timeindex as columns
 
             # Reset the index
             profiles.append(profile_column_pivot)
 
         df_timeseries = pd.concat(profiles, axis=1)
+        # Replace timeindex with actual date range
         timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
         df_timeseries.index = timeindex
         timeseries_timesteps.append(df_timeseries)
+        # Append additional date ranges
 
-        # TODO: Regions have not be filtered in group by, but instead build to columns
-        # TODO: Timeseries with different timeindex have to appended with axis=0
     df_timeseries = pd.concat(timeseries_timesteps, axis=0)
     return df_timeseries
 
