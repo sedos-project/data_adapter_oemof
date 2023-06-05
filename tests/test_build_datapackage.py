@@ -43,6 +43,18 @@ def test_refactor_timeseries():
     pandas.testing.assert_frame_equal(expected_df, refactored_ts)
 
 
+def test_scalar_building():
+    """
+    Test to eval if process is read in correctly and scalar data is created accordingly
+    TODO:
+        - Write Test data-set
+        - Write result data
+
+    :return:
+    """
+
+
+
 def test_build_tabular_datapackage():
     download_collection(
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
