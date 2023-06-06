@@ -21,9 +21,9 @@ class Mapper:
         self.mapping = mapping
         self.bus_map = bus_map
 
-    def get(self, key):
-        if key in self.mapping:
-            mapped_key = self.mapping[key]
+    def get(self, key, technology="DEFAULT"):
+        if key in self.mapping[technology]:
+            mapped_key = self.mapping[technology][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
         else:
             mapped_key = key
@@ -108,7 +108,7 @@ class Mapper:
         mapped_all_class_fields = {
             field.name: value
             for field in dataclasses.fields(cls)
-            if (value := self.get(field.name)) is not None
+            if (value := self.get(field.name, self.data.get("technology"))) is not None
         }
         mapped_all_class_fields.update(self.get_busses(cls, struct))
         return mapped_all_class_fields
