@@ -1,7 +1,6 @@
 ExtractionTurbine:
   electricity_bus: electricity
-
   heat_bus: heat
 
 VolatileAdapter:
-  bus: hans
+  bus: electricity
