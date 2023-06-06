@@ -1,3 +1,6 @@
+import numpy as np
+
+from data_adapter_oemof.adapters import TYPE_MAP
 from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof.adapters import (
     ExtractionTurbineAdapter,
@@ -26,7 +29,36 @@ def test_get_with_mapping():
 
 
 def test_get_defaults():
-    pass
+
+
+    adapter = TYPE_MAP["volatile"]
+    data = {
+        "technology": "WindOnshore",  # Necessary for global_parameter_map
+        "carrier": "Wind",  # TODO workaround until PR #20 is merged
+        "profile": "onshore",  # TODO workaround until PR #20 is merged
+        "custom_region": "TH",
+        "installed_capacity": 100,
+    }
+    struct = {"default": {"inputs": ["onshore"], "outputs": ["electricity"]}}
+
+    parametrized_component = adapter.parametrize_dataclass(data, struct, None)
+
+    expected_component = {"bus": "electricity",
+                          "carrier": "Wind",
+                          "tech": "WindOnshore",
+                          "profile": "onshore",
+                          "capacity": 100,
+                          "capacity_cost": None,
+                          "capacity_potential": np.inf,
+                          "capacity_minimum": None,
+                          "expandable": False,
+                          "marginal_cost": 0,
+                          "output_parameters": {},
+                          "name": "None-Wind-None",
+                          "type": "Volatile",
+                          }
+
+    assert expected_component == parametrized_component.as_dict()
 
 
 def test_get_busses():
