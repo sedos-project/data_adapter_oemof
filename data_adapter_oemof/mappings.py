@@ -14,18 +14,22 @@ DEFAULT_MAPPING = {
 }
 
 
+class MappingError(Exception):
+    """Raised if mapping fails"""
+
+
 class Mapper:
     def __init__(
-        self, data: dict, timeseries: pandas.DataFrame, mapping=None, busses=None
+        self, data: dict, timeseries: pandas.DataFrame, mapping=None, bus_map=None
     ):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
-        if busses is None:
-            busses = BUS_NAME_MAP
+        if bus_map is None:
+            bus_map = BUS_NAME_MAP
         self.data = data
         self.timeseries = timeseries
         self.mapping = mapping
-        self.bus_map = busses
+        self.bus_map = bus_map
 
     def get(self, key, field_type: Optional[Type] = None):
         if key in self.mapping:
@@ -61,15 +65,15 @@ class Mapper:
 
     def get_busses(self, cls, struct):
         """
-        Getting Busses after following rules
-            - Searching for all busses mentioned in facade
-            - for all Busses in the Facade check if they are input or output -> should be Attribute of Adapter
-            - If for the facades bus category ( input or output) there is only one Entry in the Adapter:
-                - Take (first) Entry from structure csv
-            - Else (if there are more than one entries)
-                - First check if there is a Name in BUS_NAME_MAP given for the Bus, if yes search for similarities in
-                strucutre csv
-                - If not: Search for similarities in names in Structure csv and Adapters busses -> take name from struct
+        Identify mentioned buses in the facade.
+        Determine if each bus in the facade is classified as an "input"/"output".
+        If there is only one entry in the adapter for the facade's bus category:
+         Select the first entry from the structure CSV __get_default_busses(bus, struct, cls).
+        If there are multiple entries:
+         first check if there is a corresponding name in the BUS_NAME_MAP.
+            If found, search for similarities in the structure CSV.
+            If not, search for name similarities:
+                Between the structure CSV and the adapter's buses take name from the structure.
 
         :param cls: Child from Adapter class
         :param struct: dict
@@ -82,34 +86,50 @@ class Mapper:
             logger.warning(
                 f"No busses found in facades fields for Dataadapter {cls.__name__}"
             )
+
         bus_dict = {}
         for bus in bus_occurrences_in_fields:
-            name = self.bus_map[cls.__name__][bus]
-            category = "inputs" if bus in cls.inputs else "outputs"
-            category_busses = cls.__dict__[category]
-
-            if len(category_busses) == 0:
-                logger.warning(
-                    f"The bus {bus} in facade's field is not in Adapter {cls.__name__}"
-                )
-            elif len(category_busses) == 1:
-                match = struct[list(struct.keys())[0]][category][0]
-            else:
-                match = difflib.get_close_matches(
-                    name, struct[list(struct.keys())[0]][category], n=1, cutoff=0.2
-                )[0]
-            if not match:
-                logger.warning(
-                    f"No Matching bus found for bus {bus}"
-                    f"which is a the facade name for the bus, please try to adjust BUS_NAME_MAP or structure"
-                )
+            # 1. Check for existing mappings
+            try:
+                bus_dict[bus] = self.bus_map[cls.__name__][bus]
                 continue
-            bus_dict[bus] = match
+            except KeyError:
+                pass
+
+            # 2. Check for default busses
+            if bus in ("bus", "from_bus", "to_bus"):
+                if bus == "bus":
+                    busses = struct["inputs"] + struct["outputs"]
+                if bus == "from_bus":
+                    busses = struct["inputs"]
+                if bus == "to_bus":
+                    busses = struct["outputs"]
+                if len(busses) != 1:
+                    raise MappingError(
+                        f"Could not map {bus=} to default bus - too many options"
+                    )
+                bus_dict[bus] = busses[0]
+                continue
+
+            # 3. Try to find closes match
+            match = difflib.get_close_matches(
+                bus, struct["inputs"] + struct["outputs"], n=1, cutoff=0.2
+            )[0]
+            if match:
+                bus_dict[bus] = match
+                continue
+
+            # 4. No mapping found
+            raise MappingError(
+                f"No Matching bus found for bus with `bus facade name` {bus}"
+                f" please adjust BUS_NAME_MAP or structure"
+            )
 
         return bus_dict
 
     def get_default_mappings(self, cls, struct):
         """
+        :param struct: dict
         :param cls: Data-adapter which is inheriting from oemof.tabular facade
         :param mapper: Mapper to map oemof.tabular data names to Project naming
         :return: Dictionary for all fields that the facade can take and matching data
