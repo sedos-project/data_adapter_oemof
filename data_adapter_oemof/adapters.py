@@ -29,7 +29,7 @@ class Adapter:
 
     @classmethod
     def parametrize_dataclass(cls, data: dict, struct, process_type):
-        mapper = Mapper(data)
+        mapper = Mapper(cls.__name__, data)
         defaults = mapper.get_default_mappings(cls, struct)
         attributes = {
             "name": calculations.get_name(

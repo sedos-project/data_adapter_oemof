@@ -12,11 +12,12 @@ class MappingError(Exception):
 
 
 class Mapper:
-    def __init__(self, data: dict, mapping=None, bus_map=None):
+    def __init__(self, adapter_clsname: str, data: dict, mapping=None, bus_map=None):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
         if bus_map is None:
             bus_map = BUS_NAME_MAP
+        self.adapter_clsname = adapter_clsname
         self.data = data
         self.mapping = mapping
         self.bus_map = bus_map
