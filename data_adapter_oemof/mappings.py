@@ -8,6 +8,11 @@ import yaml
 
 logger = logging.getLogger()
 
+DEFAULT_MAPPING = {
+    "carrier": "carrier",
+    "tech": "tech",
+}
+
 
 class Mapper:
     def __init__(
@@ -47,6 +52,9 @@ class Mapper:
                 f"Could not find timeseries entry for mapped key '{mapped_key}'"
             )
             return None
+
+        if key in DEFAULT_MAPPING:
+            return DEFAULT_MAPPING[key]
 
         logger.warning(f"Could not get data for mapped key '{mapped_key}'")
         return None
