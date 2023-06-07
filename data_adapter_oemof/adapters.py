@@ -90,6 +90,7 @@ class DispatchableAdapter(facades.Dispatchable, Adapter):
     """
     Dispatchable Adapter
     """
+
     type = "dispatchable"
 
 
@@ -98,6 +99,7 @@ class HeatPumpAdapter(facades.HeatPump, Adapter):
     """
     HeatPump Adapter
     """
+
     type = "heat_pump"
 
 
@@ -106,6 +108,7 @@ class LinkAdapter(facades.Link, Adapter):
     """
     Link Adapter
     """
+
     type = "link"
 
 
@@ -114,6 +117,7 @@ class ReservoirAdapter(facades.Reservoir, Adapter):
     """
     Reservoir Adapter
     """
+
     type = "reservoir"
 
 
@@ -122,6 +126,7 @@ class ExcessAdapter(facades.Excess, Adapter):
     """
     Excess Adapter
     """
+
     type = "excess"
 
 
@@ -130,6 +135,7 @@ class BackpressureTurbineAdapter(facades.BackpressureTurbine, Adapter):
     """
     BackpressureTurbine Adapter
     """
+
     type = "backpressure_turbine"
 
 
@@ -138,6 +144,7 @@ class CommodityAdapter(facades.Commodity, Adapter):
     """
     CommodityAdapter
     """
+
     type = "commodity"
 
 
@@ -147,6 +154,7 @@ class ConversionAdapter(facades.Conversion, Adapter):
     ConversionAdapter
     To use Conversion, map the inputs and outputs within the structure to avoid deduction failure.
     """
+
     type = "conversion"
 
 
@@ -155,6 +163,7 @@ class LoadAdapter(facades.Load, Adapter):
     """
     LoadAdapter
     """
+
     type = "load"
 
 
@@ -163,6 +172,7 @@ class StorageAdapter(facades.Storage, Adapter):
     """
     StorageAdapter
     """
+
     type = "storage"
 
 
@@ -171,6 +181,7 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
     """
     ExtractionTurbineAdapter
     """
+
     type = "extraction_trubine"
 
 
@@ -179,6 +190,7 @@ class VolatileAdapter(facades.Volatile, Adapter):
     """
     VolatileAdapter
     """
+
     type = "volatile"
 
 

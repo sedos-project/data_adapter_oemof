@@ -51,7 +51,9 @@ def refactor_timeseries(timeseries: pd.DataFrame):
                 f"{profile_name}_{region}" for region in profile_column_pivot.columns
             ]
             # Add additional timeseries for same timeindex as columns
-            df_timeseries_year = pd.concat([df_timeseries_year, profile_column_pivot], axis=1)
+            df_timeseries_year = pd.concat(
+                [df_timeseries_year, profile_column_pivot], axis=1
+            )
 
         # Replace timeindex with actual date range
         timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
