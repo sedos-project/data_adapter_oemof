@@ -1,18 +1,18 @@
-import numpy as np
-
-from data_adapter_oemof.adapters import TYPE_MAP
+import dataclasses
 import typing
 
+import numpy as np
 import pandas as pd
-
-from data_adapter_oemof.mappings import Mapper
-from data_adapter_oemof.adapters import (
-    ExtractionTurbineAdapter,
-    VolatileAdapter,
-    LinkAdapter,
-)
-from test_build_datapackage import refactor_timeseries
 from data_adapter.preprocessing import Adapter
+from test_build_datapackage import refactor_timeseries
+
+from data_adapter_oemof.adapters import (
+    TYPE_MAP,
+    ExtractionTurbineAdapter,
+    LinkAdapter,
+    VolatileAdapter,
+)
+from data_adapter_oemof.mappings import Mapper
 
 
 def test_get_with_mapping():
@@ -23,25 +23,25 @@ def test_get_with_mapping():
         index=["2016-01-01 01:00:00", "2035-01-01 01:00:00", "2050-01-01 01:00:00"],
     )
 
-    mapping = {
-        "VolatileAdapter": {"region": "custom_region", "capacity": "custom_capacity"}
-    }
-    data = {
-        "custom_region": "TH",
-        "custom_capacity": 100.0,
-    }
+    mapping = {"VolatileAdapter": {"capacity": "custom_capacity"}}
+    data = pd.DataFrame(
+        {
+            "region": {1: "TH"},
+            "custom_capacity": {1: 100.0},
+        }
+    )
 
     mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
 
-    expected = {
-        "region": "TH",
-        "capacity": 100.0,
-    }
+    expected = pd.DataFrame(
+        {
+            "region": {1: "TH"},
+            "capacity": {1: 100.0},
+        }
+    )
 
-    mapped = {}
     for key, _ in expected.items():
-        mapped[key] = mapper.get(key)
-    assert mapped == expected
+        assert expected[key].values == mapper.get(key).values
 
 
 def test_get_with_sequence():
@@ -53,28 +53,30 @@ def test_get_with_sequence():
     )
 
     mapping = {
-        "ExtractionTurbine": {"capacity": "installed_capacity"},
+        "ExtractionTurbineAdapter": {"capacity": "installed_capacity"},
     }
-    data = {
-        "region": "DE",
-        "installed_capacity": 200,
-    }
+    data = pd.DataFrame(
+        {
+            "region": {1: "DE"},
+            "installed_capacity": {1: 200},
+        }
+    )
 
     mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
 
-    expected = {
-        "region": "DE",
-        "capacity": 100.0,
-        "electric_efficiency": "electric_efficiency_DE",
-        "condensing_efficiency": "condensing_efficiency_DE",
-    }
-    import dataclasses
+    expected = pd.DataFrame(
+        {
+            "region": {1: "DE"},
+            "capacity": {1: 200.0},
+            "electric_efficiency": {1: "electric_efficiency_DE"},
+            "condensing_efficiency": {1: "condensing_efficiency_DE"},
+        }
+    )
 
     type = {i.name: i.type for i in dataclasses.fields(mapper.adapter)}
-    mapped = {}
+
     for key, _ in expected.items():
-        mapped[key] = mapper.get(key, type.get(key))
-    assert mapped == expected
+        assert expected[key].values == mapper.get(key, type.get(key)).values
 
 
 def test_get_defaults():
@@ -86,7 +88,7 @@ def test_get_defaults():
 
     data = {
         "technology": "WindOnshore",  # Necessary for global_parameter_map
-        "carrier": "Wind",  # TODO workaround until PR #20 is merged
+        # "carrier": "Wind",  # TODO workaround until PR #20 is merged
         # "profile": "onshore",  # TODO workaround until PR #20 is merged
         "region": "TH",
         "installed_capacity": 100,
