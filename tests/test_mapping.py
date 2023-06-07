@@ -29,34 +29,33 @@ def test_get_with_mapping():
 
 
 def test_get_defaults():
-
-
     adapter = TYPE_MAP["volatile"]
     data = {
         "technology": "WindOnshore",  # Necessary for global_parameter_map
         "carrier": "Wind",  # TODO workaround until PR #20 is merged
         "profile": "onshore",  # TODO workaround until PR #20 is merged
-        "custom_region": "TH",
+        "region": "TH",
         "installed_capacity": 100,
     }
     struct = {"default": {"inputs": ["onshore"], "outputs": ["electricity"]}}
 
     parametrized_component = adapter.parametrize_dataclass(data, struct, None)
 
-    expected_component = {"bus": "electricity",
-                          "carrier": "Wind",
-                          "tech": "WindOnshore",
-                          "profile": "onshore",
-                          "capacity": 100,
-                          "capacity_cost": None,
-                          "capacity_potential": np.inf,
-                          "capacity_minimum": None,
-                          "expandable": False,
-                          "marginal_cost": 0,
-                          "output_parameters": {},
-                          "name": "None-Wind-None",
-                          "type": "Volatile",
-                          }
+    expected_component = {
+        "bus": "electricity",
+        "carrier": "Wind",
+        "tech": "WindOnshore",
+        "profile": "onshore",
+        "capacity": 100,
+        "capacity_cost": None,
+        "capacity_potential": np.inf,
+        "capacity_minimum": None,
+        "expandable": False,
+        "marginal_cost": 0,
+        "output_parameters": {},
+        "name": "TH-Wind-WindOnshore",
+        "type": "Volatile",
+    }
 
     assert expected_component == parametrized_component.as_dict()
 
@@ -72,7 +71,7 @@ def test_get_busses():
         "ExtractionTurbineAdapter": {
             "electricity_bus": "electricity",
             "heat_bus": "heat",
-            "fuel_bus": "ch4"
+            "fuel_bus": "ch4",
         }
     }
 
