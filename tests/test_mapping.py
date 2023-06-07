@@ -16,13 +16,20 @@ from data_adapter.preprocessing import Adapter
 
 
 def test_get_with_mapping():
-    mapping = {"region": "custom_region", "capacity": "custom_capacity"}
+    adapter = TYPE_MAP["volatile"]
+    timeseries = pd.DataFrame(
+        {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
+        index=["2016-01-01 01:00:00", "2035-01-01 01:00:00", "2050-01-01 01:00:00"],
+    )
+    mapping = {
+        "VolatileAdapter": {"region": "custom_region", "capacity": "custom_capacity"}
+    }
     data = {
         "custom_region": "TH",
         "custom_capacity": 100.0,
     }
 
-    mapper = Mapper(mapping=mapping, data=data)
+    mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
 
     expected = {
         "region": "TH",
