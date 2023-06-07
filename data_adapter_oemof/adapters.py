@@ -1,16 +1,20 @@
 import dataclasses
 import logging
 
+import pandas
+
 from oemof.tabular import facades
 from oemof.solph import Bus
 
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
 
+
 logger = logging.getLogger()
 
 
 class Adapter:
+    type: str = "adapter"
     extra_attributes = ("name", "type")
 
     def as_dict(self):
@@ -28,13 +32,23 @@ class Adapter:
         return data
 
     @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        mapper = Mapper(cls, data)
+    def parametrize_dataclass(
+        cls, data: dict, timeseries: pandas.DataFrame, struct
+    ) -> "Adapter":
+        return cls(**cls.get_default_parameters(data, timeseries, struct))
+
+    @classmethod
+    def get_default_parameters(
+        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+    ) -> dict:
+        mapper = Mapper(cls, data, timeseries)
         defaults = mapper.get_default_mappings(cls, struct)
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
+            "region": mapper.get("region"),
+            "year": mapper.get("year"),
         }
         defaults.update(attributes)
 
@@ -77,24 +91,7 @@ class DispatchableAdapter(facades.Dispatchable, Adapter):
     Dispatchable Adapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Dispatchable"})
-        return cls(**defaults)
-
-
-@facade_adapter
-class GeneratorAdapter(facades.Generator, Adapter):
-    """
-    Generator Adapter
-    """
-
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Generator"})
-        return cls(**defaults)
+    type = "dispatchable"
 
 
 @facade_adapter
@@ -103,11 +100,7 @@ class HeatPumpAdapter(facades.HeatPump, Adapter):
     HeatPump Adapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "HeatPump"})
-        return cls(**defaults)
+    type = "heat_pump"
 
 
 @facade_adapter
@@ -116,11 +109,7 @@ class LinkAdapter(facades.Link, Adapter):
     Link Adapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Link"})
-        return cls(**defaults)
+    type = "link"
 
 
 @facade_adapter
@@ -129,24 +118,7 @@ class ReservoirAdapter(facades.Reservoir, Adapter):
     Reservoir Adapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Reservoir"})
-        return cls(**defaults)
-
-
-@facade_adapter
-class ShortageAdapter(facades.Reservoir, Adapter):
-    """
-    Shortage Adapter
-    """
-
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Shortage"})
-        return cls(**defaults)
+    type = "reservoir"
 
 
 @facade_adapter
@@ -155,11 +127,7 @@ class ExcessAdapter(facades.Excess, Adapter):
     Excess Adapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Excess"})
-        return cls(**defaults)
+    type = "excess"
 
 
 @facade_adapter
@@ -168,11 +136,7 @@ class BackpressureTurbineAdapter(facades.BackpressureTurbine, Adapter):
     BackpressureTurbine Adapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "BackpressureTurbine"})
-        return cls(**defaults)
+    type = "backpressure_turbine"
 
 
 @facade_adapter
@@ -181,11 +145,7 @@ class CommodityAdapter(facades.Commodity, Adapter):
     CommodityAdapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Commodity"})
-        return cls(**defaults)
+    type = "commodity"
 
 
 @facade_adapter
@@ -195,11 +155,7 @@ class ConversionAdapter(facades.Conversion, Adapter):
     To use Conversion, map the inputs and outputs within the structure to avoid deduction failure.
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Conversion"})
-        return cls(**defaults)
+    type = "conversion"
 
 
 @facade_adapter
@@ -208,11 +164,7 @@ class LoadAdapter(facades.Load, Adapter):
     LoadAdapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Load"})
-        return cls(**defaults)
+    type = "load"
 
 
 @facade_adapter
@@ -221,11 +173,7 @@ class StorageAdapter(facades.Storage, Adapter):
     StorageAdapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Storage"})
-        return cls(**defaults)
+    type = "storage"
 
 
 @facade_adapter
@@ -234,20 +182,16 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
     ExtractionTurbineAdapter
     """
 
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "ExtractionTurbine"})
-        return cls(**defaults)
+    type = "extraction_trubine"
 
 
 @facade_adapter
 class VolatileAdapter(facades.Volatile, Adapter):
-    @classmethod
-    def parametrize_dataclass(cls, data: dict, struct, process_type):
-        defaults = super().parametrize_dataclass(data, struct, process_type)
-        defaults.update({"type": "Volatile"})
-        return cls(**defaults)
+    """
+    VolatileAdapter
+    """
+
+    type = "volatile"
 
 
 TYPE_MAP = {
