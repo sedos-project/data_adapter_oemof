@@ -36,6 +36,11 @@ def test_get_with_mapping():
 
 def test_get_defaults():
     adapter = TYPE_MAP["volatile"]
+    timeseries = pd.DataFrame(
+        {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
+        index=["2016-01-01 01:00:00", "2035-01-01 01:00:00", "2050-01-01 01:00:00"],
+    )
+
     data = {
         "technology": "WindOnshore",  # Necessary for global_parameter_map
         "carrier": "Wind",  # TODO workaround until PR #20 is merged
@@ -45,7 +50,9 @@ def test_get_defaults():
     }
     struct = {"default": {"inputs": ["onshore"], "outputs": ["electricity"]}}
 
-    parametrized_component = adapter.parametrize_dataclass(data, struct, None)
+    parametrized_component = adapter.parametrize_dataclass(
+        data=data, timeseries=timeseries, struct=struct
+    )
 
     expected_component = {
         "bus": "electricity",
