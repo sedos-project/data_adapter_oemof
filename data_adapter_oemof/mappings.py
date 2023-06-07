@@ -1,10 +1,17 @@
 import dataclasses
+import pandas
 import logging
+from typing import Optional, Type
 from pathlib import Path
 import difflib
 import yaml
 
 logger = logging.getLogger()
+
+DEFAULT_MAPPING = {
+    "carrier": "carrier",
+    "tech": "tech",
+}
 
 
 class MappingError(Exception):
@@ -12,16 +19,19 @@ class MappingError(Exception):
 
 
 class Mapper:
-    def __init__(self, data: dict, mapping=None, bus_map=None):
+    def __init__(
+        self, data: dict, timeseries: pandas.DataFrame, mapping=None, bus_map=None
+    ):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
         if bus_map is None:
             bus_map = BUS_NAME_MAP
         self.data = data
+        self.timeseries = timeseries
         self.mapping = mapping
         self.bus_map = bus_map
 
-    def get(self, key):
+    def get(self, key, field_type: Optional[Type] = None):
         if key in self.mapping:
             mapped_key = self.mapping[key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
@@ -29,10 +39,29 @@ class Mapper:
             mapped_key = key
             logger.info(f"Key not found. Did not map '{key}'")
 
-        if mapped_key not in self.data:
-            logger.warning(f"Could not get data for mapped key '{mapped_key}'")
+        if mapped_key in self.data:
+            return self.data[mapped_key]
+
+        if self.is_sequence(field_type):
+            mapped_key = mapped_key+"_"+self.get('region')
+            if all([key in self.timeseries.columns for key in mapped_key.tolist()]):
+                return mapped_key
+            if len(self.timeseries) == 1:
+                timeseries_key = self.timeseries.columns[0]
+                logger.info(
+                    f"Key not found in timeseries. Using existing timeseries column '{timeseries_key}'."
+                )
+                return timeseries_key
+            logger.warning(
+                f"Could not find timeseries entry for mapped key '{mapped_key}'"
+            )
             return None
-        return self.data[mapped_key]
+
+        if key in DEFAULT_MAPPING:
+            return DEFAULT_MAPPING[key]
+
+        logger.warning(f"Could not get data for mapped key '{mapped_key}'")
+        return None
 
     def get_busses(self, cls, struct):
         """
@@ -108,10 +137,15 @@ class Mapper:
         mapped_all_class_fields = {
             field.name: value
             for field in dataclasses.fields(cls)
-            if (value := self.get(field.name)) is not None
+            if (value := self.get(field.name, field.type)) is not None
         }
         mapped_all_class_fields.update(self.get_busses(cls, struct))
         return mapped_all_class_fields
+
+    @staticmethod
+    def is_sequence(field_type: Type):
+        # TODO: Implement it using typing hints
+        return "Sequence" in str(field_type)
 
 
 def load_yaml(file_path):
