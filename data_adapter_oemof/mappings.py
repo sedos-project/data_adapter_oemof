@@ -23,9 +23,14 @@ class Mapper:
         self.mapping = mapping
         self.bus_map = bus_map
 
-    def get(self, key, technology="DEFAULT"):
-        if key in self.mapping[technology]:
-            mapped_key = self.mapping[technology][key]
+    def get(self, key):
+        # check facade-specific defaults first
+        if self.adapter_name in self.mapping and key in self.mapping[self.adapter_name]:
+            mapped_key = self.mapping[self.adapter_name][key]
+            logger.info(f"Mapped '{key}' to '{mapped_key}'")
+        # check general defaults second
+        elif key in self.mapping["DEFAULT"]:
+            mapped_key = self.mapping["DEFAULT"][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
         else:
             mapped_key = key
@@ -110,7 +115,7 @@ class Mapper:
         mapped_all_class_fields = {
             field.name: value
             for field in dataclasses.fields(cls)
-            if (value := self.get(field.name, self.data.get("technology"))) is not None
+            if (value := self.get(field.name)) is not None
         }
         mapped_all_class_fields.update(self.get_busses(cls, struct))
         return mapped_all_class_fields

@@ -1,3 +1,5 @@
+# This is the parameter name mapping of the data_adapter export and the tabular.facades parameters for all cases  in
+#  which they are not similar. There is a default and facade-specific mapping.
 DEFAULT:
   amount: ammount
   #capacity: installed_capacity
@@ -7,7 +9,7 @@ DEFAULT:
   #overnight_cost: sedos-overnight_cost
   #lifetime: sedos-lifetime
   #wacc: sedos-wacc
-WindOnshore:
+VolatileAdapter:
   capacity: installed_capacity
   profile: profile
   tech: technology
