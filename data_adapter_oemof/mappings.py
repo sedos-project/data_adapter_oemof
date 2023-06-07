@@ -1,9 +1,10 @@
 import dataclasses
-import pandas
-import logging
-from typing import Optional, Type
-from pathlib import Path
 import difflib
+import logging
+from pathlib import Path
+from typing import Optional, Type
+
+import pandas
 import yaml
 
 logger = logging.getLogger()
@@ -48,7 +49,7 @@ class Mapper:
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
 
         # Check default mappings second
-        elif key in self.mapping["DEFAULT"]:
+        elif key in self.mapping.get("DEFAULT", []):
             mapped_key = self.mapping["DEFAULT"][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
         # Use key if no mapping available
