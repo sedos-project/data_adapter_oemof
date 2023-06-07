@@ -18,15 +18,17 @@ class Mapper:
         if bus_map is None:
             bus_map = BUS_NAME_MAP
         self.adapter = adapter
-        self.adapter_name = adapter.__name__
         self.data = data
         self.mapping = mapping
         self.bus_map = bus_map
 
     def get(self, key):
         # check facade-specific defaults first
-        if self.adapter_name in self.mapping and key in self.mapping[self.adapter_name]:
-            mapped_key = self.mapping[self.adapter_name][key]
+        if (
+            self.adapter.__name__ in self.mapping
+            and key in self.mapping[self.adapter.__name__]
+        ):
+            mapped_key = self.mapping[self.adapter.__name__][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
         # check general defaults second
         elif key in self.mapping["DEFAULT"]:
