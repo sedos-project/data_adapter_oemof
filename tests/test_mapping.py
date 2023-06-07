@@ -152,3 +152,9 @@ def test_get_sequence_name():
 
     mapper = Mapper(data=scalar_data, timeseries=timeseries)
     heat_col = mapper.get("heat", field_type=typing.Sequence)
+    elec_col = mapper.get("electricity", field_type=typing.Sequence)
+
+    expected_heat = pd.Series(["heat_TH", "heat_HH"], name="region")
+    expected_elec = pd.Series(["electricity_TH", "electricity_HH"], name="region")
+    pd.testing.assert_series_equal(left=heat_col, right=expected_heat, check_category_order=False)
+    pd.testing.assert_series_equal(left=elec_col, right=expected_elec, check_category_order=False)
