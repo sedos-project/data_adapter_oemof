@@ -23,7 +23,7 @@ def test_get_with_mapping():
         "capacity": 100.0,
     }
     mapped = {}
-    for key, value in expected.items():
+    for key, _ in expected.items():
         mapped[key] = mapper.get(key)
     assert mapped == expected
 
