@@ -201,5 +201,6 @@ TYPE_MAP = {
     "storage": StorageAdapter,
     "volatile": VolatileAdapter,
     "dispatchable": DispatchableAdapter,
+    "extraction": ExtractionTurbineAdapter,
     "battery_storage": StorageAdapter,
 }

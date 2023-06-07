@@ -44,6 +44,39 @@ def test_get_with_mapping():
     assert mapped == expected
 
 
+def test_get_with_sequence():
+    adapter = TYPE_MAP["extraction"]
+
+    timeseries = pd.DataFrame(
+        {"condensing_efficiency_DE": [7, 8, 9], "electric_efficiency_DE": [10, 11, 12]},
+        index=["2016-01-01 01:00:00", "2035-01-01 01:00:00", "2050-01-01 01:00:00"],
+    )
+
+    mapping = {
+        "ExtractionTurbine": {"capacity": "installed_capacity"},
+    }
+    data = {
+        "region": "DE",
+        "installed_capacity": 200,
+    }
+
+    mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
+
+    expected = {
+        "region": "DE",
+        "capacity": 100.0,
+        "electric_efficiency": "electric_efficiency_DE",
+        "condensing_efficiency": "condensing_efficiency_DE",
+    }
+    import dataclasses
+
+    type = {i.name: i.type for i in dataclasses.fields(mapper.adapter)}
+    mapped = {}
+    for key, _ in expected.items():
+        mapped[key] = mapper.get(key, type.get(key))
+    assert mapped == expected
+
+
 def test_get_defaults():
     adapter = TYPE_MAP["volatile"]
     timeseries = pd.DataFrame(
