@@ -79,13 +79,10 @@ class Mapper:
             )
             return None
 
-        if key in DEFAULT_MAPPING:
-            return DEFAULT_MAPPING[key]
+        if mapped_key in DEFAULT_MAPPING:
+            return DEFAULT_MAPPING[mapped_key]
 
         logger.warning(f"Could not get data for mapped key '{mapped_key}'")
-        mapped_key = key
-        logger.info(f"Key not found. Did not map '{key}'")
-        # return None
         return mapped_key
 
     def get_busses(self, cls, struct):
