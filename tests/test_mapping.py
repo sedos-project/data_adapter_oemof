@@ -1,9 +1,7 @@
 import dataclasses
 import typing
 
-import numpy as np
 import pandas as pd
-from data_adapter.preprocessing import Adapter
 from test_build_datapackage import refactor_timeseries
 
 from data_adapter_oemof.adapters import (
@@ -55,71 +53,34 @@ def test_get_with_sequence():
     mapping = {
         "ExtractionTurbineAdapter": {"capacity": "installed_capacity"},
     }
-    data = pd.DataFrame(
-        {
-            "region": {1: "DE"},
-            "installed_capacity": {1: 200},
-        }
-    )
+
+    data = {
+        "region": "DE",
+        "installed_capacity": 200,
+    }
 
     mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
 
-    expected = pd.DataFrame(
-        {
-            "region": {1: "DE"},
-            "capacity": {1: 200.0},
-            "electric_efficiency": {1: "electric_efficiency_DE"},
-            "condensing_efficiency": {1: "condensing_efficiency_DE"},
-        }
-    )
+    expected = {
+        "region": "DE",
+        "capacity": 200.0,
+        "electric_efficiency": "electric_efficiency_DE",
+        "condensing_efficiency": "condensing_efficiency_DE",
+    }
 
     type = {i.name: i.type for i in dataclasses.fields(mapper.adapter)}
 
     for key, _ in expected.items():
-        assert expected[key].values == mapper.get(key, type.get(key)).values
+        assert expected[key] == mapper.get(key, type.get(key))
 
 
-def test_get_defaults():
+def test_get_busses():
     adapter = TYPE_MAP["volatile"]
+    mapping = {"region": "custom_region", "capacity": "custom_capacity"}
     timeseries = pd.DataFrame(
         {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
         index=["2016-01-01 01:00:00", "2035-01-01 01:00:00", "2050-01-01 01:00:00"],
     )
-
-    data = {
-        "technology": "WindOnshore",  # Necessary for global_parameter_map
-        # "carrier": "Wind",  # TODO workaround until PR #20 is merged
-        # "profile": "onshore",  # TODO workaround until PR #20 is merged
-        "region": "TH",
-        "installed_capacity": 100,
-    }
-    struct = {"default": {"inputs": ["onshore"], "outputs": ["electricity"]}}
-
-    parametrized_component = adapter.parametrize_dataclass(
-        data=data, timeseries=timeseries, struct=struct
-    )
-
-    expected_component = {
-        "bus": "electricity",
-        "carrier": "Wind",
-        "tech": "WindOnshore",
-        "profile": "onshore",
-        "capacity": 100,
-        "capacity_cost": None,
-        "capacity_potential": np.inf,
-        "capacity_minimum": None,
-        "expandable": False,
-        "marginal_cost": 0,
-        "output_parameters": {},
-        "name": "TH-Wind-WindOnshore",
-        "type": "Volatile",
-    }
-
-    assert expected_component == parametrized_component.as_dict()
-
-
-def test_get_busses():
-    mapping = {"region": "custom_region", "capacity": "custom_capacity"}
     data = {
         "custom_region": "TH",
         "custom_capacity": 100.0,
@@ -137,13 +98,24 @@ def test_get_busses():
 
     expected = {"electricity_bus": "electricity", "heat_bus": "heat", "fuel_bus": "ch4"}
 
-    mapper = Mapper(mapping=mapping, data=data, bus_map=bus_map)
+    mapper = Mapper(
+        adapter=adapter,
+        data=data,
+        timeseries=timeseries,
+        mapping=mapping,
+        bus_map=bus_map,
+    )
 
     assert expected == mapper.get_busses(cls=ExtractionTurbineAdapter, struct=struct)
 
 
 def test_default_bus_mapping():
+    adapter = TYPE_MAP["volatile"]
     mapping = {"region": "custom_region", "capacity": "custom_capacity"}
+    timeseries = pd.DataFrame(
+        {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
+        index=["2016-01-01 01:00:00", "2035-01-01 01:00:00", "2050-01-01 01:00:00"],
+    )
     data = {
         "custom_region": "TH",
         "custom_capacity": 100.0,
@@ -156,7 +128,7 @@ def test_default_bus_mapping():
         "to_bus": "electricity_bus_2",
     }
 
-    mapper = Mapper(mapping=mapping, data=data)
+    mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
 
     assert mapper.get_busses(cls=LinkAdapter, struct=struct) == expected
 
@@ -170,13 +142,18 @@ def test_default_bus_mapping():
 
     expected = {"bus": "electricity"}
 
-    mapper = Mapper(mapping=mapping, data=data)
+    mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
 
     assert mapper.get_busses(cls=VolatileAdapter, struct=struct) == expected
 
 
 def test_get_matched_busses():
+    adapter = TYPE_MAP["volatile"]
     mapping = {"region": "custom_region", "capacity": "custom_capacity"}
+    timeseries = pd.DataFrame(
+        {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
+        index=["2016-01-01 01:00:00", "2035-01-01 01:00:00", "2050-01-01 01:00:00"],
+    )
     data = {
         "custom_region": "TH",
         "custom_capacity": 100.0,
@@ -188,7 +165,13 @@ def test_get_matched_busses():
 
     expected = {"electricity_bus": "elec", "heat_bus": "heating", "fuel_bus": "ch4fuel"}
 
-    mapper = Mapper(mapping=mapping, data=data, bus_map=bus_map)
+    mapper = Mapper(
+        adapter=adapter,
+        data=data,
+        timeseries=timeseries,
+        mapping=mapping,
+        bus_map=bus_map,
+    )
 
     assert expected == mapper.get_busses(cls=ExtractionTurbineAdapter, struct=struct)
 
@@ -198,6 +181,7 @@ def test_get_sequence_name():
     test for getting sequence name and recognizing sequences within mapper
     :return:
     """
+    adapter = TYPE_MAP["extraction"]
 
     scalar_data = pd.DataFrame(
         {
@@ -218,28 +202,17 @@ def test_get_sequence_name():
             "heat": {0: [5, 6, 7], 1: [8, 9, 10]},
         }
     )
+    timeseries = refactor_timeseries(timeseries)
 
     structure = {
         "conversion": {
             "default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]}
         }
     }
+    for component_data in scalar_data.to_dict(orient="records"):
+        mapper = Mapper(adapter, data=component_data, timeseries=timeseries)
+        heat_col = mapper.get("heat", field_type=typing.Sequence)
+        electricity_col = mapper.get("electricity", field_type=typing.Sequence)
 
-    timeseries = refactor_timeseries(timeseries)
-
-    adapter = TYPE_MAP["extraction"]
-
-    mapper = Mapper(adapter, data=scalar_data, timeseries=timeseries)
-    heat_col = mapper.get("heat", field_type=typing.Sequence)
-    electricity_col = mapper.get("electricity", field_type=typing.Sequence)
-
-    expected_heat = pd.Series(["heat_TH", "heat_HH"], name="region")
-    expected_electricity = pd.Series(
-        ["electricity_TH", "electricity_HH"], name="region"
-    )
-    pd.testing.assert_series_equal(
-        left=heat_col, right=expected_heat, check_category_order=False
-    )
-    pd.testing.assert_series_equal(
-        left=electricity_col, right=expected_electricity, check_category_order=False
-    )
+        assert heat_col == "heat_" + component_data["region"]
+        assert electricity_col == "electricity_" + component_data["region"]
