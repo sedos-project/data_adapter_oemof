@@ -186,7 +186,7 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
     ExtractionTurbineAdapter
     """
 
-    type = "extraction_trubine"
+    type = "extraction_turbine"
 
 
 @facade_adapter
