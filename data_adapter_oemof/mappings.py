@@ -38,9 +38,16 @@ class Mapper:
         self.mapping = mapping
         self.bus_map = bus_map
 
-    def get(self, key, field_type: Optional[Type] = None):
-        # 1. Map keys
-        # 1.1 Check facade-specific mappings first
+    def map_key(self, key):
+        """Use adapter specific mapping if available, otherwise use default
+        mapping or return key if no mapping is available.
+
+        :param key: str
+            key to be mapped
+        :return: str
+            mapped key
+        """
+        # 1.Check facade-specific mappings first
         if (
             self.adapter.__name__ in self.mapping
             and key in self.mapping[self.adapter.__name__]
@@ -48,27 +55,39 @@ class Mapper:
             mapped_key = self.mapping[self.adapter.__name__][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
 
-        # 1.2 Check default mappings second
+        # 2 Check default mappings second
         elif key in self.mapping.get("DEFAULT", []):
             mapped_key = self.mapping["DEFAULT"][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
-        # 1.3 Use key if no mapping available
+        # 3 Use key if no mapping available
         else:
             mapped_key = key
             logger.warning(f"Key not found. Did not map '{key}'")
+        return mapped_key
 
-        # 2. Look for data
-        # 2.1 Check if mapped key is in scalar data
-        if mapped_key in self.data:
-            return self.data[mapped_key]
+    def get_data(self, key, field_type: Optional[Type] = None):
+        """
+        Get data for key either from scalar data or timeseries data. Return
+        None if no data is available.
 
-        # 2.2 Check if mapped key is in timeseries data
+        :param key: str
+        :param field_type: Type
+            Type of data field. Used to determine if key is a timeseries.
+        :return: str, numerical or None
+            Data for key or column name of timeseries
+        """
+
+        # 1.1 Check if mapped key is in scalar data
+        if key in self.data:
+            return self.data[key]
+
+        # 1.2 Check if mapped key is in timeseries data
         if self.is_sequence(field_type):
-            # 2.2.1 Take key_region if exists
-            mapped_key = f"{mapped_key}_{self.get('region')}"
-            if mapped_key in self.timeseries.columns:
-                return mapped_key
-            # 2.2.2 Take column name if only one time series is available
+            # 1.2.1 Take key_region if exists
+            key = f"{key}_{self.get_data('region')}"
+            if key in self.timeseries.columns:
+                return key
+            # 1.2.2 Take column name if only one time series is available
             if len(self.timeseries) == 1:
                 timeseries_key = self.timeseries.columns[0]
                 logger.info(
@@ -76,18 +95,30 @@ class Mapper:
                     f"Using existing timeseries column '{timeseries_key}'."
                 )
                 return timeseries_key
-            logger.warning(
-                f"Could not find timeseries entry for mapped key '{mapped_key}'"
-            )
+            logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
             return None
 
-        # 2.3 Use defaults
-        if mapped_key in DEFAULT_MAPPING:
-            return DEFAULT_MAPPING[mapped_key]
+        # 2 Use defaults
+        if key in DEFAULT_MAPPING:
+            return DEFAULT_MAPPING[key]
 
         # 3 Return None if no data is available
-        logger.warning(f"Could not get data for mapped key '{mapped_key}'")
+        logger.warning(f"Could not get data for mapped key '{key}'")
         return None
+
+    def get(self, key, field_type: Optional[Type] = None):
+        """
+        Map key with adapter specific mapping and return data for key if
+        available.
+
+        :param key: str
+            Name of data field
+        :param field_type: Type
+            Type of data field. Used to determine if key is a timeseries.
+        :return: str, numerical or None
+        """
+        mapped_key = self.map_key(key)
+        return self.get_data(mapped_key, field_type)
 
     def get_busses(self, cls, struct):
         """
@@ -160,6 +191,7 @@ class Mapper:
         :param mapper: Mapper to map oemof.tabular data names to Project naming
         :return: Dictionary for all fields that the facade can take and matching data
         """
+
         mapped_all_class_fields = {
             field.name: value
             for field in dataclasses.fields(cls)
