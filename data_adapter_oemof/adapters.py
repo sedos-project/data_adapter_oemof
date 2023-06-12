@@ -42,7 +42,11 @@ class Adapter:
         cls, data: dict, timeseries: pandas.DataFrame, struct: dict
     ) -> dict:
         mapper = Mapper(cls, data, timeseries)
-        defaults = mapper.get_default_mappings(cls, struct)
+        defaults = {"type": cls.type}
+        # Add mapped attributes
+        mapped_values = mapper.get_default_mappings(cls, struct)
+        defaults.update(mapped_values)
+        # Add additional attributes
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
