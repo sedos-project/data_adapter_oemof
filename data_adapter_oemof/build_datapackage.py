@@ -81,7 +81,7 @@ class DataPackage:
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
         split_dataframes = {}
-        for (sequence_name, sequence_dataframe) in parametrized_sequences.items():
+        for sequence_name, sequence_dataframe in parametrized_sequences.items():
             # Group the DataFrame by year using pd.Grouper
             grouped = sequence_dataframe.resample("Y")
 
@@ -114,7 +114,7 @@ class DataPackage:
         parametrized_elements = {}
         parametrized_sequences = {}
         foreign_keys = {}
-        for (process_name, struct) in es_structure.items():
+        for process_name, struct in es_structure.items():
             process_data = adapter.get_process(process_name)
             timeseries = refactor_timeseries(process_data.timeseries)
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]

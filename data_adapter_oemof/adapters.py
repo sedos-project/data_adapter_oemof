@@ -199,5 +199,8 @@ class VolatileAdapter(facades.Volatile, Adapter):
 
     type = "volatile"
 
+
 # Create a dictionary of all adapter classes defined in this module
-FACADE_ADAPTERS = {name: adapter for name, adapter in globals().items() if name.endswith("Adapter")}
+FACADE_ADAPTERS = {
+    name: adapter for name, adapter in globals().items() if name.endswith("Adapter")
+}
