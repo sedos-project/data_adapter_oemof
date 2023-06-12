@@ -30,7 +30,13 @@ def test_get_with_mapping():
         }
     )
 
-    mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
+    mapper = Mapper(
+        adapter=adapter,
+        process_name="modex_tech_wind_turbine_onshore",
+        data=data,
+        timeseries=timeseries,
+        mapping=mapping,
+    )
 
     expected = pd.DataFrame(
         {
@@ -60,7 +66,13 @@ def test_get_with_sequence():
         "installed_capacity": 200,
     }
 
-    mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
+    mapper = Mapper(
+        adapter=adapter,
+        process_name="modex_tech_generator_gas",
+        data=data,
+        timeseries=timeseries,
+        mapping=mapping,
+    )
 
     expected = {
         "region": "DE",
@@ -76,7 +88,7 @@ def test_get_with_sequence():
 
 
 def test_get_busses():
-    adapter = FACADE_ADAPTERS["VolatileAdapter"]
+    adapter = FACADE_ADAPTERS["ExtractionTurbineAdapter"]
     mapping = {"region": "custom_region", "capacity": "custom_capacity"}
     timeseries = pd.DataFrame(
         {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
@@ -101,6 +113,7 @@ def test_get_busses():
 
     mapper = Mapper(
         adapter=adapter,
+        process_name="modex_tech_generator_gas",
         data=data,
         timeseries=timeseries,
         mapping=mapping,
@@ -129,7 +142,13 @@ def test_default_bus_mapping():
         "to_bus": "electricity_bus_2",
     }
 
-    mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
+    mapper = Mapper(
+        adapter=adapter,
+        process_name="modex_tech_wind_turbine_onshore",
+        data=data,
+        timeseries=timeseries,
+        mapping=mapping,
+    )
 
     assert mapper.get_busses(cls=LinkAdapter, struct=struct) == expected
 
@@ -143,7 +162,13 @@ def test_default_bus_mapping():
 
     expected = {"bus": "electricity"}
 
-    mapper = Mapper(adapter=adapter, data=data, timeseries=timeseries, mapping=mapping)
+    mapper = Mapper(
+        adapter=adapter,
+        process_name="modex_tech_wind_turbine_onshore",
+        data=data,
+        timeseries=timeseries,
+        mapping=mapping,
+    )
 
     assert mapper.get_busses(cls=VolatileAdapter, struct=struct) == expected
 
@@ -168,6 +193,7 @@ def test_get_matched_busses():
 
     mapper = Mapper(
         adapter=adapter,
+        process_name="modex_tech_wind_turbine_onshore",
         data=data,
         timeseries=timeseries,
         mapping=mapping,
@@ -205,17 +231,20 @@ def test_get_sequence_name():
     )
     timeseries = refactor_timeseries(timeseries)
 
-
     structure = {
         "conversion": {
             "default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]}
         }
     }
     for component_data in scalar_data.to_dict(orient="records"):
-        mapper = Mapper(adapter, data=component_data, timeseries=timeseries)
+        mapper = Mapper(
+            adapter,
+            process_name="modex_tech_wind_turbine_onshore",
+            data=component_data,
+            timeseries=timeseries,
+        )
         heat_col = mapper.get("heat", field_type=typing.Sequence)
         electricity_col = mapper.get("electricity", field_type=typing.Sequence)
 
         assert heat_col == "heat_" + component_data["region"]
         assert electricity_col == "electricity_" + component_data["region"]
-
