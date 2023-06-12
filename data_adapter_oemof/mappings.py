@@ -51,25 +51,22 @@ class Mapper:
         """
         # 1.Check process-specific mappings first
         if self.process_name in self.mapping and key in self.mapping[self.process_name]:
-            mapped_key = self.mapping[self.process_name][key]
-            logger.info(f"Mapped '{key}' to '{mapped_key}'")
+            return self.mapping[self.process_name][key]
+
         # 2. Check facade-specific mappings second
-        elif (
+        if (
             self.adapter.__name__ in self.mapping
             and key in self.mapping[self.adapter.__name__]
         ):
-            mapped_key = self.mapping[self.adapter.__name__][key]
-            logger.info(f"Mapped '{key}' to '{mapped_key}'")
+            return self.mapping[self.adapter.__name__][key]
 
         # 3. Check default mappings third
-        elif key in self.mapping.get("DEFAULT", []):
-            mapped_key = self.mapping["DEFAULT"][key]
-            logger.info(f"Mapped '{key}' to '{mapped_key}'")
+        if key in self.mapping.get("DEFAULT", []):
+            return self.mapping["DEFAULT"][key]
+
         # 4. Use key if no mapping available
-        else:
-            mapped_key = key
-            logger.warning(f"Key not found. Did not map '{key}'")
-        return mapped_key
+        logger.warning(f"Key not found. Did not map '{key}'")
+        return key
 
     def get_data(self, key, field_type: Optional[Type] = None):
         """
