@@ -39,8 +39,8 @@ class Mapper:
         self.bus_map = bus_map
 
     def get(self, key, field_type: Optional[Type] = None):
-        # Map keys
-        # Check facade-specific mappings first
+        # 1. Map keys
+        # 1.1 Check facade-specific mappings first
         if (
             self.adapter.__name__ in self.mapping
             and key in self.mapping[self.adapter.__name__]
@@ -48,25 +48,27 @@ class Mapper:
             mapped_key = self.mapping[self.adapter.__name__][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
 
-        # Check default mappings second
+        # 1.2 Check default mappings second
         elif key in self.mapping.get("DEFAULT", []):
             mapped_key = self.mapping["DEFAULT"][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
-        # Use key if no mapping available
+        # 1.3 Use key if no mapping available
         else:
             mapped_key = key
             logger.warning(f"Key not found. Did not map '{key}'")
 
-        # Look for data
-        # Check if mapped key is scalar
+        # 2. Look for data
+        # 2.1 Check if mapped key is in scalar data
         if mapped_key in self.data:
             return self.data[mapped_key]
 
-        # Check if mapped key is timeseries
+        # 2.2 Check if mapped key is in timeseries data
         if self.is_sequence(field_type):
+            # 2.2.1 Take key_region if exists
             mapped_key = f"{mapped_key}_{self.get('region')}"
             if mapped_key in self.timeseries.columns:
                 return mapped_key
+            # 2.2.2 Take column name if only one time series is available
             if len(self.timeseries) == 1:
                 timeseries_key = self.timeseries.columns[0]
                 logger.info(
@@ -79,9 +81,11 @@ class Mapper:
             )
             return None
 
+        # 2.3 Use defaults
         if mapped_key in DEFAULT_MAPPING:
             return DEFAULT_MAPPING[mapped_key]
 
+        # 3 Return None if no data is available
         logger.warning(f"Could not get data for mapped key '{mapped_key}'")
         return None
 
