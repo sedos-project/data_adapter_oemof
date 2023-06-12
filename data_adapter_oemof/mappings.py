@@ -55,7 +55,7 @@ class Mapper:
         # Use key if no mapping available
         else:
             mapped_key = key
-            logger.info(f"Key not found. Did not map '{key}'")
+            logger.warning(f"Key not found. Did not map '{key}'")
 
         # Look for data
         # Check if mapped key is scalar
@@ -83,7 +83,7 @@ class Mapper:
             return DEFAULT_MAPPING[mapped_key]
 
         logger.warning(f"Could not get data for mapped key '{mapped_key}'")
-        return mapped_key
+        return None
 
     def get_busses(self, cls, struct):
         """
