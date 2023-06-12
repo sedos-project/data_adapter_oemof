@@ -204,6 +204,7 @@ def test_get_sequence_name():
     )
     timeseries = refactor_timeseries(timeseries)
 
+
     structure = {
         "conversion": {
             "default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]}
@@ -216,3 +217,4 @@ def test_get_sequence_name():
 
         assert heat_col == "heat_" + component_data["region"]
         assert electricity_col == "electricity_" + component_data["region"]
+
