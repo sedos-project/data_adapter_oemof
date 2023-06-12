@@ -136,31 +136,16 @@ def test_get_sequence_name():
         }
     )
 
-    structure = {
-        "conversion": {
-            "default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]}
-        }
-    }
-
     timeseries = refactor_timeseries(timeseries)
 
-    adapter = Adapter(
-        "minimal_example",
-        structure_name="minimal_structure",
-        links_name="minimal_links",
-    )
+    heat = []
+    electricity = []
+    for data in scalar_data.to_dict(orient="records"):
+        mapper = Mapper(data=data, timeseries=timeseries)
+        heat.append(mapper.get("heat", field_type=typing.Sequence))
+        electricity.append(mapper.get("electricity", field_type=typing.Sequence))
 
-    mapper = Mapper(data=scalar_data, timeseries=timeseries)
-    heat_col = mapper.get("heat", field_type=typing.Sequence)
-    electricity_col = mapper.get("electricity", field_type=typing.Sequence)
-
-    expected_heat = pd.Series(["heat_TH", "heat_HH"], name="region")
-    expected_electricity = pd.Series(
-        ["electricity_TH", "electricity_HH"], name="region"
-    )
-    pd.testing.assert_series_equal(
-        left=heat_col, right=expected_heat, check_category_order=False
-    )
-    pd.testing.assert_series_equal(
-        left=electricity_col, right=expected_electricity, check_category_order=False
-    )
+    expected_heat = ["heat_TH", "heat_HH"]
+    expected_electricity = ["electricity_TH", "electricity_HH"]
+    assert heat == expected_heat
+    assert electricity == expected_electricity

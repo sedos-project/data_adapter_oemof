@@ -43,8 +43,8 @@ class Mapper:
             return self.data[mapped_key]
 
         if self.is_sequence(field_type):
-            mapped_key = mapped_key + "_" + self.get("region")
-            if all([key in self.timeseries.columns for key in mapped_key.tolist()]):
+            mapped_key = f"{mapped_key}_{self.get('region')}"
+            if mapped_key in self.timeseries.columns:
                 return mapped_key
             if len(self.timeseries) == 1:
                 timeseries_key = self.timeseries.columns[0]
