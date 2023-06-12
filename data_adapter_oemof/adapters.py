@@ -197,14 +197,5 @@ class VolatileAdapter(facades.Volatile, Adapter):
 
     type = "volatile"
 
-
-TYPE_MAP = {
-    "commodity": CommodityAdapter,
-    "conversion": ConversionAdapter,
-    "load": LoadAdapter,
-    "storage": StorageAdapter,
-    "volatile": VolatileAdapter,
-    "dispatchable": DispatchableAdapter,
-    "extraction": ExtractionTurbineAdapter,
-    "battery_storage": StorageAdapter,
-}
+# Create a dictionary of all adapter classes defined in this module
+FACADE_ADAPTERS = {name: adapter for name, adapter in globals().items() if name.endswith("Adapter")}

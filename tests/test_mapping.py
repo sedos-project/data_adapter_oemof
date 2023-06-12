@@ -2,10 +2,11 @@ import dataclasses
 import typing
 
 import pandas as pd
+import numpy as np
 from test_build_datapackage import refactor_timeseries
 
 from data_adapter_oemof.adapters import (
-    TYPE_MAP,
+    FACADE_ADAPTERS,
     ExtractionTurbineAdapter,
     LinkAdapter,
     VolatileAdapter,
@@ -14,7 +15,7 @@ from data_adapter_oemof.mappings import Mapper
 
 
 def test_get_with_mapping():
-    adapter = TYPE_MAP["volatile"]
+    adapter = FACADE_ADAPTERS["VolatileAdapter"]
 
     timeseries = pd.DataFrame(
         {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
@@ -43,7 +44,7 @@ def test_get_with_mapping():
 
 
 def test_get_with_sequence():
-    adapter = TYPE_MAP["extraction"]
+    adapter = FACADE_ADAPTERS["ExtractionTurbineAdapter"]
 
     timeseries = pd.DataFrame(
         {"condensing_efficiency_DE": [7, 8, 9], "electric_efficiency_DE": [10, 11, 12]},
@@ -75,7 +76,7 @@ def test_get_with_sequence():
 
 
 def test_get_busses():
-    adapter = TYPE_MAP["volatile"]
+    adapter = FACADE_ADAPTERS["VolatileAdapter"]
     mapping = {"region": "custom_region", "capacity": "custom_capacity"}
     timeseries = pd.DataFrame(
         {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
@@ -110,7 +111,7 @@ def test_get_busses():
 
 
 def test_default_bus_mapping():
-    adapter = TYPE_MAP["volatile"]
+    adapter = FACADE_ADAPTERS["VolatileAdapter"]
     mapping = {"region": "custom_region", "capacity": "custom_capacity"}
     timeseries = pd.DataFrame(
         {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
@@ -148,7 +149,7 @@ def test_default_bus_mapping():
 
 
 def test_get_matched_busses():
-    adapter = TYPE_MAP["volatile"]
+    adapter = FACADE_ADAPTERS["VolatileAdapter"]
     mapping = {"region": "custom_region", "capacity": "custom_capacity"}
     timeseries = pd.DataFrame(
         {"onshore_BB": [1, 2, 3], "onshore_HH": [4, 5, 6]},
@@ -181,7 +182,7 @@ def test_get_sequence_name():
     test for getting sequence name and recognizing sequences within mapper
     :return:
     """
-    adapter = TYPE_MAP["extraction"]
+    adapter = FACADE_ADAPTERS["ExtractionTurbineAdapter"]
 
     scalar_data = pd.DataFrame(
         {
