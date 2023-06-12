@@ -5,7 +5,7 @@ import pandas as pd
 
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
-from data_adapter_oemof.adapters import TYPE_MAP
+from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
 
 
@@ -81,7 +81,7 @@ class DataPackage:
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
         split_dataframes = {}
-        for (sequence_name, sequence_dataframe) in parametrized_sequences.items():
+        for sequence_name, sequence_dataframe in parametrized_sequences.items():
             # Group the DataFrame by year using pd.Grouper
             grouped = sequence_dataframe.resample("Y")
 
@@ -114,16 +114,15 @@ class DataPackage:
         parametrized_elements = {}
         parametrized_sequences = {}
         foreign_keys = {}
-        for (process_name, struct) in es_structure.items():
+        for process_name, struct in es_structure.items():
             process_data = adapter.get_process(process_name)
             timeseries = refactor_timeseries(process_data.timeseries)
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
-            facade_adapter = TYPE_MAP[facade_adapter_name]
-
+            facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
             for component_data in process_data.scalars.to_dict(orient="records"):
                 component = facade_adapter.parametrize_dataclass(
-                    component_data, timeseries, struct
+                    process_name, component_data, timeseries, struct
                 )
                 components.append(component.as_dict())
 

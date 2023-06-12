@@ -33,16 +33,22 @@ class Adapter:
 
     @classmethod
     def parametrize_dataclass(
-        cls, data: dict, timeseries: pandas.DataFrame, struct
+        cls, process_name: str, data: dict, timeseries: pandas.DataFrame, struct
     ) -> "Adapter":
-        return cls(**cls.get_default_parameters(data, timeseries, struct))
+        return cls(**cls.get_default_parameters(process_name, data, timeseries, struct))
 
     @classmethod
     def get_default_parameters(
-        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+        cls, process_name: str, data: dict, timeseries: pandas.DataFrame, struct: dict
     ) -> dict:
-        mapper = Mapper(data, timeseries)
-        defaults = mapper.get_default_mappings(cls, struct)
+        mapper = Mapper(cls, process_name, data, timeseries)
+        defaults = {
+            "type": cls.type,
+        }
+        # Add mapped attributes
+        mapped_values = mapper.get_default_mappings(cls, struct)
+        defaults.update(mapped_values)
+        # Add additional attributes
         attributes = {
             "name": calculations.get_name(
                 mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
@@ -182,7 +188,7 @@ class ExtractionTurbineAdapter(facades.ExtractionTurbine, Adapter):
     ExtractionTurbineAdapter
     """
 
-    type = "extraction_trubine"
+    type = "extraction_turbine"
 
 
 @facade_adapter
@@ -194,12 +200,7 @@ class VolatileAdapter(facades.Volatile, Adapter):
     type = "volatile"
 
 
-TYPE_MAP = {
-    "commodity": CommodityAdapter,
-    "conversion": ConversionAdapter,
-    "load": LoadAdapter,
-    "storage": StorageAdapter,
-    "volatile": VolatileAdapter,
-    "dispatchable": DispatchableAdapter,
-    "battery_storage": StorageAdapter,
+# Create a dictionary of all adapter classes defined in this module
+FACADE_ADAPTERS = {
+    name: adapter for name, adapter in globals().items() if name.endswith("Adapter")
 }

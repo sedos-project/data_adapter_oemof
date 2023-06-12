@@ -1,9 +1,10 @@
 import dataclasses
-import pandas
-import logging
-from typing import Optional, Type
-from pathlib import Path
 import difflib
+import logging
+from pathlib import Path
+from typing import Optional, Type
+
+import pandas
 import yaml
 
 logger = logging.getLogger()
@@ -20,48 +21,107 @@ class MappingError(Exception):
 
 class Mapper:
     def __init__(
-        self, data: dict, timeseries: pandas.DataFrame, mapping=None, bus_map=None
+        self,
+        adapter,
+        process_name: str,
+        data: dict,
+        timeseries: pandas.DataFrame,
+        mapping=None,
+        bus_map=None,
     ):
         if mapping is None:
             mapping = GLOBAL_PARAMETER_MAP
         if bus_map is None:
             bus_map = BUS_NAME_MAP
+        self.adapter = adapter
+        self.process_name = process_name
         self.data = data
         self.timeseries = timeseries
         self.mapping = mapping
         self.bus_map = bus_map
 
-    def get(self, key, field_type: Optional[Type] = None):
-        if key in self.mapping:
-            mapped_key = self.mapping[key]
-            logger.info(f"Mapped '{key}' to '{mapped_key}'")
-        else:
-            mapped_key = key
-            logger.info(f"Key not found. Did not map '{key}'")
+    def map_key(self, key):
+        """Use adapter specific mapping if available, otherwise use default
+        mapping or return key if no mapping is available.
 
-        if mapped_key in self.data:
-            return self.data[mapped_key]
+        :param key: str
+            key to be mapped
+        :return: str
+            mapped key
+        """
+        # 1.Check process-specific mappings first
+        if self.process_name in self.mapping and key in self.mapping[self.process_name]:
+            return self.mapping[self.process_name][key]
 
+        # 2. Check facade-specific mappings second
+        if (
+            self.adapter.__name__ in self.mapping
+            and key in self.mapping[self.adapter.__name__]
+        ):
+            return self.mapping[self.adapter.__name__][key]
+
+        # 3. Check default mappings third
+        if key in self.mapping.get("DEFAULT", []):
+            return self.mapping["DEFAULT"][key]
+
+        # 4. Use key if no mapping available
+        logger.warning(f"Key not found. Did not map '{key}'")
+        return key
+
+    def get_data(self, key, field_type: Optional[Type] = None):
+        """
+        Get data for key either from scalar data or timeseries data. Return
+        None if no data is available.
+
+        :param key: str
+        :param field_type: Type
+            Type of data field. Used to determine if key is a timeseries.
+        :return: str, numerical or None
+            Data for key or column name of timeseries
+        """
+
+        # 1.1 Check if mapped key is in scalar data
+        if key in self.data:
+            return self.data[key]
+
+        # 1.2 Check if mapped key is in timeseries data
         if self.is_sequence(field_type):
-            mapped_key = f"{mapped_key}_{self.get('region')}"
-            if mapped_key in self.timeseries.columns:
-                return mapped_key
+            # 1.2.1 Take key_region if exists
+            key = f"{key}_{self.get_data('region')}"
+            if key in self.timeseries.columns:
+                return key
+            # 1.2.2 Take column name if only one time series is available
             if len(self.timeseries) == 1:
                 timeseries_key = self.timeseries.columns[0]
                 logger.info(
-                    f"Key not found in timeseries. Using existing timeseries column '{timeseries_key}'."
+                    "Key not found in timeseries. "
+                    f"Using existing timeseries column '{timeseries_key}'."
                 )
                 return timeseries_key
-            logger.warning(
-                f"Could not find timeseries entry for mapped key '{mapped_key}'"
-            )
+            logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
             return None
 
+        # 2 Use defaults
         if key in DEFAULT_MAPPING:
             return DEFAULT_MAPPING[key]
 
-        logger.warning(f"Could not get data for mapped key '{mapped_key}'")
+        # 3 Return None if no data is available
+        logger.warning(f"Could not get data for mapped key '{key}'")
         return None
+
+    def get(self, key, field_type: Optional[Type] = None):
+        """
+        Map key with adapter specific mapping and return data for key if
+        available.
+
+        :param key: str
+            Name of data field
+        :param field_type: Type
+            Type of data field. Used to determine if key is a timeseries.
+        :return: str, numerical or None
+        """
+        mapped_key = self.map_key(key)
+        return self.get_data(mapped_key, field_type)
 
     def get_busses(self, cls, struct):
         """
@@ -134,6 +194,7 @@ class Mapper:
         :param mapper: Mapper to map oemof.tabular data names to Project naming
         :return: Dictionary for all fields that the facade can take and matching data
         """
+
         mapped_all_class_fields = {
             field.name: value
             for field in dataclasses.fields(cls)

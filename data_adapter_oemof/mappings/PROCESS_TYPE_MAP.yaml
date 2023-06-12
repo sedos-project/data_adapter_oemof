@@ -1,9 +1,3 @@
-modex_tech_wind_turbine_onshore: volatile
-#modex_tech_storage_battery: storage
-#modex_tech_generator_gas: dispatchable
-commodity: commodity
-modex_tech_generator_gas: conversion
-"load": load
-"modex_tech_storage_battery": storage
-"volatile": volatile
-"dispatchable": dispatchable
+# This is a mapping file to map the various processes to the oemof tabular facades.
+modex_tech_wind_turbine_onshore: VolatileAdapter
+modex_tech_storage_battery: VolatileAdapter
