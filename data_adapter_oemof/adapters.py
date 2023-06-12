@@ -33,16 +33,18 @@ class Adapter:
 
     @classmethod
     def parametrize_dataclass(
-        cls, data: dict, timeseries: pandas.DataFrame, struct
+        cls, process_name: str, data: dict, timeseries: pandas.DataFrame, struct
     ) -> "Adapter":
-        return cls(**cls.get_default_parameters(data, timeseries, struct))
+        return cls(**cls.get_default_parameters(process_name, data, timeseries, struct))
 
     @classmethod
     def get_default_parameters(
-        cls, data: dict, timeseries: pandas.DataFrame, struct: dict
+        cls, process_name: str, data: dict, timeseries: pandas.DataFrame, struct: dict
     ) -> dict:
-        mapper = Mapper(cls, data, timeseries)
-        defaults = {"type": cls.type}
+        mapper = Mapper(cls, process_name, data, timeseries)
+        defaults = {
+            "type": cls.type,
+        }
         # Add mapped attributes
         mapped_values = mapper.get_default_mappings(cls, struct)
         defaults.update(mapped_values)

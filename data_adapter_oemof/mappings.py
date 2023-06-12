@@ -23,6 +23,7 @@ class Mapper:
     def __init__(
         self,
         adapter,
+        process_name: str,
         data: dict,
         timeseries: pandas.DataFrame,
         mapping=None,
@@ -33,6 +34,7 @@ class Mapper:
         if bus_map is None:
             bus_map = BUS_NAME_MAP
         self.adapter = adapter
+        self.process_name = process_name
         self.data = data
         self.timeseries = timeseries
         self.mapping = mapping
@@ -47,19 +49,23 @@ class Mapper:
         :return: str
             mapped key
         """
-        # 1.Check facade-specific mappings first
-        if (
+        # 1.Check process-specific mappings first
+        if self.process_name in self.mapping and key in self.mapping[self.process_name]:
+            mapped_key = self.mapping[self.process_name][key]
+            logger.info(f"Mapped '{key}' to '{mapped_key}'")
+        # 2. Check facade-specific mappings second
+        elif (
             self.adapter.__name__ in self.mapping
             and key in self.mapping[self.adapter.__name__]
         ):
             mapped_key = self.mapping[self.adapter.__name__][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
 
-        # 2 Check default mappings second
+        # 3. Check default mappings third
         elif key in self.mapping.get("DEFAULT", []):
             mapped_key = self.mapping["DEFAULT"][key]
             logger.info(f"Mapped '{key}' to '{mapped_key}'")
-        # 3 Use key if no mapping available
+        # 4. Use key if no mapping available
         else:
             mapped_key = key
             logger.warning(f"Key not found. Did not map '{key}'")

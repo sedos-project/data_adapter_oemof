@@ -122,7 +122,7 @@ class DataPackage:
             components = []
             for component_data in process_data.scalars.to_dict(orient="records"):
                 component = facade_adapter.parametrize_dataclass(
-                    component_data, timeseries, struct
+                    process_name, component_data, timeseries, struct
                 )
                 components.append(component.as_dict())
 

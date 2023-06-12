@@ -11,5 +11,5 @@ DEFAULT:
   #wacc: sedos-wacc
 VolatileAdapter:
   capacity: installed_capacity
-  profile: profile
-  tech: technology
+modex_tech_wind_turbine_onshore:
+  profile: onshore
