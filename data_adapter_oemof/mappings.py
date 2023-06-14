@@ -99,7 +99,7 @@ class Mapper:
                 )
                 return timeseries_key
             logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
-            return None
+            return key
 
         # 2 Use defaults
         if key in DEFAULT_MAPPING:
@@ -123,7 +123,7 @@ class Mapper:
         mapped_key = self.map_key(key)
         return self.get_data(mapped_key, field_type)
 
-    def get_busses(self, cls, struct):
+    def get_busses(self, cls, struct, parameter:str = None):
         """
         Identify mentioned buses in the facade.
         Determine if each bus in the facade is classified as an "input"/"output".
@@ -135,6 +135,7 @@ class Mapper:
             If not, search for name similarities:
                 Between the structure CSV and the adapter's buses take name from the structure.
 
+        :param parameter: paramter for mapping different parameters within a process
         :param cls: Child from Adapter class
         :param struct: dict
         :return: dictionary with tabular like Busses
@@ -155,6 +156,11 @@ class Mapper:
                 continue
             except KeyError:
                 pass
+
+            if parameter is None:
+                struct = struct["default"]
+            else:
+                struct = struct[parameter]
 
             # 2. Check for default busses
             if bus in ("bus", "from_bus", "to_bus"):
