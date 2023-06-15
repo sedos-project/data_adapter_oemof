@@ -1,6 +1,7 @@
 import dataclasses
 import difflib
 import logging
+import warnings
 from pathlib import Path
 from typing import Optional, Type
 
@@ -123,7 +124,7 @@ class Mapper:
         mapped_key = self.map_key(key)
         return self.get_data(mapped_key, field_type)
 
-    def get_busses(self, cls, struct, parameter:str = None):
+    def get_busses(self, cls, struct):
         """
         Identify mentioned buses in the facade.
         Determine if each bus in the facade is classified as an "input"/"output".
@@ -147,9 +148,11 @@ class Mapper:
             logger.warning(
                 f"No busses found in facades fields for Dataadapter {cls.__name__}"
             )
-
+        # { input: [], output :[]}
+        # {default: {},
+        # co2:{}}}
         bus_dict = {}
-        for bus in bus_occurrences_in_fields:
+        for bus in bus_occurrences_in_fields: # emission_bus
             # 1. Check for existing mappings
             try:
                 bus_dict[bus] = self.bus_map[cls.__name__][bus]
@@ -157,10 +160,15 @@ class Mapper:
             except KeyError:
                 pass
 
-            if parameter is None:
+            #TODO: Make use of Parameter [stuct.csv]?
+            # Do we need parameter specific Bus structure? Maybe for multiple in/output?
+            if len(struct.keys) == 1:
+                struct = struct[struct.keys[0]]
+            elif "default" in struct.keys:
                 struct = struct["default"]
             else:
-                struct = struct[parameter]
+                warnings.warn("Please check structure and provide either one set of inputs/outputs or specify as default"
+                              "Parameter specific busses not implemented yet")
 
             # 2. Check for default busses
             if bus in ("bus", "from_bus", "to_bus"):

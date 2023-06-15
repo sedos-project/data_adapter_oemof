@@ -1,5 +1,5 @@
 id;process;parameter;inputs;outputs
 1;modex_tech_storage_battery;default;electricity;
 5;modex_tech_generator_gas;emission_factor;ch4;co2
-6;modex_tech_generator_gas;default;ch4;electricity,heat
+6;modex_tech_generator_gas;default;ch4, wood;electricity,heat
 10;modex_tech_wind_turbine_onshore;default;onshore;electricity
