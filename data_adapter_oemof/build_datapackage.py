@@ -142,12 +142,6 @@ class DataPackage:
 
             parametrized_sequences = {process_name: timeseries}
 
-        # Splitting timeseries into multiple timeseries.
-        # We don't know yet what requirements multiple year optimisation will have.
-        parametrized_sequences = cls.__split_timeseries_into_years(
-            parametrized_sequences
-        )
-
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
