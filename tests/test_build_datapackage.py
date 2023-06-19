@@ -40,8 +40,8 @@ def test_refactor_timeseries():
             ["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"]
         ),
     )
-    expected_df = expected_df.sort_index(axis=0)
-    refactored_ts = refactored_ts.sort_index(axis=0)
+    expected_df = expected_df.sort_index(axis=1)
+    refactored_ts = refactored_ts.sort_index(axis=1)
     pandas.testing.assert_frame_equal(expected_df, refactored_ts)
 
 
