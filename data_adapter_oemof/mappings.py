@@ -1,6 +1,7 @@
 import dataclasses
 import difflib
 import logging
+import warnings
 from pathlib import Path
 from typing import Optional, Type
 
@@ -99,7 +100,7 @@ class Mapper:
                 )
                 return timeseries_key
             logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
-            return None
+            return key
 
         # 2 Use defaults
         if key in DEFAULT_MAPPING:
@@ -135,6 +136,7 @@ class Mapper:
             If not, search for name similarities:
                 Between the structure CSV and the adapter's buses take name from the structure.
 
+        :param parameter: paramter for mapping different parameters within a process
         :param cls: Child from Adapter class
         :param struct: dict
         :return: dictionary with tabular like Busses
@@ -146,15 +148,27 @@ class Mapper:
             logger.warning(
                 f"No busses found in facades fields for Dataadapter {cls.__name__}"
             )
-
+        # { input: [], output :[]}
+        # {default: {},
+        # co2:{}}}
         bus_dict = {}
-        for bus in bus_occurrences_in_fields:
+        for bus in bus_occurrences_in_fields: # emission_bus
             # 1. Check for existing mappings
             try:
                 bus_dict[bus] = self.bus_map[cls.__name__][bus]
                 continue
             except KeyError:
                 pass
+
+            #TODO: Make use of Parameter [stuct.csv]?
+            # Do we need parameter specific Bus structure? Maybe for multiple in/output?
+            if len(struct.keys()) == 1:
+                struct = list(struct.values())[0]
+            elif "default" in struct.keys():
+                struct = struct["default"]
+            else:
+                warnings.warn("Please check structure and provide either one set of inputs/outputs or specify as default"
+                              "Parameter specific busses not implemented yet")
 
             # 2. Check for default busses
             if bus in ("bus", "from_bus", "to_bus"):

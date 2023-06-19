@@ -5,12 +5,6 @@ ExtractionTurbine:
 VolatileAdapter:
   bus: electricity
 
-LoadAdapter:
-  bus: hans
-
-StorageAdapter:
-  bus: hans
-
 ConversionAdapter:
   from_bus: auto
   to_bus: auto
