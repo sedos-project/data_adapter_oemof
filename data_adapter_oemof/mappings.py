@@ -162,9 +162,9 @@ class Mapper:
 
             #TODO: Make use of Parameter [stuct.csv]?
             # Do we need parameter specific Bus structure? Maybe for multiple in/output?
-            if len(struct.keys) == 1:
-                struct = struct[struct.keys[0]]
-            elif "default" in struct.keys:
+            if len(struct.keys()) == 1:
+                struct = list(struct.values())[0]
+            elif "default" in struct.keys():
                 struct = struct["default"]
             else:
                 warnings.warn("Please check structure and provide either one set of inputs/outputs or specify as default"
