@@ -1,4 +1,4 @@
-ExtractionTurbine:
+ExtractionTurbineAdapter:
   electricity_bus: electricity
   heat_bus: heat
 
