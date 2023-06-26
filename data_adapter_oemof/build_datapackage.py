@@ -63,6 +63,28 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
     return df_timeseries
 
+def add_bus_to_sequences(scalar_dict):
+    """
+    Takes a sequence dict of processes with sequence data and searches for busses in columns that contain `bus`
+    :param scalar_dict:
+    :return: Updated Sequence with additional entry "bus" that contains all occurring bus entries as balanced busses.
+    """
+    unique_entries = set()
+    for element in scalar_dict.values():
+        bus_occourences = [col for col in element.columns if "bus" in col]
+        for bus_category_name in bus_occourences:
+            unique_entries.update(element[bus_category_name].unique())
+
+    unique_entries = pd.unique(list(unique_entries))
+    scalar_dict["bus"] = pd.DataFrame(
+        {
+            "name": unique_entries,
+            "type": ["bus" for i in unique_entries],
+            "balanced": [True for i in unique_entries],
+        }
+    )
+
+    return scalar_dict
 
 @dataclasses.dataclass
 class DataPackage:
