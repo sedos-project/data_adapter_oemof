@@ -157,22 +157,24 @@ class DataPackage:
                     timeseries=timeseries,
                 )
                 component = facade_adapter.parametrize_dataclass(
-                    process_name, component_data, timeseries, struct, component_mapper
+                    struct, component_mapper
                 )
                 components.append(component.as_dict())
                 # Fill with all busses occurring, needed for foreign keys as well!
                 process_busses += list(component_mapper.get_busses(struct).values())
+
+            process_busses = pd.unique(process_busses)
             parametrized_elements["bus"] += process_busses
 
             # check if facade_adapter already exists in foreign keys -> add or update accordingly
             if facade_adapter_name in foreign_keys.keys():
                 # The same column cannot be pointing to different locations nor be None for some entries.
                 assert foreign_keys[facade_adapter_name] == cls.get_foreign_keys(
-                    process_busses, component_mapper, facade_adapter
+                    process_busses, component_mapper
                 ), "Foreign keys have to be the equal for every instance of the FacadeAdapter. "
             else:
                 foreign_keys[facade_adapter_name] = cls.get_foreign_keys(
-                    process_busses, component_mapper, facade_adapter
+                    process_busses, component_mapper
                 )
 
             # check if facade_adapter already exists in parametrized elements -> add or update accordingly
