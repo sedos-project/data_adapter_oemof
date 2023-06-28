@@ -158,9 +158,9 @@ class DataPackage:
             parametrized_sequences = {process_name: timeseries}
         parametrized_elements["bus"] = pd.DataFrame(
             {
-                "name": pd.unique(parametrized_elements["bus"]),
-                "type": ["bus" for i in pd.unique(parametrized_elements["bus"])],
-                "blanced": [True for i in pd.unique(parametrized_elements["bus"])],
+                "name": (names := pd.unique(parametrized_elements["bus"])),
+                "type": ["bus" for i in names],
+                "blanced": [True for i in names],
             }
         )
         return cls(
