@@ -121,25 +121,24 @@ class DataPackage:
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
-
             # Build class from adapter with Mapper and add up for each component within the Element
             for component_data in process_data.scalars.to_dict(orient="records"):
                 component = facade_adapter.parametrize_dataclass(
                     process_name, component_data, timeseries, struct
                 )
                 components.append(component.as_dict())
-
-            # Fill bus.csv with all busses occurring
-            parametrized_elements["bus"] += list(
-                Mapper(
-                    adapter=facade_adapter,
-                    process_name=process_name,
-                    data=component_data,
-                    timeseries=timeseries,
+                component_mapper = Mapper(
+                        adapter=facade_adapter,
+                        process_name=process_name,
+                        data=component_data,
+                        timeseries=timeseries,
+                    )
+                # Fill bus.csv with all busses occurring
+                parametrized_elements["bus"] += list(
+                    component_mapper
+                    .get_busses(struct)
+                    .values()
                 )
-                .get_busses(struct)
-                .values()
-            )
 
             scalars = pd.DataFrame(components)
 
