@@ -91,32 +91,34 @@ class DataPackage:
 
         return split_dataframes
 
-    def get_foreign_keys(self):
-        # Foreign keys sind eigentlich nur:
-        #   Jedes Element in parametrized elements braucht Foreign keys und enthält:
-        #       - Entsprechende `bus spalte` zeigt auf Bus datei:
-        #           {
-        #             "fields": "bus spalte", Bus spalte müsste man auch rausfinden können
-        #             "reference": {
-        #               "fields": "name",
-        #               "resource": "bus datei" bus datei weiß ich ja selbst wie ich die nenne aus parametrized elements
-        #             }
-        #           }
-        #
-        #       - Andere Spalten die auf bestimmte andere Datensätze (in spalten zeigen) gibt es nicht weil die ja in
-        #       `aditional parameters drin sein sollten und somit vom Daten adapter schon hinzugefügt.
-        #
-        #       - Profile foreign keys. Zeigen von `profile_name` spalte auf resource (Dateiname)
-        # Lösung: Innerhalb der processs_name schleife:
-        #   Bevor busse zur bus.csv hinzugefügt werden, sollte der Mapper erzeugt werden.
-        #   Aus den bussen kenne ich dann ja die "bus spalte"n und mappe die dann auf die bus date
-        #       dafür muss ich mir ein naming für das Dateiablegen überlegen
-        #       am besten einfach process_name+.csv also im fall von "bus" bus.csv
-        #   Dann über alle fields iterrieren und schauen ob es noch profiles spalten gibt.
-        #   Die profiles stehen dann immer in den adapter.timeseries.
+    @staticmethod
+    def get_foreign_keys(
+        process_busses: list,
+        mapper: Mapper,
+    ) -> list:
+        """
+        Writes Foreign keys for one process.
+        Searches in adapter class for sequences fields
+        :rtype: list
+        :param process_busses:
+        :param adapter:
+        :return:
+        """
+        new_foreign_keys = []
+        for bus in process_busses:
+            new_foreign_keys.append(
+                {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
+            )
 
-        #
-        pass
+        for field in dataclasses.fields(mapper.adapter):
+            if mapper.is_sequence(field.type):
+                new_foreign_keys.append(
+                    {
+                        "fields": field.name,
+                        "reference": {"resource": f"{mapper.process_name}_sequence"},
+                    }
+                )
+        return new_foreign_keys
 
     def save_datapackage_to_csv(self, destination):
         """
@@ -145,38 +147,48 @@ class DataPackage:
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
+            process_busses = []
             # Build class from adapter with Mapper and add up for each component within the Element
             for component_data in process_data.scalars.to_dict(orient="records"):
+                component_mapper = Mapper(
+                    adapter=facade_adapter,
+                    process_name=process_name,
+                    data=component_data,
+                    timeseries=timeseries,
+                )
                 component = facade_adapter.parametrize_dataclass(
-                    process_name, component_data, timeseries, struct
+                    process_name, component_data, timeseries, struct, component_mapper
                 )
                 components.append(component.as_dict())
-                component_mapper = Mapper(
-                        adapter=facade_adapter,
-                        process_name=process_name,
-                        data=component_data,
-                        timeseries=timeseries,
-                    )
-                # Fill bus.csv with all busses occurring
-                parametrized_elements["bus"] += list(
-                    component_mapper
-                    .get_busses(struct)
-                    .values()
+                # Fill with all busses occurring, needed for foreign keys as well!
+                process_busses += list(component_mapper.get_busses(struct).values())
+            parametrized_elements["bus"] += process_busses
+
+            # check if facade_adapter already exists in foreign keys -> add or update accordingly
+            if facade_adapter_name in foreign_keys.keys():
+                # The same column cannot be pointing to different locations nor be None for some entries.
+                assert foreign_keys[facade_adapter_name] == cls.get_foreign_keys(
+                    process_busses, component_mapper, facade_adapter
+                ), "Foreign keys have to be the equal for every instance of the FacadeAdapter. "
+            else:
+                foreign_keys[facade_adapter_name] = cls.get_foreign_keys(
+                    process_busses, component_mapper, facade_adapter
                 )
 
-            scalars = pd.DataFrame(components)
-
-            # check if facade_adapter already exists
+            # check if facade_adapter already exists in parametrized elements -> add or update accordingly
             if facade_adapter_name in parametrized_elements.keys():
                 # concat processes to existing
                 parametrized_elements[facade_adapter_name] = pd.concat(
-                    [parametrized_elements[facade_adapter_name], scalars],
+                    [
+                        parametrized_elements[facade_adapter_name],
+                        pd.DataFrame(components),
+                    ],
                     axis=0,
                     ignore_index=True,
                 )
             else:
                 # add new facade_adapter
-                parametrized_elements[facade_adapter_name] = scalars
+                parametrized_elements[facade_adapter_name] = pd.DataFrame(components)
 
             parametrized_sequences = {process_name: timeseries}
         parametrized_elements["bus"] = pd.DataFrame(
