@@ -107,7 +107,7 @@ def test_get_busses():
         }
     }
 
-    struct = {"default":{"inputs": ["ch4"], "outputs": ["electricity", "heat"]}}
+    struct = {"default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]}}
 
     expected = {"electricity_bus": "electricity", "heat_bus": "heat", "fuel_bus": "ch4"}
 
@@ -135,7 +135,9 @@ def test_default_bus_mapping():
         "custom_capacity": 100.0,
     }
 
-    struct = {"default":{"inputs": ["electricity_bus_1"], "outputs": ["electricity_bus_2"]}}
+    struct = {
+        "default": {"inputs": ["electricity_bus_1"], "outputs": ["electricity_bus_2"]}
+    }
 
     expected = {
         "from_bus": "electricity_bus_1",
@@ -158,7 +160,7 @@ def test_default_bus_mapping():
         "custom_capacity": 100.0,
     }
 
-    struct = {"default":{"inputs": [], "outputs": ["electricity"]}}
+    struct = {"default": {"inputs": [], "outputs": ["electricity"]}}
 
     expected = {"bus": "electricity"}
 
@@ -187,7 +189,7 @@ def test_get_matched_busses():
 
     bus_map = {}
 
-    struct = {"default":{"inputs": ["ch4fuel"], "outputs": ["elec", "heating"]}}
+    struct = {"default": {"inputs": ["ch4fuel"], "outputs": ["elec", "heating"]}}
 
     expected = {"electricity_bus": "elec", "heat_bus": "heating", "fuel_bus": "ch4fuel"}
 
