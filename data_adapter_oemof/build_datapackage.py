@@ -131,6 +131,14 @@ class DataPackage:
         #       `aditional parameters drin sein sollten und somit vom Daten adapter schon hinzugefügt.
         #
         #       - Profile foreign keys. Zeigen von `profile_name` spalte auf resource (Dateiname)
+        # Lösung: Innerhalb der processs_name schleife:
+        #   Bevor busse zur bus.csv hinzugefügt werden, sollte der Mapper erzeugt werden.
+        #   Aus den bussen kenne ich dann ja die "bus spalte"n und mappe die dann auf die bus date
+        #       dafür muss ich mir ein naming für das Dateiablegen überlegen
+        #       am besten einfach process_name+.csv also im fall von "bus" bus.csv
+        #   Dann über alle fields iterrieren und schauen ob es noch profiles spalten gibt.
+        #   Die profiles stehen dann immer in den adapter.timeseries.
+
         #
         pass
 
