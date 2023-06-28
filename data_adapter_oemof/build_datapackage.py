@@ -63,6 +63,7 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
     return df_timeseries
 
+
 def add_bus_to_element_dict(elements_dict):
     """
     Takes a sequence dict of processes with sequence data and searches for busses in columns that contain `bus`
@@ -85,6 +86,7 @@ def add_bus_to_element_dict(elements_dict):
     )
 
     return elements_dict
+
 
 @dataclasses.dataclass
 class DataPackage:
@@ -133,7 +135,7 @@ class DataPackage:
 
         """
         es_structure = adapter.get_structure()
-        parametrized_elements = {"bus":[]}
+        parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
         # Iterate Elements
@@ -152,10 +154,16 @@ class DataPackage:
                 components.append(component.as_dict())
 
             # Fill bus.csv with all busses occurring
-            parametrized_elements["bus"] += list(Mapper(adapter=facade_adapter,
-                            process_name=process_name,
-                            data=component_data,
-                            timeseries=timeseries).get_busses(struct).values())
+            parametrized_elements["bus"] += list(
+                Mapper(
+                    adapter=facade_adapter,
+                    process_name=process_name,
+                    data=component_data,
+                    timeseries=timeseries,
+                )
+                .get_busses(struct)
+                .values()
+            )
 
             scalars = pd.DataFrame(components)
 
@@ -173,9 +181,11 @@ class DataPackage:
 
             parametrized_sequences = {process_name: timeseries}
         parametrized_elements["bus"] = pd.DataFrame(
-            {"name": pd.unique(parametrized_elements["bus"]),
-             "type": ["bus" for i in pd.unique(parametrized_elements["bus"])],
-             "blanced": [True for i in pd.unique(parametrized_elements["bus"])]}
+            {
+                "name": pd.unique(parametrized_elements["bus"]),
+                "type": ["bus" for i in pd.unique(parametrized_elements["bus"])],
+                "blanced": [True for i in pd.unique(parametrized_elements["bus"])],
+            }
         )
         return cls(
             parametrized_elements=parametrized_elements,
