@@ -63,6 +63,7 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
     return df_timeseries
 
+
 def add_bus_to_element_dict(elements_dict):
     """
     Takes a sequence dict of processes with sequence data and searches for busses in columns that contain `bus`
@@ -85,6 +86,7 @@ def add_bus_to_element_dict(elements_dict):
     )
 
     return elements_dict
+
 
 @dataclasses.dataclass
 class DataPackage:
@@ -114,6 +116,22 @@ class DataPackage:
         return split_dataframes
 
     def get_foreign_keys(self):
+        # Foreign keys sind eigentlich nur:
+        #   Jedes Element in parametrized elements braucht Foreign keys und enthält:
+        #       - Entsprechende `bus spalte` zeigt auf Bus datei:
+        #           {
+        #             "fields": "bus spalte", Bus spalte müsste man auch rausfinden können
+        #             "reference": {
+        #               "fields": "name",
+        #               "resource": "bus datei" bus datei weiß ich ja selbst wie ich die nenne aus parametrized elements
+        #             }
+        #           }
+        #
+        #       - Andere Spalten die auf bestimmte andere Datensätze (in spalten zeigen) gibt es nicht weil die ja in
+        #       `aditional parameters drin sein sollten und somit vom Daten adapter schon hinzugefügt.
+        #
+        #       - Profile foreign keys. Zeigen von `profile_name` spalte auf resource (Dateiname)
+        #
         pass
 
     def save_datapackage_to_csv(self, destination):
