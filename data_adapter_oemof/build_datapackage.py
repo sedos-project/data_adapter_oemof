@@ -93,18 +93,19 @@ class DataPackage:
 
     @staticmethod
     def get_foreign_keys(
-        process_busses: list,
-        mapper: Mapper,
+        process_busses: list, mapper: Mapper, components: list
     ) -> list:
         """
         Writes Foreign keys for one process.
         Searches in adapter class for sequences fields
+        :param components:
         :rtype: list
         :param process_busses:
         :param adapter:
         :return:
         """
         new_foreign_keys = []
+        components = pd.DataFrame(components)
         for bus in process_busses:
             new_foreign_keys.append(
                 {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
@@ -112,12 +113,15 @@ class DataPackage:
 
         for field in dataclasses.fields(mapper.adapter):
             if mapper.is_sequence(field.type):
-                new_foreign_keys.append(
-                    {
-                        "fields": field.name,
-                        "reference": {"resource": f"{mapper.process_name}_sequence"},
-                    }
-                )
+                if all(components[field.name].isin(mapper.timeseries.columns)):
+                    new_foreign_keys.append(
+                        {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": f"{mapper.process_name}_sequence"
+                            },
+                        }
+                    )
         return new_foreign_keys
 
     def save_datapackage_to_csv(self, destination):
@@ -170,11 +174,11 @@ class DataPackage:
             if facade_adapter_name in foreign_keys.keys():
                 # The same column cannot be pointing to different locations nor be None for some entries.
                 assert foreign_keys[facade_adapter_name] == cls.get_foreign_keys(
-                    process_busses, component_mapper
+                    process_busses, component_mapper, components
                 ), "Foreign keys have to be the equal for every instance of the FacadeAdapter. "
             else:
                 foreign_keys[facade_adapter_name] = cls.get_foreign_keys(
-                    process_busses, component_mapper
+                    process_busses, component_mapper, components
                 )
 
             # check if facade_adapter already exists in parametrized elements -> add or update accordingly
