@@ -46,7 +46,7 @@ class Adapter:
             "type": cls.type,
         }
         # Add mapped attributes
-        mapped_values = mapper.get_default_mappings(cls, struct)
+        mapped_values = mapper.get_default_mappings(struct)
         defaults.update(mapped_values)
         # Add additional attributes
         attributes = {

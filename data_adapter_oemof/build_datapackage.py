@@ -6,7 +6,7 @@ import pandas as pd
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
-from data_adapter_oemof.mappings import PROCESS_TYPE_MAP
+from data_adapter_oemof.mappings import PROCESS_TYPE_MAP, Mapper
 
 
 def refactor_timeseries(timeseries: pd.DataFrame):
@@ -62,30 +62,6 @@ def refactor_timeseries(timeseries: pd.DataFrame):
         df_timeseries = pd.concat([df_timeseries, df_timeseries_year], axis=0)
 
     return df_timeseries
-
-
-def add_bus_to_element_dict(elements_dict):
-    """
-    Takes a sequence dict of processes with sequence data and searches for busses in columns that contain `bus`
-    :param elements_dict:
-    :return: Updated Sequence with additional entry "bus" that contains all occurring bus entries as balanced busses.
-    """
-    unique_entries = set()
-    for element in elements_dict.values():
-        bus_occourences = [col for col in element.columns if "bus" in col]
-        for bus_category_name in bus_occourences:
-            unique_entries.update(element[bus_category_name].unique())
-
-    unique_entries = pd.unique(list(unique_entries))
-    elements_dict["bus"] = pd.DataFrame(
-        {
-            "name": unique_entries,
-            "type": ["bus" for i in unique_entries],
-            "balanced": [True for i in unique_entries],
-        }
-    )
-
-    return elements_dict
 
 
 @dataclasses.dataclass
@@ -159,20 +135,34 @@ class DataPackage:
 
         """
         es_structure = adapter.get_structure()
-        parametrized_elements = {}
+        parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
+        # Iterate Elements
         for process_name, struct in es_structure.items():
             process_data = adapter.get_process(process_name)
             timeseries = refactor_timeseries(process_data.timeseries)
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
+            # Build class from adapter with Mapper and add up for each component within the Element
             for component_data in process_data.scalars.to_dict(orient="records"):
                 component = facade_adapter.parametrize_dataclass(
                     process_name, component_data, timeseries, struct
                 )
                 components.append(component.as_dict())
+                component_mapper = Mapper(
+                        adapter=facade_adapter,
+                        process_name=process_name,
+                        data=component_data,
+                        timeseries=timeseries,
+                    )
+                # Fill bus.csv with all busses occurring
+                parametrized_elements["bus"] += list(
+                    component_mapper
+                    .get_busses(struct)
+                    .values()
+                )
 
             scalars = pd.DataFrame(components)
 
@@ -189,7 +179,13 @@ class DataPackage:
                 parametrized_elements[facade_adapter_name] = scalars
 
             parametrized_sequences = {process_name: timeseries}
-        parametrized_elements = add_bus_to_element_dict(parametrized_elements)
+        parametrized_elements["bus"] = pd.DataFrame(
+            {
+                "name": (names := pd.unique(parametrized_elements["bus"])),
+                "type": ["bus" for i in names],
+                "blanced": [True for i in names],
+            }
+        )
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
