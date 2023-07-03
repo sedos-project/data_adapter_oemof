@@ -145,7 +145,7 @@ class DataPackage:
                     pass
         return new_foreignKeys
 
-    def save_datapackage_to_csv(self, destination):
+    def save_datapackage_to_csv(self, destination) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
         :param destination:
@@ -170,9 +170,9 @@ class DataPackage:
                 resource["schema"].update(
                     {"foreignKeys": self.foreignKeys[resource["name"]]}
                 )
-        Package(package.descriptor).save("abc.json")
+        Package(package.descriptor).save(os.path.join(os.getcwd(), destination, "datapackage.json"))
 
-        print(package)
+        return None
 
     @classmethod
     def build_datapackage(cls, adapter: Adapter):
