@@ -66,8 +66,8 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
 @dataclasses.dataclass
 class DataPackage:
-    parametrized_elements: dict  # datadict with scalar data in form of {type:pd.DataFrame(type)}
-    parametrized_sequences: dict  # timeseries in form of {type:pd.DataFrame(type)}
+    parametrized_elements: dict[str, pd.DataFrame()]  # datadict with scalar data in form of {type:pd.DataFrame(type)}
+    parametrized_sequences: dict[str, pd.DataFrame()]  # timeseries in form of {type:pd.DataFrame(type)}
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
 
@@ -122,6 +122,20 @@ class DataPackage:
                             },
                         }
                     )
+                elif any(components[field.name].isin(mapper.timeseries.columns)):
+                    warnings.warn("Not all profile columns are set within the given profiles."
+                                  f" Please check if there is a timeseries for every Component in {mapper.process_name}")
+                    new_foreign_keys.append(
+                        {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": f"{mapper.process_name}_sequence"
+                            },
+                        }
+                    )
+                else:
+                    # Most likely the field may be a Timeseries in this case, but it is a scalar or unused.
+                    pass
         return new_foreign_keys
 
     def save_datapackage_to_csv(self, destination):
