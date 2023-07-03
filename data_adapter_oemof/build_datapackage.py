@@ -170,7 +170,7 @@ class DataPackage:
                 resource["schema"].update(
                     {"foreignKeys": self.foreignKeys[resource["name"]]}
                 )
-        Package(package.descriptor).save(os.path.join(os.getcwd(), destination, "datapackage.json"))
+        Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
 
         return None
 
