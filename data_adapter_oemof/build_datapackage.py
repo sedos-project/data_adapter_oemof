@@ -170,31 +170,13 @@ class DataPackage:
             process_busses = pd.unique(process_busses)
             parametrized_elements["bus"] += process_busses
 
-            # check if facade_adapter already exists in foreign keys -> add or update accordingly
-            if facade_adapter_name in foreign_keys.keys():
-                # The same column cannot be pointing to different locations nor be None for some entries.
-                assert foreign_keys[facade_adapter_name] == cls.get_foreign_keys(
-                    process_busses, component_mapper, components
-                ), "Foreign keys have to be the equal for every instance of the FacadeAdapter. "
-            else:
-                foreign_keys[facade_adapter_name] = cls.get_foreign_keys(
-                    process_busses, component_mapper, components
-                )
+            # getting foreign keys with last component (foreign keys have to be equal for every component within
+            # a Process
+            foreign_keys[process_name] = cls.get_foreign_keys(
+                process_busses, component_mapper, components
+            )
 
-            # check if facade_adapter already exists in parametrized elements -> add or update accordingly
-            if facade_adapter_name in parametrized_elements.keys():
-                # concat processes to existing
-                parametrized_elements[facade_adapter_name] = pd.concat(
-                    [
-                        parametrized_elements[facade_adapter_name],
-                        pd.DataFrame(components),
-                    ],
-                    axis=0,
-                    ignore_index=True,
-                )
-            else:
-                # add new facade_adapter
-                parametrized_elements[facade_adapter_name] = pd.DataFrame(components)
+            parametrized_elements[process_name] = pd.DataFrame(components)
 
             parametrized_sequences = {process_name: timeseries}
         parametrized_elements["bus"] = pd.DataFrame(
