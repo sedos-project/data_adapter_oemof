@@ -1,3 +1,5 @@
+import os
+
 import pandas
 
 from data_adapter.preprocessing import Adapter
@@ -67,6 +69,8 @@ def test_build_tabular_datapackage():
         links_name="links",
     )
     dta = DataPackage.build_datapackage(adapter=adapter)
+    dir = os.path.join(os.getcwd(), "_files", "tabular_datapackage_hack_a_thon")
+    dta.save_datapackage_to_csv(dir)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
     # FIXME: Get them closer together

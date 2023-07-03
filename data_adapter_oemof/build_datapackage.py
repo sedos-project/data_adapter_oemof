@@ -2,6 +2,9 @@ import dataclasses
 import warnings
 
 import pandas as pd
+import os
+
+from datapackage import Package
 
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
@@ -66,12 +69,16 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
 @dataclasses.dataclass
 class DataPackage:
-    parametrized_elements: dict[str, pd.DataFrame()]  # datadict with scalar data in form of {type:pd.DataFrame(type)}
-    parametrized_sequences: dict[str, pd.DataFrame()]  # timeseries in form of {type:pd.DataFrame(type)}
-    foreign_keys: dict  # foreign keys for timeseries profiles
+    parametrized_elements: dict[
+        str, pd.DataFrame()
+    ]  # datadict with scalar data in form of {type:pd.DataFrame(type)}
+    parametrized_sequences: dict[
+        str, pd.DataFrame()
+    ]  # timeseries in form of {type:pd.DataFrame(type)}
+    foreignKeys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
 
-    def foreign_keys_dict(self):
+    def foreignKeys_dict(self):
         """
 
         :return: Returns dictionary with foreign keys that is necessary for tabular `infer_metadata`
@@ -92,29 +99,27 @@ class DataPackage:
         return split_dataframes
 
     @staticmethod
-    def get_foreign_keys(
-        process_busses: list, mapper: Mapper, components: list
-    ) -> list:
+    def get_foreignKeys(struct: list, mapper: Mapper, components: list) -> list:
         """
         Writes Foreign keys for one process.
         Searches in adapter class for sequences fields
+        :param struct:
         :param components:
-        :rtype: list
-        :param process_busses:
         :param adapter:
         :return:
+        :rtype: list
         """
-        new_foreign_keys = []
+        new_foreignKeys = []
         components = pd.DataFrame(components)
-        for bus in process_busses:
-            new_foreign_keys.append(
+        for bus in mapper.get_busses(struct).keys():
+            new_foreignKeys.append(
                 {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
             )
 
         for field in dataclasses.fields(mapper.adapter):
             if mapper.is_sequence(field.type):
                 if all(components[field.name].isin(mapper.timeseries.columns)):
-                    new_foreign_keys.append(
+                    new_foreignKeys.append(
                         {
                             "fields": field.name,
                             "reference": {
@@ -123,9 +128,11 @@ class DataPackage:
                         }
                     )
                 elif any(components[field.name].isin(mapper.timeseries.columns)):
-                    warnings.warn("Not all profile columns are set within the given profiles."
-                                  f" Please check if there is a timeseries for every Component in {mapper.process_name}")
-                    new_foreign_keys.append(
+                    warnings.warn(
+                        "Not all profile columns are set within the given profiles."
+                        f" Please check if there is a timeseries for every Component in {mapper.process_name}"
+                    )
+                    new_foreignKeys.append(
                         {
                             "fields": field.name,
                             "reference": {
@@ -136,7 +143,7 @@ class DataPackage:
                 else:
                     # Most likely the field may be a Timeseries in this case, but it is a scalar or unused.
                     pass
-        return new_foreign_keys
+        return new_foreignKeys
 
     def save_datapackage_to_csv(self, destination):
         """
@@ -144,6 +151,28 @@ class DataPackage:
         :param destination:
         :return:
         """
+        elements_path = os.path.join(destination, "elements")
+        sequences_path = os.path.join(destination, "sequences")
+        for process_name, process_adapted_data in self.parametrized_elements.items():
+            process_adapted_data.to_csv(
+                os.path.join(elements_path, f"{process_name}.csv")
+            )
+        for process_name, process_adapted_data in self.parametrized_sequences.items():
+            process_adapted_data.to_csv(
+                os.path.join(sequences_path, f"{process_name}_sequence.csv")
+            )
+
+        package = Package(base_path=destination)
+        package.infer(pattern="**/*.csv")
+
+        for i, resource in enumerate(package.descriptor["resources"]):
+            if resource["name"] in self.foreignKeys.keys():
+                resource["schema"].update(
+                    {"foreignKeys": self.foreignKeys[resource["name"]]}
+                )
+        Package(package.descriptor).save("abc.json")
+
+        print(package)
 
     @classmethod
     def build_datapackage(cls, adapter: Adapter):
@@ -157,7 +186,7 @@ class DataPackage:
         es_structure = adapter.get_structure()
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
-        foreign_keys = {}
+        foreignKeys = {}
         # Iterate Elements
         for process_name, struct in es_structure.items():
             process_data = adapter.get_process(process_name)
@@ -186,8 +215,8 @@ class DataPackage:
 
             # getting foreign keys with last component (foreign keys have to be equal for every component within
             # a Process
-            foreign_keys[process_name] = cls.get_foreign_keys(
-                process_busses, component_mapper, components
+            foreignKeys[process_name] = cls.get_foreignKeys(
+                struct, component_mapper, components
             )
 
             parametrized_elements[process_name] = pd.DataFrame(components)
@@ -200,9 +229,10 @@ class DataPackage:
                 "blanced": [True for i in names],
             }
         )
+
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
             adapter=adapter,
-            foreign_keys=foreign_keys,
+            foreignKeys=foreignKeys,
         )
