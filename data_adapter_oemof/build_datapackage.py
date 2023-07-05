@@ -19,11 +19,17 @@ def refactor_timeseries(timeseries: pd.DataFrame):
     as timeseries timestamps,  technology-region as header and columns
     containing data.
 
-    :return: pd.DataFrame:
-        Tabular form of timeseries for multiple periods of similar
-        technologies and regions.
-    """
+    Parameters
+    ----------
+    timeseries: pd.DataFrame
+        timeseries in parameter-model format (https://github.com/sedos-project/oedatamodel#oedatamodel-parameter)
 
+    Returns
+    pd.DataFrame Tabular form of timeseries for multiple periods of similar
+    technologies and regions.
+    -------
+
+    """
     # Combine all time series into one DataFrame
     df_timeseries = pd.DataFrame()
     timeseries_timesteps = []
@@ -78,13 +84,6 @@ class DataPackage:
     foreignKeys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
 
-    def foreignKeys_dict(self):
-        """
-
-        :return: Returns dictionary with foreign keys that is necessary for tabular `infer_metadata`
-        """
-        pass
-
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
         split_dataframes = {}
@@ -103,11 +102,20 @@ class DataPackage:
         """
         Writes Foreign keys for one process.
         Searches in adapter class for sequences fields
-        :param struct:
-        :param components:
-        :param adapter:
-        :return:
-        :rtype: list
+
+        Parameters
+        ----------
+        struct: list
+            Energy System structure defining input/outputs for Processes
+        mapper: Mapper
+            for one element of the Process (foreign keys have to be equal for all components of a Process)
+        components: list
+            all components as of a Process as dicts. Helps to check what columns that could be pointing to sequences
+            are found in Sequences.
+
+        Returns
+        -------
+        list of foreignKeys for Process including bus references and pointers to files containing `profiles`
         """
         new_foreignKeys = []
         components = pd.DataFrame(components)
@@ -145,31 +153,58 @@ class DataPackage:
                     pass
         return new_foreignKeys
 
-    def save_datapackage_to_csv(self, destination) -> None:
+    def save_datapackage_to_csv(self, destination: str) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
-        :param destination:
-        :return:
+
+        Parameters
+        ----------
+        self: DataPackage
+            DataPackage to save
+        destination: str
+            String to where the datapackage save to. More convenient to use os.path. If last level of folder stucture
+            does not exist, it will be created (as well as /elements and /sequences)
+
+        Returns
+        -------
+        None if the Datapackage has been saved correctly (no checks implemented)
+
         """
+        # Check if filestructure is existent. Create folders if not:
         elements_path = os.path.join(destination, "elements")
         sequences_path = os.path.join(destination, "sequences")
+        if not os.path.exists(destination):
+            os.mkdir(destination)
+            os.mkdir(elements_path)
+            os.mkdir(sequences_path)
+        elif not os.path.exists(elements_path):
+            os.mkdir(elements_path)
+        elif not os.path.exists(sequences_path):
+            os.mkdir(sequences_path)
+
+        # Save elements to elements folder named by keys + .csv
         for process_name, process_adapted_data in self.parametrized_elements.items():
             process_adapted_data.to_csv(
                 os.path.join(elements_path, f"{process_name}.csv")
             )
+
+        # Save Sequences to sequence folder named as keys + _sequence.csv
         for process_name, process_adapted_data in self.parametrized_sequences.items():
             process_adapted_data.to_csv(
                 os.path.join(sequences_path, f"{process_name}_sequence.csv")
             )
 
+        # From saved elements and keys create a Package
         package = Package(base_path=destination)
         package.infer(pattern="**/*.csv")
 
+        # Add foreign keys from self to Package
         for i, resource in enumerate(package.descriptor["resources"]):
             if resource["name"] in self.foreignKeys.keys():
                 resource["schema"].update(
                     {"foreignKeys": self.foreignKeys[resource["name"]]}
                 )
+        # re-initialize Package with added foreign keys and save datapackage.json
         Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
 
         return None
@@ -177,10 +212,17 @@ class DataPackage:
     @classmethod
     def build_datapackage(cls, adapter: Adapter):
         """
-        Adapting the resource scalars for a Datapackage using adapters from
-        adapters.py
-        :type adapter: Adapter class from preprocessing
-        :return: Instance of datapackage class
+        Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
+
+        Parameters
+        ----------
+        adapter: Adapter
+            Adapter from oemof_data_adapter that is able to handle parameter model data from Databus.
+            Adapter needs to be initialized with `structure_name`. Use `links_
+
+        Returns
+        -------
+        DataPackage
 
         """
         es_structure = adapter.get_structure()
@@ -213,8 +255,9 @@ class DataPackage:
             process_busses = pd.unique(process_busses)
             parametrized_elements["bus"] += process_busses
 
-            # getting foreign keys with last component (foreign keys have to be equal for every component within
-            # a Process
+            # getting foreign keys with last component
+            #   foreign keys have to be equal for every component within a Process as foreign key columns cannot
+            #   have mixed meaning
             foreignKeys[process_name] = cls.get_foreignKeys(
                 struct, component_mapper, components
             )
