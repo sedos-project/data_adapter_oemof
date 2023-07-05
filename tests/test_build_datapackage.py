@@ -85,8 +85,19 @@ def test_build_datapackage():
     }
 
     # Define different return values for get_process based on the structure
-    def mock_get_process(structure):
-        if structure == "modex_tech_storage_battery":
+    def mock_get_process(process_name):
+        """
+        Adding side effects and .scalar and .timeseries
+        Parameters
+        ----------
+        process_name
+
+        Returns
+        -------
+        mocked function .get_process for Adapter
+
+        """
+        if process_name == "modex_tech_storage_battery":
             process_mock = mock.Mock()
             process_mock.scalars = pd.DataFrame(
                 {
@@ -98,7 +109,7 @@ def test_build_datapackage():
             )
             process_mock.timeseries = pd.DataFrame()
             return process_mock
-        elif structure == "modex_tech_generator_gas":
+        elif process_name == "modex_tech_generator_gas":
             process_mock = mock.Mock()
             process_mock.scalars = pd.DataFrame(
                 {
@@ -115,7 +126,7 @@ def test_build_datapackage():
             )
             process_mock.timeseries = pd.DataFrame()
             return process_mock
-        elif structure == "modex_tech_wind_turbine_onshore":
+        elif process_name == "modex_tech_wind_turbine_onshore":
             process_mock = mock.Mock()
             process_mock.scalars = pd.DataFrame(
                 {
