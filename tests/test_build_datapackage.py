@@ -175,9 +175,9 @@ def test_build_datapackage():
     result = DataPackage.build_datapackage(mock_adapter)
     result.save_datapackage_to_csv("_files/build_datapackage_test")
 
-    check_if_csv_dirs_equal("_files/build_datapackage_goal", "_files/build_datapackage_test")
-
-
+    check_if_csv_dirs_equal(
+        "_files/build_datapackage_goal", "_files/build_datapackage_test"
+    )
 
 
 def test_save_datapackage():
