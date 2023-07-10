@@ -66,8 +66,8 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
 @dataclasses.dataclass
 class DataPackage:
-    parametrized_elements: dict  # datadict with scalar data in form of {type:pd.DataFrame(type)}
-    parametrized_sequences: dict  # timeseries in form of {type:pd.DataFrame(type)}
+    parametrized_elements: dict[str, pd.DataFrame()]  # datadict with scalar data in form of {type:pd.DataFrame(type)}
+    parametrized_sequences: dict[str, pd.DataFrame()]  # timeseries in form of {type:pd.DataFrame(type)}
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
 
@@ -91,8 +91,52 @@ class DataPackage:
 
         return split_dataframes
 
-    def get_foreign_keys(self):
-        pass
+    @staticmethod
+    def get_foreign_keys(
+        process_busses: list, mapper: Mapper, components: list
+    ) -> list:
+        """
+        Writes Foreign keys for one process.
+        Searches in adapter class for sequences fields
+        :param components:
+        :rtype: list
+        :param process_busses:
+        :param adapter:
+        :return:
+        """
+        new_foreign_keys = []
+        components = pd.DataFrame(components)
+        for bus in process_busses:
+            new_foreign_keys.append(
+                {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
+            )
+
+        for field in dataclasses.fields(mapper.adapter):
+            if mapper.is_sequence(field.type):
+                if all(components[field.name].isin(mapper.timeseries.columns)):
+                    new_foreign_keys.append(
+                        {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": f"{mapper.process_name}_sequence"
+                            },
+                        }
+                    )
+                elif any(components[field.name].isin(mapper.timeseries.columns)):
+                    warnings.warn("Not all profile columns are set within the given profiles."
+                                  f" Please check if there is a timeseries for every Component in {mapper.process_name}")
+                    new_foreign_keys.append(
+                        {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": f"{mapper.process_name}_sequence"
+                            },
+                        }
+                    )
+                else:
+                    # Most likely the field may be a Timeseries in this case, but it is a scalar or unused.
+                    pass
+        return new_foreign_keys
 
     def save_datapackage_to_csv(self, destination):
         """
@@ -121,38 +165,32 @@ class DataPackage:
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
+            process_busses = []
             # Build class from adapter with Mapper and add up for each component within the Element
             for component_data in process_data.scalars.to_dict(orient="records"):
+                component_mapper = Mapper(
+                    adapter=facade_adapter,
+                    process_name=process_name,
+                    data=component_data,
+                    timeseries=timeseries,
+                )
                 component = facade_adapter.parametrize_dataclass(
-                    process_name, component_data, timeseries, struct
+                    struct, component_mapper
                 )
                 components.append(component.as_dict())
-                component_mapper = Mapper(
-                        adapter=facade_adapter,
-                        process_name=process_name,
-                        data=component_data,
-                        timeseries=timeseries,
-                    )
-                # Fill bus.csv with all busses occurring
-                parametrized_elements["bus"] += list(
-                    component_mapper
-                    .get_busses(struct)
-                    .values()
-                )
+                # Fill with all busses occurring, needed for foreign keys as well!
+                process_busses += list(component_mapper.get_busses(struct).values())
 
-            scalars = pd.DataFrame(components)
+            process_busses = pd.unique(process_busses)
+            parametrized_elements["bus"] += process_busses
 
-            # check if facade_adapter already exists
-            if facade_adapter_name in parametrized_elements.keys():
-                # concat processes to existing
-                parametrized_elements[facade_adapter_name] = pd.concat(
-                    [parametrized_elements[facade_adapter_name], scalars],
-                    axis=0,
-                    ignore_index=True,
-                )
-            else:
-                # add new facade_adapter
-                parametrized_elements[facade_adapter_name] = scalars
+            # getting foreign keys with last component (foreign keys have to be equal for every component within
+            # a Process
+            foreign_keys[process_name] = cls.get_foreign_keys(
+                process_busses, component_mapper, components
+            )
+
+            parametrized_elements[process_name] = pd.DataFrame(components)
 
             parametrized_sequences = {process_name: timeseries}
         parametrized_elements["bus"] = pd.DataFrame(
