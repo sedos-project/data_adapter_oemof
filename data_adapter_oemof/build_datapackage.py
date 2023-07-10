@@ -81,7 +81,7 @@ class DataPackage:
     parametrized_sequences: dict[
         str, pd.DataFrame()
     ]  # timeseries in form of {type:pd.DataFrame(type)}
-    foreignKeys: dict  # foreign keys for timeseries profiles
+    foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
 
     @staticmethod
@@ -98,7 +98,7 @@ class DataPackage:
         return split_dataframes
 
     @staticmethod
-    def get_foreignKeys(struct: list, mapper: Mapper, components: list) -> list:
+    def get_foreign_keys(struct: list, mapper: Mapper, components: list) -> list:
         """
         Writes Foreign keys for one process.
         Searches in adapter class for sequences fields
@@ -117,17 +117,17 @@ class DataPackage:
         -------
         list of foreignKeys for Process including bus references and pointers to files containing `profiles`
         """
-        new_foreignKeys = []
+        new_foreign_keys = []
         components = pd.DataFrame(components)
         for bus in mapper.get_busses(struct).keys():
-            new_foreignKeys.append(
+            new_foreign_keys.append(
                 {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
             )
 
         for field in dataclasses.fields(mapper.adapter):
             if mapper.is_sequence(field.type):
                 if all(components[field.name].isin(mapper.timeseries.columns)):
-                    new_foreignKeys.append(
+                    new_foreign_keys.append(
                         {
                             "fields": field.name,
                             "reference": {
@@ -140,7 +140,7 @@ class DataPackage:
                         "Not all profile columns are set within the given profiles."
                         f" Please check if there is a timeseries for every Component in {mapper.process_name}"
                     )
-                    new_foreignKeys.append(
+                    new_foreign_keys.append(
                         {
                             "fields": field.name,
                             "reference": {
@@ -151,7 +151,7 @@ class DataPackage:
                 else:
                     # Most likely the field may be a Timeseries in this case, but it is a scalar or unused.
                     pass
-        return new_foreignKeys
+        return new_foreign_keys
 
     def save_datapackage_to_csv(self, destination: str) -> None:
         """
@@ -200,9 +200,9 @@ class DataPackage:
 
         # Add foreign keys from self to Package
         for i, resource in enumerate(package.descriptor["resources"]):
-            if resource["name"] in self.foreignKeys.keys():
+            if resource["name"] in self.foreign_keys.keys():
                 resource["schema"].update(
-                    {"foreignKeys": self.foreignKeys[resource["name"]]}
+                    {"foreignKeys": self.foreign_keys[resource["name"]]}
                 )
         # re-initialize Package with added foreign keys and save datapackage.json
         Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
@@ -228,7 +228,7 @@ class DataPackage:
         es_structure = adapter.get_structure()
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
-        foreignKeys = {}
+        foreign_keys = {}
         # Iterate Elements
         for process_name, struct in es_structure.items():
             process_data = adapter.get_process(process_name)
@@ -258,7 +258,7 @@ class DataPackage:
             # getting foreign keys with last component
             #   foreign keys have to be equal for every component within a Process as foreign key columns cannot
             #   have mixed meaning
-            foreignKeys[process_name] = cls.get_foreignKeys(
+            foreign_keys[process_name] = cls.get_foreign_keys(
                 struct, component_mapper, components
             )
 
@@ -277,5 +277,5 @@ class DataPackage:
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
             adapter=adapter,
-            foreignKeys=foreignKeys,
+            foreign_keys=foreign_keys,
         )
