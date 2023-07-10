@@ -173,14 +173,9 @@ class DataPackage:
         # Check if filestructure is existent. Create folders if not:
         elements_path = os.path.join(destination, "elements")
         sequences_path = os.path.join(destination, "sequences")
-        if not os.path.exists(destination):
-            os.mkdir(destination)
-            os.mkdir(elements_path)
-            os.mkdir(sequences_path)
-        elif not os.path.exists(elements_path):
-            os.mkdir(elements_path)
-        elif not os.path.exists(sequences_path):
-            os.mkdir(sequences_path)
+
+        os.makedirs(elements_path, exist_ok=True)
+        os.makedirs(sequences_path, exist_ok=True)
 
         # Save elements to elements folder named by keys + .csv
         for process_name, process_adapted_data in self.parametrized_elements.items():

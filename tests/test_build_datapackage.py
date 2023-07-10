@@ -68,22 +68,6 @@ def test_build_datapackage():
     -------
     """
 
-    # Create a mock adapter object for testing
-    mock_adapter = mock.Mock(spec=Adapter)
-    # Mock the required methods and attributes of the Adapter
-    mock_adapter.get_structure.return_value = {
-        "modex_tech_storage_battery": {
-            "default": {"inputs": ["electricity"], "outputs": []}
-        },
-        "modex_tech_generator_gas": {
-            "emission_factor": {"inputs": ["ch4"], "outputs": ["co2"]},
-            "default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]},
-        },
-        "modex_tech_wind_turbine_onshore": {
-            "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
-        },
-    }
-
     # Define different return values for get_process based on the structure
     def mock_get_process(process_name):
         """
@@ -169,6 +153,21 @@ def test_build_datapackage():
                 }
             )
             return process_mock
+    # Create a mock adapter object for testing
+    mock_adapter = mock.Mock(spec=Adapter)
+    # Mock the required methods and attributes of the Adapter
+    mock_adapter.get_structure.return_value = {
+        "modex_tech_storage_battery": {
+            "default": {"inputs": ["electricity"], "outputs": []}
+        },
+        "modex_tech_generator_gas": {
+            "emission_factor": {"inputs": ["ch4"], "outputs": ["co2"]},
+            "default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]},
+        },
+        "modex_tech_wind_turbine_onshore": {
+            "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
+        },
+    }
 
     mock_adapter.get_process.side_effect = mock_get_process
     # Call the method with the mock adapter
