@@ -171,8 +171,8 @@ class DataPackage:
 
         """
         # Check if filestructure is existent. Create folders if not:
-        elements_path = os.path.join(destination, "elements")
-        sequences_path = os.path.join(destination, "sequences")
+        elements_path = os.path.join(destination, "data", "elements")
+        sequences_path = os.path.join(destination, "data", "sequences")
 
         os.makedirs(elements_path, exist_ok=True)
         os.makedirs(sequences_path, exist_ok=True)
@@ -180,13 +180,19 @@ class DataPackage:
         # Save elements to elements folder named by keys + .csv
         for process_name, process_adapted_data in self.parametrized_elements.items():
             process_adapted_data.to_csv(
-                os.path.join(elements_path, f"{process_name}.csv")
+                os.path.join(elements_path, f"{process_name}.csv"),
+                index=False,
+                sep=";",
+
             )
 
         # Save Sequences to sequence folder named as keys + _sequence.csv
         for process_name, process_adapted_data in self.parametrized_sequences.items():
             process_adapted_data.to_csv(
-                os.path.join(sequences_path, f"{process_name}_sequence.csv")
+                os.path.join(sequences_path, f"{process_name}_sequence.csv"),
+                sep = ";",
+                index_label="timeindex",
+                date_format="%Y-%m-%dT%H:%M:%SZ"
             )
 
         # From saved elements and keys create a Package
@@ -194,11 +200,19 @@ class DataPackage:
         package.infer(pattern="**/*.csv")
 
         # Add foreign keys from self to Package
-        for i, resource in enumerate(package.descriptor["resources"]):
+        for resource in package.descriptor["resources"]:
+            field_names = [field["name"] for field in resource["schema"]["fields"]]
             if resource["name"] in self.foreign_keys.keys():
                 resource["schema"].update(
                     {"foreignKeys": self.foreign_keys[resource["name"]]}
                 )
+            else:
+                resource["schema"].update({"foreignKeys": []})
+            if "name" in field_names:
+                resource["schema"].update({"primaryKey": "name"})
+            else:
+                warnings.warn("Primary keys differing from `name` not implemented yet")
+
         # re-initialize Package with added foreign keys and save datapackage.json
         Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
 
@@ -247,7 +261,7 @@ class DataPackage:
                 # Fill with all busses occurring, needed for foreign keys as well!
                 process_busses += list(component_mapper.get_busses(struct).values())
 
-            process_busses = pd.unique(process_busses)
+            process_busses = list(pd.unique(process_busses))
             parametrized_elements["bus"] += process_busses
 
             # getting foreign keys with last component
@@ -264,7 +278,7 @@ class DataPackage:
             {
                 "name": (names := pd.unique(parametrized_elements["bus"])),
                 "type": ["bus" for i in names],
-                "blanced": [True for i in names],
+                "balanced": [True for i in names],
             }
         )
 
