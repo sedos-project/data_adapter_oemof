@@ -7,6 +7,9 @@ import pandas as pd
 from data_adapter.preprocessing import Adapter
 from unittest import mock
 
+from oemof.solph import EnergySystem, Model
+import oemof.tabular
+
 from data_adapter.databus import download_collection
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
@@ -201,3 +204,21 @@ def test_build_tabular_datapackage_from_adapter():
     # FIXME: Get them closer together
     #  - Bus naming with regions -> get regions funktion von Hendrik
     #  - multiple inputs/outputs
+
+def test_read_datapackage():
+    from oemof.solph import EnergySystem, Model
+    import oemof.tabular.datapackage
+    from oemof.tabular.facades import Load, Dispatchable, Bus, Link, Storage, Volatile
+    es = EnergySystem.from_datapackage("_files/build_datapackage_test/datapackage.json",
+                                       attributemap={
+                                           "Demand": {"demand-profiles": "profile"}},
+                                       typemap={
+                                           'load': Load,
+                                           'dispatchable': Dispatchable,
+                                           'bus': Bus,
+                                           'link': Link,
+                                           'storage': Storage,
+                                        'volatile': Volatile})
+    model = Model(es)
+
+    pass
