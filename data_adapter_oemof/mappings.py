@@ -100,7 +100,7 @@ class Mapper:
                 )
                 return timeseries_key
             logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
-            return key
+            return None
 
         # 2 Use defaults
         if key in DEFAULT_MAPPING:

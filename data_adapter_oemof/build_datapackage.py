@@ -241,7 +241,7 @@ class DataPackage:
         # Iterate Elements
         for process_name, struct in es_structure.items():
             process_data = adapter.get_process(process_name)
-            timeseries = refactor_timeseries(process_data.timeseries)
+            timeseries = process_data.timeseries
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
