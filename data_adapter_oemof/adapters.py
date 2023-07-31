@@ -1,6 +1,7 @@
 import dataclasses
 import logging
 
+import oemof.solph
 import pandas
 
 from oemof.tabular import facades
@@ -26,7 +27,21 @@ class Adapter:
         But we add custom_attributes (i.e. "name") which would be neglected.
         """
         fields = dataclasses.fields(self)
-        data = {field.name: getattr(self, field.name) for field in fields}
+        data = {}
+        for field in fields:
+            value = getattr(self, field.name)
+            data[field.name] = value
+            if isinstance(value, oemof.solph._plumbing._Sequence):
+                # if value.periodic_values:
+                #     data[field.name] = value.periodic_values
+                if len(value) != 0:
+                    data[field.name] = value.data
+                else:
+                    data[field.name] = value.default
+        # data = {field.name: field_value
+        #         for field in fields
+        #         if isinstance((field_value := getattr(self, field.name)), oemof.solph._plumbing._Sequence)
+        #         }
         for attr in self.extra_attributes:
             data[attr] = getattr(self, attr)
         return data

@@ -125,7 +125,9 @@ class DataPackage:
             )
 
         for field in dataclasses.fields(mapper.adapter):
-            if mapper.is_sequence(field.type):
+            if mapper.is_sequence(field.type) and \
+                    field.name in components.columns and \
+                    pd.api.types.infer_dtype(components[field.name]) == "string":
                 if all(components[field.name].isin(mapper.timeseries.columns)):
                     new_foreign_keys.append(
                         {
