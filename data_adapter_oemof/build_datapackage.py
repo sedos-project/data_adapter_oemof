@@ -125,9 +125,11 @@ class DataPackage:
             )
 
         for field in dataclasses.fields(mapper.adapter):
-            if mapper.is_sequence(field.type) and \
-                    field.name in components.columns and \
-                    pd.api.types.infer_dtype(components[field.name]) == "string":
+            if (
+                mapper.is_sequence(field.type)
+                and field.name in components.columns
+                and pd.api.types.infer_dtype(components[field.name]) == "string"
+            ):
                 if all(components[field.name].isin(mapper.timeseries.columns)):
                     new_foreign_keys.append(
                         {
@@ -185,16 +187,15 @@ class DataPackage:
                 os.path.join(elements_path, f"{process_name}.csv"),
                 index=False,
                 sep=";",
-
             )
 
         # Save Sequences to sequence folder named as keys + _sequence.csv
         for process_name, process_adapted_data in self.parametrized_sequences.items():
             process_adapted_data.to_csv(
                 os.path.join(sequences_path, f"{process_name}_sequence.csv"),
-                sep = ";",
+                sep=";",
                 index_label="timeindex",
-                date_format="%Y-%m-%dT%H:%M:%SZ"
+                date_format="%Y-%m-%dT%H:%M:%SZ",
             )
 
         # From saved elements and keys create a Package

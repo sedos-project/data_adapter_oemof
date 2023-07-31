@@ -92,8 +92,12 @@ def test_build_datapackage():
                     "year": {0: 2016, 1: 2030, 2: 2050},
                     "capacity": {0: 17.8, 1: 17.8, 2: 17.8},
                     "invest_relation_output_capacity": {0: 3.3, 1: 3.3, 2: 3.3},
-                    "tech" : {0: "storage_battery", 1: "storage_battery", 2: "storage_battery"},
-                    "fixed_costs" : {0:1, 1:2, 2:3}
+                    "tech": {
+                        0: "storage_battery",
+                        1: "storage_battery",
+                        2: "storage_battery",
+                    },
+                    "fixed_costs": {0: 1, 1: 2, 2: 3},
                 }
             )
             process_mock.timeseries = pd.DataFrame()
@@ -111,7 +115,11 @@ def test_build_datapackage():
                     },
                     "emission_factor": {0: 0.2, 1: 0.2, 2: 0.2},
                     "fuel_costs": {0: 25.9, 1: 25.9, 2: 49.36},
-                    "tech": {0: "generator_gas", 1: "generator_gas", 2: "generator_gas"},
+                    "tech": {
+                        0: "generator_gas",
+                        1: "generator_gas",
+                        2: "generator_gas",
+                    },
                 }
             )
             process_mock.timeseries = pd.DataFrame()
@@ -130,24 +138,30 @@ def test_build_datapackage():
                     "fixed_costs": {0: 23280.0, 1: 12600.0, 2: 11340.0},
                     "lifetime": {0: 25.4, 1: 30.0, 2: 30.0},
                     "wacc": {0: 0.07, 1: 0.07, 2: 0.07},
-                    "tech": {0: "wind_turbine_onshore", 1: "wind_turbine_onshore", 2: "wind_turbine_onshore"},
+                    "tech": {
+                        0: "wind_turbine_onshore",
+                        1: "wind_turbine_onshore",
+                        2: "wind_turbine_onshore",
+                    },
                 }
             )
             process_mock.timeseries = pd.DataFrame(
                 {
-                    "onshore_BB": {"2016-01-01T00:00:00": 0.0516,
-                                   "2016-01-01T01:00:00": 0.051,
-                                   "2016-01-01T02:00:00": 0.0444,
-                                   "2030-01-01T00:00:00": 0.0526,
-                                   "2030-01-01T01:00:00": 0.051,
-                                   "2030-01-01T02:00:00": 0.0444,
-                                   "2050-01-01T00:00:00": 0.0536,
-                                   "2050-01-01T01:00:00": 0.051,
-                                   "2050-01-01T02:00:00": 0.0444,
-                                   },
+                    "onshore_BB": {
+                        "2016-01-01T00:00:00": 0.0516,
+                        "2016-01-01T01:00:00": 0.051,
+                        "2016-01-01T02:00:00": 0.0444,
+                        "2030-01-01T00:00:00": 0.0526,
+                        "2030-01-01T01:00:00": 0.051,
+                        "2030-01-01T02:00:00": 0.0444,
+                        "2050-01-01T00:00:00": 0.0536,
+                        "2050-01-01T01:00:00": 0.051,
+                        "2050-01-01T02:00:00": 0.0444,
+                    },
                 }
             )
             return process_mock
+
     # Create a mock adapter object for testing
     mock_adapter = mock.Mock(spec=Adapter)
     # Mock the required methods and attributes of the Adapter
@@ -197,18 +211,31 @@ def test_build_tabular_datapackage_from_adapter():
     #  - Bus naming with regions -> get regions funktion von Hendrik
     #  - multiple inputs/outputs
 
+
 def test_read_datapackage():
     from oemof.solph import EnergySystem, Model
     import oemof.tabular.datapackage
-    from oemof.tabular.facades import Load, Dispatchable, Bus, Link, Storage, Volatile, Conversion
-    es = EnergySystem.from_datapackage("_files/build_datapackage_test/datapackage.json",
-                                       typemap={
-                                           'load': Load,
-                                           'dispatchable': Dispatchable,
-                                           'bus': Bus,
-                                           'link': Link,
-                                           'storage': Storage,
-                                            'volatile': Volatile,
-                                          "conversion":Conversion})
+    from oemof.tabular.facades import (
+        Load,
+        Dispatchable,
+        Bus,
+        Link,
+        Storage,
+        Volatile,
+        Conversion,
+    )
+
+    es = EnergySystem.from_datapackage(
+        "_files/build_datapackage_test/datapackage.json",
+        typemap={
+            "load": Load,
+            "dispatchable": Dispatchable,
+            "bus": Bus,
+            "link": Link,
+            "storage": Storage,
+            "volatile": Volatile,
+            "conversion": Conversion,
+        },
+    )
     model = Model(es)
     pass
