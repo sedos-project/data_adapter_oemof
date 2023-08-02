@@ -16,7 +16,7 @@ logger = logging.getLogger()
 
 class Adapter:
     type: str = "adapter"
-    extra_attributes = ("name", "type", "year")
+    extra_attributes = ("name", "type")
 
     def as_dict(self):
         """
