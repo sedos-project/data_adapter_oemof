@@ -32,9 +32,9 @@ class Adapter:
             value = getattr(self, field.name)
             data[field.name] = value
             if isinstance(value, oemof.solph._plumbing._Sequence):
-                # if value.periodic_values:
-                #     data[field.name] = value.periodic_values
-                if len(value) != 0:
+                if value.periodic_values:
+                    data[field.name] = value.periodic_values
+                elif len(value) != 0:
                     data[field.name] = value.data
                 else:
                     data[field.name] = value.default
@@ -65,7 +65,7 @@ class Adapter:
         # Add additional attributes
         attributes = {
             "name": calculations.get_name(
-                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+                mapper.get("region"), mapper.get("year"), mapper.get("tech")
             ),
             "region": mapper.get("region"),
             "year": mapper.get("year"),

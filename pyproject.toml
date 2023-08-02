@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "data_adapter_oemof"
+name = "test2"
 version = "0.0.1dev"
 description = "Data adapter from oedatamodel to oemof.tabular datapackages"
 authors = [
@@ -14,8 +14,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0.0"
 data_adapter = { git = "https://git@github.com/sedos-project/data_adapter", branch = "dev"}
-oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", branch = "feature/solph-0.5"}
-
+oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", branch = "dev"}
 
 [tool.poetry.dev-dependencies]
 black = "20.8b1"
