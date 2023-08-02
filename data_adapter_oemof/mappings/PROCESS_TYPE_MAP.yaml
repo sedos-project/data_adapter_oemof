@@ -1,4 +1,4 @@
 # This is a mapping file to map the various processes to the oemof tabular facades.
 modex_tech_wind_turbine_onshore: VolatileAdapter
 modex_tech_storage_battery: StorageAdapter
-modex_tech_generator_gas: ConversionAdapter
+modex_tech_generator_gas: ExtractionTurbineAdapter

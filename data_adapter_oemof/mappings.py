@@ -135,8 +135,9 @@ class Mapper:
             If found, search for similarities in the structure CSV.
             If not, search for name similarities:
                 Between the structure CSV and the adapter's buses take name from the structure.
-
-        :param parameter: paramter for mapping different parameters within a process
+        Note: If passed class has more than two busses or different names for busses fields it is highly recommended
+        to provide BUS_NAME_MAP entry for this class. If multiple instances of the same facade
+        shall be having different inputs/outputs a facade Adapter has to be added for each.
         :param struct: dict
         :return: dictionary with tabular like Busses
         """
@@ -149,11 +150,10 @@ class Mapper:
             logger.warning(
                 f"No busses found in facades fields for Dataadapter {self.adapter.__name__}"
             )
-        # { input: [], output :[]}
-        # {default: {},
-        # co2:{}}}
+
         bus_dict = {}
         for bus in bus_occurrences_in_fields:  # emission_bus
+
             # 1. Check for existing mappings
             try:
                 bus_dict[bus] = self.bus_map[self.adapter.__name__][bus]
@@ -174,10 +174,10 @@ class Mapper:
                 )
 
             # 2. Check for default busses
-            if bus in ("bus", "from_bus", "to_bus"):
+            if bus in ("bus", "from_bus", "to_bus", "fuel_bus"):
                 if bus == "bus":
                     busses = struct["inputs"] + struct["outputs"]
-                if bus == "from_bus":
+                if bus in ("from_bus", "fuel_bus"):
                     busses = struct["inputs"]
                 if bus == "to_bus":
                     busses = struct["outputs"]
@@ -188,7 +188,7 @@ class Mapper:
                 bus_dict[bus] = busses[0]
                 continue
 
-            # 3. Try to find closes match
+            # 3. Try to find close matches
             match = difflib.get_close_matches(
                 bus, struct["inputs"] + struct["outputs"], n=1, cutoff=0.2
             )[0]
