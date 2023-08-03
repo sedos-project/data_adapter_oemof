@@ -50,10 +50,6 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
 
-      - name: Activate environment
-        shell: bash
-        run: source $HOME/.poetry/env
-
       - name: Test with pytest
         run: coverage run -m pytest tests
 
