@@ -6,6 +6,7 @@ import pandas as pd
 import os
 
 from datapackage import Package
+from typing import Union
 
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
@@ -72,14 +73,6 @@ def refactor_timeseries(timeseries: pd.DataFrame):
         df_timeseries = pd.concat([df_timeseries, df_timeseries_year], axis=0)
 
     return df_timeseries
-
-
-def listify_unique(series):
-    unique_values = pd.unique(series)
-    if len(unique_values) > 1:
-        return unique_values.tolist()
-    else:
-        return unique_values[0]
 
 
 @dataclasses.dataclass
@@ -230,6 +223,59 @@ class DataPackage:
 
         return None
 
+    # Define a function to aggregate differing values into a list
+    def _listify_to_periodic(
+        self, group_df: pd.DataFrame, element_name: str, sequence_length: int
+    ):
+        unique_values = pd.Series()
+        for col in group_df.columns:  # Exclude 'name' column
+            if isinstance(group_df[col][0], dict):
+                # Unique input/output parameters are not allowed per period
+                unique_values[col] = group_df[col][0]
+                continue
+            # Full Timeseries shall be moved to sequence folder and read via foreign key:
+            elif all(
+                [
+                    isinstance(col_entry, Union[list, pd.Series])
+                    for col_entry in group_df[col]
+                ]
+            ):
+                if (
+                    sum([len(col_entry) for col_entry in group_df[col]])
+                    == sequence_length
+                ):
+                    if element_name in self.parametrized_sequences.keys():
+                        self.parametrized_sequences[element_name][group_df.name] = [
+                            item for sublist in group_df[col] for item in sublist
+                        ]
+                    else:
+                        self.parametrized_sequences[element_name] = pd.DataFrame(
+                            [item for sublist in group_df[col] for item in sublist],
+                            columns=[group_df.name],
+                        )
+                    self.foreign_keys[element_name].append(
+                        {
+                            "fields": col,
+                            "reference": {"resource": f"{element_name}_sequence"},
+                        }
+                    )
+                    unique_values[col] = group_df.name
+                    continue
+                else:
+                    warnings.warn(
+                        "You provided lists in scalar Data that is not matching to the Timeseries"
+                    )
+                    unique_values[col] = group_df[col][0]
+                    continue
+
+            values = group_df[col].unique()
+            if len(values) > 1:
+                unique_values[col] = list(group_df[col])
+            else:
+                unique_values[col] = values[0]
+        unique_values["name"] = group_df.name
+        return unique_values
+
     def yearly_scalars_to_periodic_values(self):
         """
         Turns yearly sclar values to periodic values
@@ -238,7 +284,7 @@ class DataPackage:
 
         """
         # Check integrity if all indexes in sequences are equal:
-        if not all(
+        if all(
             [
                 df.index.equals(next(iter(self.parametrized_sequences.values())).index)
                 for df in self.parametrized_sequences.values()
@@ -251,14 +297,18 @@ class DataPackage:
                 raise Exception(
                     "All provided Sequences should have the same total length"
                 )
-            warnings.warn("Provided Sequences are not equal but of same length")
+            else:
+                warnings.warn("Provided Sequences are not equal but of same length")
+            sequence_length = sequence_length[0]
 
         for element_name, element in self.parametrized_elements.items():
             if "year" in element.columns:
+                element.sort_values(by="year", ascending=True, inplace=True)
+
                 self.parametrized_elements[element_name] = (
                     element.groupby("name")
-                    .agg(lambda x: listify_unique(x))
-                    .reset_index()
+                    .apply(self._listify_to_periodic, *[element_name, sequence_length])
+                    .reset_index(drop=True)
                 )
 
     @classmethod
