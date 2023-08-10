@@ -74,6 +74,14 @@ def refactor_timeseries(timeseries: pd.DataFrame):
     return df_timeseries
 
 
+def listify_unique(series):
+    unique_values = pd.unique(series)
+    if len(unique_values) > 1:
+        return unique_values.tolist()
+    else:
+        return unique_values[0]
+
+
 @dataclasses.dataclass
 class DataPackage:
     parametrized_elements: dict[
@@ -230,21 +238,28 @@ class DataPackage:
 
         """
         # Check integrity if all indexes in sequences are equal:
-        if not all([df.index.equals(next(iter(self.parametrized_sequences.values())).index) for df in
-             self.parametrized_sequences.values()]):
-            sequence_length = [len(sequence) for sequence in self.parametrized_sequences.values()]
+        if not all(
+            [
+                df.index.equals(next(iter(self.parametrized_sequences.values())).index)
+                for df in self.parametrized_sequences.values()
+            ]
+        ):
+            sequence_length = [
+                len(sequence) for sequence in self.parametrized_sequences.values()
+            ]
             if len(np.unique((sequence_length))) != 1:
-                raise Exception("All provided Sequences should have the same total length")
+                raise Exception(
+                    "All provided Sequences should have the same total length"
+                )
             warnings.warn("Provided Sequences are not equal but of same length")
 
         for element_name, element in self.parametrized_elements.items():
             if "year" in element.columns:
-                element_groups = element.groupby("name")
-
-
-
-
-
+                self.parametrized_elements[element_name] = (
+                    element.groupby("name")
+                    .agg(lambda x: listify_unique(x))
+                    .reset_index()
+                )
 
     @classmethod
     def build_datapackage(cls, adapter: Adapter):

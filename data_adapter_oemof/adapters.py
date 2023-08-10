@@ -63,14 +63,24 @@ class Adapter:
         mapped_values = mapper.get_default_mappings(struct)
         defaults.update(mapped_values)
         # Add additional attributes
+
         attributes = {
-            "name": calculations.get_name(
-                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
-            ),
             "region": mapper.get("region"),
             "year": mapper.get("year"),
         }
         defaults.update(attributes)
+
+        # add name if found in data, else use calculation for name:
+        if (name := mapper.get("name")) is not None:
+            defaults.update({"name": name})
+        else:
+            defaults.update(
+                {
+                    "name": calculations.get_name(
+                        mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+                    )
+                }
+            )
 
         return defaults
 
