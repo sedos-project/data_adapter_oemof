@@ -16,7 +16,7 @@ logger = logging.getLogger()
 
 class Adapter:
     type: str = "adapter"
-    extra_attributes = ("name", "type")
+    extra_attributes = ("name", "type", "year")
 
     def as_dict(self):
         """
@@ -65,7 +65,7 @@ class Adapter:
         # Add additional attributes
         attributes = {
             "name": calculations.get_name(
-                mapper.get("region"), mapper.get("year"), mapper.get("tech")
+                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
             ),
             "region": mapper.get("region"),
             "year": mapper.get("year"),

@@ -237,6 +237,10 @@ class DataPackage:
                 raise Exception("All provided Sequences should have the same total length")
             warnings.warn("Provided Sequences are not equal but of same length")
 
+        for element_name, element in self.parametrized_elements.items():
+            if "year" in element.columns:
+                element_groups = element.groupby("name")
+
 
 
 
