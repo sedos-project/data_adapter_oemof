@@ -226,7 +226,7 @@ class DataPackage:
     # Define a function to aggregate differing values into a list
     def _listify_to_periodic(
         self, group_df: pd.DataFrame, element_name: str, sequence_length: int
-    )->pd.Series:
+    ) -> pd.Series:
         """
         Meant to be called from "yearly_scalars_to_periodic_values"
 
@@ -296,7 +296,7 @@ class DataPackage:
         unique_values["name"] = group_df.name
         return unique_values
 
-    def yearly_scalars_to_periodic_values(self)->None:
+    def yearly_scalars_to_periodic_values(self) -> None:
         """
         Turns yearly sclar values to periodic values
 
