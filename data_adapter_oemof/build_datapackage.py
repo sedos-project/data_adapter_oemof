@@ -235,7 +235,7 @@ class DataPackage:
         2: Elif the Entries are lists or sequences it will check whether they are sequences for the full period
             and write them to sequences, update foreign keys and write the foreign key.
         3: Elif the entries are all equal the first entry will be written
-        4: Elif the entries are not equal they are written as a list
+        4: Elif the entries are not equal they are written as {"len":sequence_length, "values": [1, 2, 3]}
 
         Parameters
         ----------
@@ -290,7 +290,7 @@ class DataPackage:
 
             values = group_df[col].unique()
             if len(values) > 1:
-                unique_values[col] = list(group_df[col])
+                unique_values[col] = {"len": sequence_length, "values":  list(group_df[col])}
             else:
                 unique_values[col] = values[0]
         unique_values["name"] = group_df.name
