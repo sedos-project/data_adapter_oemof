@@ -1,6 +1,7 @@
 import dataclasses
 import warnings
 
+import numpy as np
 import pandas as pd
 import os
 
@@ -220,6 +221,26 @@ class DataPackage:
         Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
 
         return None
+
+    def yearly_scalars_to_periodic_values(self):
+        """
+        Turns yearly sclar values to periodic values
+        Returns
+        -------
+
+        """
+        # Check integrity if all indexes in sequences are equal:
+        if not all([df.index.equals(next(iter(self.parametrized_sequences.values())).index) for df in
+             self.parametrized_sequences.values()]):
+            sequence_length = [len(sequence) for sequence in self.parametrized_sequences.values()]
+            if len(np.unique((sequence_length))) != 1:
+                raise Exception("All provided Sequences should have the same total length")
+            warnings.warn("Provided Sequences are not equal but of same length")
+
+
+
+
+
 
     @classmethod
     def build_datapackage(cls, adapter: Adapter):
