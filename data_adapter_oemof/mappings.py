@@ -100,7 +100,7 @@ class Mapper:
                 )
                 return timeseries_key
             logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
-            return key
+            return None
 
         # 2 Use defaults
         if key in DEFAULT_MAPPING:
@@ -124,7 +124,7 @@ class Mapper:
         mapped_key = self.map_key(key)
         return self.get_data(mapped_key, field_type)
 
-    def get_busses(self, cls, struct):
+    def get_busses(self, struct):
         """
         Identify mentioned buses in the facade.
         Determine if each bus in the facade is classified as an "input"/"output".
@@ -135,28 +135,28 @@ class Mapper:
             If found, search for similarities in the structure CSV.
             If not, search for name similarities:
                 Between the structure CSV and the adapter's buses take name from the structure.
-
         Note: If passed class has more than two busses or different names for busses fields it is highly recommended
         to provide BUS_NAME_MAP entry for this class. If multiple instances of the same facade
         shall be having different inputs/outputs a facade Adapter has to be added for each.
-
-        :param cls: Child from Adapter class
         :param struct: dict
         :return: dictionary with tabular like Busses
         """
         bus_occurrences_in_fields = [
-            field.name for field in dataclasses.fields(cls) if "bus" in field.name
+            field.name
+            for field in dataclasses.fields(self.adapter)
+            if "bus" in field.name
         ]
         if len(bus_occurrences_in_fields) == 0:
             logger.warning(
-                f"No busses found in facades fields for Dataadapter {cls.__name__}"
+                f"No busses found in facades fields for Dataadapter {self.adapter.__name__}"
             )
 
         bus_dict = {}
-        for bus in bus_occurrences_in_fields:
+        for bus in bus_occurrences_in_fields:  # emission_bus
+
             # 1. Check for existing mappings
             try:
-                bus_dict[bus] = self.bus_map[cls.__name__][bus]
+                bus_dict[bus] = self.bus_map[self.adapter.__name__][bus]
                 continue
             except KeyError:
                 pass
@@ -204,20 +204,19 @@ class Mapper:
 
         return bus_dict
 
-    def get_default_mappings(self, cls, struct):
+    def get_default_mappings(self, struct):
         """
         :param struct: dict
-        :param cls: Data-adapter which is inheriting from oemof.tabular facade
         :param mapper: Mapper to map oemof.tabular data names to Project naming
         :return: Dictionary for all fields that the facade can take and matching data
         """
 
         mapped_all_class_fields = {
             field.name: value
-            for field in dataclasses.fields(cls)
+            for field in dataclasses.fields(self.adapter)
             if (value := self.get(field.name, field.type)) is not None
         }
-        mapped_all_class_fields.update(self.get_busses(cls, struct))
+        mapped_all_class_fields.update(self.get_busses(struct))
         return mapped_all_class_fields
 
     @staticmethod

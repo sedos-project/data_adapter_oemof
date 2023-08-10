@@ -1,6 +1,7 @@
 import dataclasses
 import logging
 
+import oemof.solph
 import pandas
 
 from oemof.tabular import facades
@@ -26,32 +27,45 @@ class Adapter:
         But we add custom_attributes (i.e. "name") which would be neglected.
         """
         fields = dataclasses.fields(self)
-        data = {field.name: getattr(self, field.name) for field in fields}
+        data = {}
+        for field in fields:
+            value = getattr(self, field.name)
+            data[field.name] = value
+            if isinstance(value, oemof.solph._plumbing._Sequence):
+                if value.periodic_values:
+                    data[field.name] = value.periodic_values
+                elif len(value) != 0:
+                    data[field.name] = value.data
+                else:
+                    data[field.name] = value.default
+        # data = {field.name: field_value
+        #         for field in fields
+        #         if isinstance((field_value := getattr(self, field.name)), oemof.solph._plumbing._Sequence)
+        #         }
         for attr in self.extra_attributes:
             data[attr] = getattr(self, attr)
         return data
 
     @classmethod
     def parametrize_dataclass(
-        cls, process_name: str, data: dict, timeseries: pandas.DataFrame, struct
+        cls,
+        struct,
+        mapper: Mapper,
     ) -> "Adapter":
-        return cls(**cls.get_default_parameters(process_name, data, timeseries, struct))
+        return cls(**cls.get_default_parameters(struct, mapper))
 
     @classmethod
-    def get_default_parameters(
-        cls, process_name: str, data: dict, timeseries: pandas.DataFrame, struct: dict
-    ) -> dict:
-        mapper = Mapper(cls, process_name, data, timeseries)
+    def get_default_parameters(cls, struct: dict, mapper: Mapper) -> dict:
         defaults = {
             "type": cls.type,
         }
         # Add mapped attributes
-        mapped_values = mapper.get_default_mappings(cls, struct)
+        mapped_values = mapper.get_default_mappings(struct)
         defaults.update(mapped_values)
         # Add additional attributes
         attributes = {
             "name": calculations.get_name(
-                mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+                mapper.get("region"), mapper.get("year"), mapper.get("tech")
             ),
             "region": mapper.get("region"),
             "year": mapper.get("year"),
