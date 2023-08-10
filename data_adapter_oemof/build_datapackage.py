@@ -226,7 +226,27 @@ class DataPackage:
     # Define a function to aggregate differing values into a list
     def _listify_to_periodic(
         self, group_df: pd.DataFrame, element_name: str, sequence_length: int
-    ):
+    )->pd.Series:
+        """
+        Meant to be called from "yearly_scalars_to_periodic_values"
+
+        Aggregation is happening as follows:
+        1: If the Entries are dicts (like input_parameter) it will take the first entry and leave it unchanged
+        2: Elif the Entries are lists or sequences it will check whether they are sequences for the full period
+            and write them to sequences, update foreign keys and write the foreign key.
+        3: Elif the entries are all equal the first entry will be written
+        4: Elif the entries are not equal they are written as a list
+
+        Parameters
+        ----------
+        group_df
+        element_name
+        sequence_length
+
+        Returns
+        -------
+
+        """
         unique_values = pd.Series()
         for col in group_df.columns:  # Exclude 'name' column
             if isinstance(group_df[col][0], dict):
@@ -276,10 +296,15 @@ class DataPackage:
         unique_values["name"] = group_df.name
         return unique_values
 
-    def yearly_scalars_to_periodic_values(self):
+    def yearly_scalars_to_periodic_values(self)->None:
         """
         Turns yearly sclar values to periodic values
-        Returns
+
+        First searches for the sequence length which is the length of the complete sequence.
+
+        Then iterates for every element in parametrized elements, groups them for name and applies aggregation method
+
+        Returns None
         -------
 
         """
@@ -310,6 +335,7 @@ class DataPackage:
                     .apply(self._listify_to_periodic, *[element_name, sequence_length])
                     .reset_index(drop=True)
                 )
+        return None
 
     @classmethod
     def build_datapackage(cls, adapter: Adapter):
