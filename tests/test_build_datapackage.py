@@ -120,8 +120,12 @@ def test_build_datapackage():
                         1: "generator_gas",
                         2: "generator_gas",
                     },
+                    "condensing_efficiency": {0: 0.85, 1: 0.85, 2: 0.9},
+                    "electric_efficiency": {0: 0.35, 1: 0.35, 2: 0.4},
+                    "thermal_efficiency": {0: 0.5, 1: 0.5, 2: 0.45},
                 }
             )
+
             process_mock.timeseries = pd.DataFrame()
             return process_mock
         elif process_name == "modex_tech_wind_turbine_onshore":
@@ -181,10 +185,11 @@ def test_build_datapackage():
     mock_adapter.get_process.side_effect = mock_get_process
     # Call the method with the mock adapter
     result = DataPackage.build_datapackage(mock_adapter)
-    result.save_datapackage_to_csv("_files/build_datapackage_test")
+    result.save_datapackage_to_csv("_files/build_datapackage_test_no_periodoc_values")
 
     check_if_csv_dirs_equal(
-        "_files/build_datapackage_goal", "_files/build_datapackage_test"
+        "_files/build_datapackage_goal_no_periodoc_values",
+        "_files/build_datapackage_test_no_periodoc_values",
     )
 
 
