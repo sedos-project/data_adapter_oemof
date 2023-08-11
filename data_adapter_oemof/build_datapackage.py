@@ -249,9 +249,9 @@ class DataPackage:
         """
         unique_values = pd.Series()
         for col in group_df.columns:  # Exclude 'name' column
-            if isinstance(group_df[col][0], dict):
+            if isinstance(group_df[col][group_df.index[0]], dict):
                 # Unique input/output parameters are not allowed per period
-                unique_values[col] = group_df[col][0]
+                unique_values[col] = group_df[col][group_df.index[0]]
                 continue
             # Full Timeseries shall be moved to sequence folder and read via foreign key:
             elif all(
@@ -285,7 +285,7 @@ class DataPackage:
                     warnings.warn(
                         "You provided lists in scalar Data that is not matching to the Timeseries"
                     )
-                    unique_values[col] = group_df[col][0]
+                    unique_values[col] = group_df[col][group_df.index[0]]
                     continue
 
             values = group_df[col].unique()
@@ -293,7 +293,7 @@ class DataPackage:
                 unique_values[col] = {"len": sequence_length, "values":  list(group_df[col])}
             else:
                 unique_values[col] = values[0]
-        unique_values["name"] = group_df.name
+        unique_values.name = group_df.name
         return unique_values
 
     def yearly_scalars_to_periodic_values(self) -> None:
@@ -361,6 +361,9 @@ class DataPackage:
         for process_name, struct in es_structure.items():
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
+            if isinstance(timeseries.columns, pd.MultiIndex):
+                #FIXME: Will Regions be lists of strings or stings?
+                timeseries.columns = timeseries.columns.get_level_values(0)+"_"+[x[0] for x in timeseries.columns.get_level_values(1).values]
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
