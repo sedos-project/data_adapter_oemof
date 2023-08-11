@@ -293,7 +293,7 @@ class DataPackage:
                 unique_values[col] = {"len": sequence_length, "values":  list(group_df[col])}
             else:
                 unique_values[col] = values[0]
-        unique_values.name = group_df.name
+        unique_values["name"] = group_df.name
         return unique_values
 
     def yearly_scalars_to_periodic_values(self) -> None:
