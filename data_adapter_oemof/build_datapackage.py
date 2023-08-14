@@ -74,6 +74,7 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
     return df_timeseries
 
+
 # Define a function to aggregate differing values into a list
 def _listify_to_periodic(group_df) -> pd.Series:
     """
@@ -122,6 +123,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
     unique_values["name"] = group_df.name
     unique_values.drop("year")
     return unique_values
+
 
 @dataclasses.dataclass
 class DataPackage:
@@ -271,7 +273,6 @@ class DataPackage:
 
         return None
 
-
     @staticmethod
     def yearly_scalars_to_periodic_values(scalar_dataframe) -> None:
         """
@@ -287,16 +288,21 @@ class DataPackage:
         """
         identifiers = ["region", "carrier", "tech"]
         # Check if the identifiers exist if not they will be omitted
-        for poss, existing in enumerate([id in scalar_dataframe.columns for id in identifiers]):
+        for poss, existing in enumerate(
+            [id in scalar_dataframe.columns for id in identifiers]
+        ):
             if existing:
                 continue
             else:
                 scalar_dataframe[identifiers[poss]] = identifiers[poss]
 
-        scalar_dataframe = scalar_dataframe.groupby(["region", "carrier", "tech"]).apply(
-            lambda x: _listify_to_periodic(x)
-        ).reset_index(drop=True)
+        scalar_dataframe = (
+            scalar_dataframe.groupby(["region", "carrier", "tech"])
+            .apply(lambda x: _listify_to_periodic(x))
+            .reset_index(drop=True)
+        )
         return scalar_dataframe
+
     @classmethod
     def build_datapackage(cls, adapter: Adapter):
         """
@@ -322,13 +328,19 @@ class DataPackage:
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
-                #FIXME: Will Regions be lists of strings or stings?
-                timeseries.columns = timeseries.columns.get_level_values(0)+"_"+[x[0] for x in timeseries.columns.get_level_values(1).values]
+                # FIXME: Will Regions be lists of strings or stings?
+                timeseries.columns = (
+                    timeseries.columns.get_level_values(0)
+                    + "_"
+                    + [x[0] for x in timeseries.columns.get_level_values(1).values]
+                )
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
             process_busses = []
-            process_scalars = cls.yearly_scalars_to_periodic_values(process_data.scalars)
+            process_scalars = cls.yearly_scalars_to_periodic_values(
+                process_data.scalars
+            )
             # Build class from adapter with Mapper and add up for each component within the Element
             for component_data in process_scalars.to_dict(orient="records"):
                 component_mapper = Mapper(
