@@ -74,6 +74,54 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 
     return df_timeseries
 
+# Define a function to aggregate differing values into a list
+def _listify_to_periodic(group_df) -> pd.Series:
+    """
+    Method to aggregate scalar values to periodical values.
+    Grouping for "name" consisting of "region" "carrier" and "tech" or given "name"
+    For each group check whether scalar values differ over the years. If yes write as lists if not the
+    original Value is written.
+
+    If there is no "year" column assume the Data is already aggregated and pass as given.
+
+    Parameters
+    ----------
+    group_df
+    element_name
+    sequence_length
+
+    Returns
+    -------
+
+    """
+
+    if not "year" in group_df.columns:
+        return group_df
+
+    unique_values = pd.Series()
+    for col in group_df.columns:  # Exclude 'name' column
+        if isinstance(group_df[col][group_df.index[0]], dict):
+            # Unique input/output parameters are not allowed per period
+            unique_values[col] = group_df[col][group_df.index[0]]
+            continue
+        # Lists and Series can be passed for special Facades only.
+        # Sequences shall be passed as sequences (via links.csv):
+        elif any(
+            [
+                isinstance(col_entry, Union[list, pd.Series])
+                for col_entry in group_df[col]
+            ]
+        ):
+            values = group_df[col].explode().unique()
+        else:
+            values = group_df[col].unique()
+        if len(values) > 1:
+            unique_values[col] = list(group_df[col])
+        else:
+            unique_values[col] = group_df[col].iloc[0]
+    unique_values["name"] = group_df.name
+    unique_values.drop("year")
+    return unique_values
 
 @dataclasses.dataclass
 class DataPackage:
@@ -223,80 +271,9 @@ class DataPackage:
 
         return None
 
-    # Define a function to aggregate differing values into a list
-    def _listify_to_periodic(
-        self, group_df: pd.DataFrame, element_name: str, sequence_length: int
-    ) -> pd.Series:
-        """
-        Meant to be called from "yearly_scalars_to_periodic_values"
 
-        Aggregation is happening as follows:
-        1: If the Entries are dicts (like input_parameter) it will take the first entry and leave it unchanged
-        2: Elif the Entries are lists or sequences it will check whether they are sequences for the full period
-            and write them to sequences, update foreign keys and write the foreign key.
-        3: Elif the entries are all equal the first entry will be written
-        4: Elif the entries are not equal they are written as {"len":sequence_length, "values": [1, 2, 3]}
-
-        Parameters
-        ----------
-        group_df
-        element_name
-        sequence_length
-
-        Returns
-        -------
-
-        """
-        unique_values = pd.Series()
-        for col in group_df.columns:  # Exclude 'name' column
-            if isinstance(group_df[col][group_df.index[0]], dict):
-                # Unique input/output parameters are not allowed per period
-                unique_values[col] = group_df[col][group_df.index[0]]
-                continue
-            # Full Timeseries shall be moved to sequence folder and read via foreign key:
-            elif all(
-                [
-                    isinstance(col_entry, Union[list, pd.Series])
-                    for col_entry in group_df[col]
-                ]
-            ):
-                if (
-                    sum([len(col_entry) for col_entry in group_df[col]])
-                    == sequence_length
-                ):
-                    if element_name in self.parametrized_sequences.keys():
-                        self.parametrized_sequences[element_name][group_df.name] = [
-                            item for sublist in group_df[col] for item in sublist
-                        ]
-                    else:
-                        self.parametrized_sequences[element_name] = pd.DataFrame(
-                            [item for sublist in group_df[col] for item in sublist],
-                            columns=[group_df.name],
-                        )
-                    self.foreign_keys[element_name].append(
-                        {
-                            "fields": col,
-                            "reference": {"resource": f"{element_name}_sequence"},
-                        }
-                    )
-                    unique_values[col] = group_df.name
-                    continue
-                else:
-                    warnings.warn(
-                        "You provided lists in scalar Data that is not matching to the Timeseries"
-                    )
-                    unique_values[col] = group_df[col][group_df.index[0]]
-                    continue
-
-            values = group_df[col].unique()
-            if len(values) > 1:
-                unique_values[col] = {"len": sequence_length, "values":  list(group_df[col])}
-            else:
-                unique_values[col] = values[0]
-        unique_values["name"] = group_df.name
-        return unique_values
-
-    def yearly_scalars_to_periodic_values(self) -> None:
+    @staticmethod
+    def yearly_scalars_to_periodic_values(scalar_dataframe) -> None:
         """
         Turns yearly sclar values to periodic values
 
@@ -308,35 +285,18 @@ class DataPackage:
         -------
 
         """
-        # Check integrity if all indexes in sequences are equal:
-        if all(
-            [
-                df.index.equals(next(iter(self.parametrized_sequences.values())).index)
-                for df in self.parametrized_sequences.values()
-            ]
-        ):
-            sequence_length = [
-                len(sequence) for sequence in self.parametrized_sequences.values()
-            ]
-            if len(np.unique((sequence_length))) != 1:
-                raise Exception(
-                    "All provided Sequences should have the same total length"
-                )
+        identifiers = ["region", "carrier", "tech"]
+        # Check if the identifiers exist if not they will be omitted
+        for poss, existing in enumerate([id in scalar_dataframe.columns for id in identifiers]):
+            if existing:
+                continue
             else:
-                warnings.warn("Provided Sequences are not equal but of same length")
-            sequence_length = sequence_length[0]
+                scalar_dataframe[identifiers[poss]] = identifiers[poss]
 
-        for element_name, element in self.parametrized_elements.items():
-            if "year" in element.columns:
-                element.sort_values(by="year", ascending=True, inplace=True)
-
-                self.parametrized_elements[element_name] = (
-                    element.groupby("name")
-                    .apply(self._listify_to_periodic, *[element_name, sequence_length])
-                    .reset_index(drop=True)
-                )
-        return None
-
+        scalar_dataframe = scalar_dataframe.groupby(["region", "carrier", "tech"]).apply(
+            lambda x: _listify_to_periodic(x)
+        ).reset_index(drop=True)
+        return scalar_dataframe
     @classmethod
     def build_datapackage(cls, adapter: Adapter):
         """
@@ -368,8 +328,9 @@ class DataPackage:
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
             process_busses = []
+            process_scalars = cls.yearly_scalars_to_periodic_values(process_data.scalars)
             # Build class from adapter with Mapper and add up for each component within the Element
-            for component_data in process_data.scalars.to_dict(orient="records"):
+            for component_data in process_scalars.to_dict(orient="records"):
                 component_mapper = Mapper(
                     adapter=facade_adapter,
                     process_name=process_name,

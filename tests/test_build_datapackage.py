@@ -132,9 +132,9 @@ def test_build_datapackage():
                         2: "gas",
                     },
                     "condensing_efficiency": {
-                        0: [0.16, 0.16, 0.16],
-                        1: [0.30, 0.30, 0.30],
-                        2: [0.50, 0.50, 0.50],
+                        0: 0.16,
+                        1: 0.3,
+                        2: 0.5,
                     },
                     "electric_efficiency": {0: 0.35, 1: 0.35, 2: 0.4},
                     "thermal_efficiency": {0: 0.5, 1: 0.5, 2: 0.45},
@@ -204,7 +204,6 @@ def test_build_datapackage():
     mock_adapter.get_process.side_effect = mock_get_process
     # Call the method with the mock adapter
     result = DataPackage.build_datapackage(mock_adapter)
-    result.yearly_scalars_to_periodic_values()
     result.save_datapackage_to_csv("_files/build_datapackage_test")
 
     check_if_csv_dirs_equal(
