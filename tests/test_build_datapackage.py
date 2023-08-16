@@ -210,6 +210,7 @@ def test_save_datapackage():
     pass
 
 
+@pytest.mark.skip(reason="Wait for changes in data_adapter and PR#45.")
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
@@ -227,9 +228,11 @@ def test_build_tabular_datapackage_from_adapter():
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
     # FIXME:
-    #  - Timeseries must be fixed on data_adapter and naming from Multiindex refactoring is missing from #45
+    #  - Timeseries must be fixed on data_adapter and naming from Multiindex
+    #  refactoring is missing from #45
 
 
+@pytest.mark.skip(reason="Needs period csv implementation first.")
 def test_read_datapackage():
     import oemof.tabular.datapackage
     from oemof.solph import EnergySystem, Model
