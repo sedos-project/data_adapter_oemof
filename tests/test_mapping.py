@@ -1,16 +1,13 @@
 import dataclasses
 import typing
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from test_build_datapackage import refactor_timeseries
 
-from data_adapter_oemof.adapters import (
-    FACADE_ADAPTERS,
-    ExtractionTurbineAdapter,
-    LinkAdapter,
-    VolatileAdapter,
-)
+from data_adapter_oemof.adapters import (FACADE_ADAPTERS,
+                                         ExtractionTurbineAdapter, LinkAdapter,
+                                         VolatileAdapter)
 from data_adapter_oemof.mappings import Mapper
 
 

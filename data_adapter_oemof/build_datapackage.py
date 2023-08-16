@@ -1,13 +1,12 @@
 import dataclasses
+import os
 import warnings
 
 import pandas as pd
-import os
-
-from datapackage import Package
-
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
+from datapackage import Package
+
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP, Mapper
 

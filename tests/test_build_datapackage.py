@@ -1,19 +1,17 @@
 import os
-
-import pandas
 import unittest
-
-import pandas as pd
-from data_adapter.preprocessing import Adapter
 from unittest import mock
 
-from oemof.solph import EnergySystem, Model
 import oemof.tabular
-
+import pandas
+import pandas as pd
 from data_adapter.databus import download_collection
+from data_adapter.preprocessing import Adapter
+from oemof.solph import EnergySystem, Model
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
-from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
 
+from data_adapter_oemof.build_datapackage import (DataPackage,
+                                                  refactor_timeseries)
 
 path_default = (
     PATH_TEST_FILES
@@ -213,17 +211,10 @@ def test_build_tabular_datapackage_from_adapter():
 
 
 def test_read_datapackage():
-    from oemof.solph import EnergySystem, Model
     import oemof.tabular.datapackage
-    from oemof.tabular.facades import (
-        Load,
-        Dispatchable,
-        Bus,
-        Link,
-        Storage,
-        Volatile,
-        Conversion,
-    )
+    from oemof.solph import EnergySystem, Model
+    from oemof.tabular.facades import (Bus, Conversion, Dispatchable, Link,
+                                       Load, Storage, Volatile)
 
     es = EnergySystem.from_datapackage(
         "_files/build_datapackage_test/datapackage.json",
