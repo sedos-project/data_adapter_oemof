@@ -27,8 +27,14 @@ jobs:
       - name: Install Python dependencies
         run: pip install black flake8 isort
 
-      - name: Lint
-        run: |
-          black --check .
-          flake8 data_adapter_oemof tests
-          isort --verbose --check-only --diff data_adapter_oemof tests
+      - name: Black
+        if: always()
+        run: black --check .
+
+      - name: flake8
+        if: always()
+        run: flake8 data_adapter_oemof tests
+
+      - name: isort
+        if: always()
+        run: isort --verbose --check-only --diff data_adapter_oemof tests
