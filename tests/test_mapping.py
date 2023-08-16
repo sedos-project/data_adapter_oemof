@@ -15,7 +15,6 @@ from unittest import mock
 from data_adapter.preprocessing import Adapter
 
 
-
 def test_get_with_mapping():
     adapter = VolatileAdapter
 
@@ -137,9 +136,7 @@ def test_default_bus_mapping():
         "custom_capacity": 100.0,
     }
 
-    struct = {
-        "default": {"inputs": [], "outputs": ["from_struct"]}
-    }
+    struct = {"default": {"inputs": [], "outputs": ["from_struct"]}}
 
     expected = {
         "bus": "from_struct",
@@ -151,7 +148,7 @@ def test_default_bus_mapping():
         data=data,
         timeseries=timeseries,
         mapping=mapping,
-        bus_map={}
+        bus_map={},
     )
 
     assert mapper.get_busses(struct=struct) == expected
@@ -172,9 +169,9 @@ def test_default_bus_mapping():
         data=data,
         timeseries=timeseries,
         mapping=mapping,
-        bus_map={"VolatileAdapter":
-                     {"bus": "from_bus_name_map"},
-                 }
+        bus_map={
+            "VolatileAdapter": {"bus": "from_bus_name_map"},
+        },
     )
 
     assert mapper.get_busses(struct=struct) == expected
@@ -217,44 +214,44 @@ def test_get_sequence_name():
     """
     adapter = ExtractionTurbineAdapter
     scalars = pd.DataFrame(
-                {
-                    "region": {0: "BB", 1: "BB", 2: "BB"},
-                    "year": {0: 2016, 1: 2030, 2: 2050},
-                    "installed_capacity": {
-                        0: 5700.03,
-                        1: 5700.03375,
-                        2: 5700.03375,
-                    },
-                    "fixed_costs": {0: 23280.0, 1: 12600.0, 2: 11340.0},
-                    "lifetime": {0: 25.4, 1: 30.0, 2: 30.0},
-                    "wacc": {0: 0.07, 1: 0.07, 2: 0.07},
-                    "tech": {
-                        0: "wind_turbine_onshore",
-                        1: "wind_turbine_onshore",
-                        2: "wind_turbine_onshore",
-                    },
-                    "carrier": {
-                        0: "wind",
-                        1: "wind",
-                        2: "wind",
-                    },
-                }
-            )
+        {
+            "region": {0: "BB", 1: "BB", 2: "BB"},
+            "year": {0: 2016, 1: 2030, 2: 2050},
+            "installed_capacity": {
+                0: 5700.03,
+                1: 5700.03375,
+                2: 5700.03375,
+            },
+            "fixed_costs": {0: 23280.0, 1: 12600.0, 2: 11340.0},
+            "lifetime": {0: 25.4, 1: 30.0, 2: 30.0},
+            "wacc": {0: 0.07, 1: 0.07, 2: 0.07},
+            "tech": {
+                0: "wind_turbine_onshore",
+                1: "wind_turbine_onshore",
+                2: "wind_turbine_onshore",
+            },
+            "carrier": {
+                0: "wind",
+                1: "wind",
+                2: "wind",
+            },
+        }
+    )
     timeseries = pd.DataFrame(
-                {
-                    "onshore_BB": {
-                        "2016-01-01T00:00:00": 0.0516,
-                        "2016-01-01T01:00:00": 0.051,
-                        "2016-01-01T02:00:00": 0.0444,
-                        "2030-01-01T00:00:00": 0.0526,
-                        "2030-01-01T01:00:00": 0.051,
-                        "2030-01-01T02:00:00": 0.0444,
-                        "2050-01-01T00:00:00": 0.0536,
-                        "2050-01-01T01:00:00": 0.051,
-                        "2050-01-01T02:00:00": 0.0444,
-                    },
-                }
-            )
+        {
+            "onshore_BB": {
+                "2016-01-01T00:00:00": 0.0516,
+                "2016-01-01T01:00:00": 0.051,
+                "2016-01-01T02:00:00": 0.0444,
+                "2030-01-01T00:00:00": 0.0526,
+                "2030-01-01T01:00:00": 0.051,
+                "2030-01-01T02:00:00": 0.0444,
+                "2050-01-01T00:00:00": 0.0536,
+                "2050-01-01T01:00:00": 0.051,
+                "2050-01-01T02:00:00": 0.0444,
+            },
+        }
+    )
     structure = {
         "modex_tech_wind_turbine_onshore": {
             "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
