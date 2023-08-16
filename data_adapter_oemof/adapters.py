@@ -3,13 +3,11 @@ import logging
 
 import oemof.solph
 import pandas
-
-from oemof.tabular import facades
 from oemof.solph import Bus
+from oemof.tabular import facades
 
 from data_adapter_oemof import calculations
 from data_adapter_oemof.mappings import Mapper
-
 
 logger = logging.getLogger()
 
