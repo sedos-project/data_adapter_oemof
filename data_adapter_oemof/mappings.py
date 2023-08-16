@@ -183,7 +183,7 @@ class Mapper:
                     busses = struct["outputs"]
                 if len(busses) != 1:
                     raise MappingError(
-                        f"Could not map {bus=} to default bus - too many options"
+                        f"Could not map {bus} to default bus - too many options"
                     )
                 bus_dict[bus] = busses[0]
                 continue

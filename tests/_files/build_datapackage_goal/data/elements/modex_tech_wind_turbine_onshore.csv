@@ -1,0 +1,4 @@
+bus;carrier;tech;profile;capacity;capacity_potential;capacity_minimum;expandable;marginal_cost;capacity_cost;lifetime;age;fixed_costs;output_parameters;name;type
+electricity;wind;wind_turbine_onshore;onshore_BB;5700.03;inf;;False;0;;25.4;0;23280.0;{};BB-2016-wind_turbine_onshore;volatile
+electricity;wind;wind_turbine_onshore;onshore_BB;5700.03375;inf;;False;0;;30.0;0;12600.0;{};BB-2030-wind_turbine_onshore;volatile
+electricity;wind;wind_turbine_onshore;onshore_BB;5700.03375;inf;;False;0;;30.0;0;11340.0;{};BB-2050-wind_turbine_onshore;volatile

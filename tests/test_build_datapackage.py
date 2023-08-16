@@ -188,8 +188,7 @@ def test_build_datapackage():
             "default": {"inputs": ["electricity"], "outputs": []}
         },
         "modex_tech_generator_gas": {
-            "emission_factor": {"inputs": ["ch4"], "outputs": ["co2"]},
-            "default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]},
+            "default": {"inputs": ["ch4"], "outputs": ["electricity"]},
         },
         "modex_tech_wind_turbine_onshore": {
             "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
@@ -202,9 +201,10 @@ def test_build_datapackage():
     result.save_datapackage_to_csv("_files/build_datapackage_test")
 
     check_if_csv_dirs_equal(
-        "_files/build_datapackage_goal_no_periodic_values",
-        "_files/build_datapackage_test_no_periodic_values",
+        "_files/build_datapackage_goal",
+        "_files/build_datapackage_test",
     )
+
 
 
 def test_save_datapackage():
@@ -226,9 +226,8 @@ def test_build_tabular_datapackage_from_adapter():
     dta.save_datapackage_to_csv(dir)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
-    # FIXME: Get them closer together
-    #  - Bus naming with regions -> get regions funktion von Hendrik
-    #  - multiple inputs/outputs
+    # FIXME:
+    #  - Timeseries must be fixed on data_adapter and naming from Multiindex refactoring is missing from #45
 
 
 def test_read_datapackage():

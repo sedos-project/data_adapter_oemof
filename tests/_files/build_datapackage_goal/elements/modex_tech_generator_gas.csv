@@ -1,4 +1,0 @@
-,from_bus,to_bus,carrier,tech,capacity,efficiency,marginal_cost,carrier_cost,capacity_cost,expandable,capacity_potential,capacity_minimum,input_parameters,output_parameters,name,type,year
-0,auto,auto,carrier,tech,,1,0,0,,False,inf,,{},{},BB-carrier-tech,conversion,2016
-1,auto,auto,carrier,tech,,1,0,0,,False,inf,,{},{},BB-carrier-tech,conversion,2030
-2,auto,auto,carrier,tech,,1,0,0,,False,inf,,{},{},BB-carrier-tech,conversion,2050
