@@ -144,7 +144,7 @@ class Mapper:
         """
         bus_occurrences_in_fields = [
             field.name
-            for field in dataclasses.fields(self.adapter)
+            for field in dataclasses.fields(self.adapter.facade)
             if "bus" in field.name
         ]
         if len(bus_occurrences_in_fields) == 0:
@@ -213,7 +213,7 @@ class Mapper:
 
         mapped_all_class_fields = {
             field.name: value
-            for field in dataclasses.fields(self.adapter)
+            for field in dataclasses.fields(self.adapter.facade)
             if (value := self.get(field.name, field.type)) is not None
         }
         mapped_all_class_fields.update(self.get_busses(struct))
