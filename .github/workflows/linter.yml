@@ -28,13 +28,13 @@ jobs:
         run: pip install black flake8 isort
 
       - name: Black
-        if: always()
+        if: success() || failure()
         run: black --check .
 
       - name: flake8
-        if: always()
+        if: success() || failure()
         run: flake8 data_adapter_oemof tests
 
       - name: isort
-        if: always()
+        if: success() || failure()
         run: isort --verbose --check-only --diff data_adapter_oemof tests
