@@ -498,7 +498,7 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "data-adapter"
-version = "0.10.0"
+version = "0.11.1"
 description = "Provides general functionality for other data adapters"
 optional = false
 python-versions = ">=3.8.1,<4.0.0"
@@ -516,8 +516,8 @@ sqlalchemy = "^1.4.46"
 [package.source]
 type = "git"
 url = "https://git@github.com/sedos-project/data_adapter"
-reference = "HEAD"
-resolved_reference = "a02b3a35bc76de2a8a044869829a786415044af4"
+reference = "main"
+resolved_reference = "8bfd757b6299de504a2d2b8db2511dcde7b14f77"
 
 [[package]]
 name = "datapackage"
@@ -2308,4 +2308,4 @@ docs = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.11"
-content-hash = "58886e2ea11e60250f9040aff778249d8493aa50e2129818a0fd344f66edf735"
+content-hash = "0e9b82d61130b2d2400ba1c77d8d4b8d1be9f20489b99fbb794ad569b1c4ee28"
