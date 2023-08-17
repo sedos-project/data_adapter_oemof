@@ -3,10 +3,7 @@ import typing
 
 import pandas as pd
 
-from data_adapter_oemof.adapters import (
-    ExtractionTurbineAdapter,
-    VolatileAdapter,
-)
+from data_adapter_oemof.adapters import ExtractionTurbineAdapter, VolatileAdapter
 from data_adapter_oemof.mappings import Mapper
 
 
