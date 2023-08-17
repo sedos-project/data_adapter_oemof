@@ -517,7 +517,7 @@ sqlalchemy = "^1.4.46"
 type = "git"
 url = "https://git@github.com/sedos-project/data_adapter"
 reference = "main"
-resolved_reference = "8bfd757b6299de504a2d2b8db2511dcde7b14f77"
+resolved_reference = "eba77f2866b2374830de29381dc028e02c383279"
 
 [[package]]
 name = "datapackage"
