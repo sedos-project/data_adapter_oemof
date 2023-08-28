@@ -13,9 +13,7 @@ from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeserie
 path_default = (
     PATH_TEST_FILES
     / "_files"
-    / "tabular_datapackage_mininmal_example"
-    / "data"
-    / "elements"
+    / "build_datapackage_goal"
 )
 
 
@@ -194,14 +192,12 @@ def test_build_datapackage():
 
     mock_adapter.get_process.side_effect = mock_get_process
     # Call the method with the mock adapter
-    path = os.getcwd()
-    test_path = os.path.join(path, "_files", "build_datapackage_test")
-    goal_path = os.path.join(path, "_files", "build_datapackage_goal")
+    test_path = os.path.join(path_default, "..", "build_datapackage_test")
     result = DataPackage.build_datapackage(mock_adapter)
     result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
-        goal_path,
+        path_default,
         test_path,
     )
 
