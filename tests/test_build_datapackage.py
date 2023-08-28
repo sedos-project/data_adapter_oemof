@@ -1,12 +1,12 @@
 import os
 from unittest import mock
-from pandas import Timestamp
 
 import pandas
 import pandas as pd
 import pytest
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
+from pandas import Timestamp
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries

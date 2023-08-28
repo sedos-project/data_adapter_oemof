@@ -220,11 +220,11 @@ class DataPackage:
             self.periods.to_csv(
                 os.path.join(
                     periods_path,
-                    "periods.csv",),
+                    "periods.csv",
+                ),
                 index=True,
-                sep=";",)
-
-
+                sep=";",
+            )
 
         # Save elements to elements folder named by keys + .csv
         for process_name, process_adapted_data in self.parametrized_elements.items():
@@ -329,9 +329,7 @@ class DataPackage:
                 "balanced": [True for i in names],
             }
         )
-        periods = cls.get_periods_from_parametrized_sequences(
-            parametrized_sequences
-        )
+        periods = cls.get_periods_from_parametrized_sequences(parametrized_sequences)
 
         return cls(
             parametrized_elements=parametrized_elements,
