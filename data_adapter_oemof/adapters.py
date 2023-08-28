@@ -1,8 +1,6 @@
 import dataclasses
 import logging
 
-import oemof.solph
-import pandas
 from oemof.solph import Bus
 from oemof.tabular import facades
 

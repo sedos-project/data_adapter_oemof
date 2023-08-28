@@ -1,4 +1,0 @@
-,bus,carrier,tech,storage_capacity,capacity,capacity_cost,storage_capacity_cost,storage_capacity_potential,capacity_potential,expandable,marginal_cost,efficiency,input_parameters,output_parameters,name,type,year
-0,electricity,carrier,tech,0,0,0,,inf,inf,False,0,1,{},{},BB-carrier-tech,storage,2016
-1,electricity,carrier,tech,0,0,0,,inf,inf,False,0,1,{},{},BB-carrier-tech,storage,2030
-2,electricity,carrier,tech,0,0,0,,inf,inf,False,0,1,{},{},BB-carrier-tech,storage,2050
