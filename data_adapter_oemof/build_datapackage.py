@@ -122,7 +122,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
             unique_values[col] = list(group_df[col])
         else:
             unique_values[col] = group_df[col].iloc[0]
-    unique_values["name"] = group_df.name
+    unique_values["name"] = "_".join(group_df.name)
     unique_values.drop("year")
     return unique_values
 
@@ -380,6 +380,7 @@ class DataPackage:
             parametrized_elements[process_name] = pd.DataFrame(components)
 
             parametrized_sequences = {process_name: timeseries}
+        # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
                 "name": (names := pd.unique(parametrized_elements["bus"])),
