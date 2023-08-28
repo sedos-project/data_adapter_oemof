@@ -6,6 +6,7 @@ import unittest
 import pandas as pd
 from data_adapter.preprocessing import Adapter
 from unittest import mock
+from pandas import Timestamp
 
 from oemof.solph import EnergySystem, Model
 import oemof.tabular
@@ -239,3 +240,54 @@ def test_read_datapackage():
     )
     model = Model(es)
     pass
+
+
+def test_period_csv_creation():
+    sequence_created = DataPackage.get_sequences_from_parametrized_sequences(
+        {
+            "bus": pd.DataFrame(),
+            "dispatchable": [],
+            "wind_power": pd.DataFrame(
+                {
+                    "onshore_BB": {
+                        "2016-01-01T00:00:00": 0.0516,
+                        "2016-01-01T01:00:00": 0.051,
+                        "2016-01-01T02:00:00": 0.0444,
+                        "2030-01-01T00:00:00": 0.0526,
+                        "2030-01-01T01:00:00": 0.051,
+                        "2030-01-01T02:00:00": 0.0444,
+                        "2050-01-01T00:00:00": 0.0536,
+                        "2050-01-01T01:00:00": 0.051,
+                        "2050-01-01T02:00:00": 0.0444,
+                    },
+                }
+            ),
+        }
+    )
+    sequence_goal = pd.DataFrame(
+        {
+            "periods": {
+                Timestamp("2016-01-01 00:00:00"): 0,
+                Timestamp("2016-01-01 01:00:00"): 0,
+                Timestamp("2016-01-01 02:00:00"): 0,
+                Timestamp("2030-01-01 00:00:00"): 1,
+                Timestamp("2030-01-01 01:00:00"): 1,
+                Timestamp("2030-01-01 02:00:00"): 1,
+                Timestamp("2050-01-01 00:00:00"): 2,
+                Timestamp("2050-01-01 01:00:00"): 2,
+                Timestamp("2050-01-01 02:00:00"): 2,
+            },
+            "timeincrement": {
+                Timestamp("2016-01-01 00:00:00"): 1,
+                Timestamp("2016-01-01 01:00:00"): 1,
+                Timestamp("2016-01-01 02:00:00"): 1,
+                Timestamp("2030-01-01 00:00:00"): 1,
+                Timestamp("2030-01-01 01:00:00"): 1,
+                Timestamp("2030-01-01 02:00:00"): 1,
+                Timestamp("2050-01-01 00:00:00"): 1,
+                Timestamp("2050-01-01 01:00:00"): 1,
+                Timestamp("2050-01-01 02:00:00"): 1,
+            },
+        }
+    )
+    pd.testing.assert_frame_equal(sequence_goal, sequence_created)

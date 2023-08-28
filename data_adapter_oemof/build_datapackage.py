@@ -83,6 +83,7 @@ class DataPackage:
     ]  # timeseries in form of {type:pd.DataFrame(type)}
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
+    sequences: pd.DataFrame()
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -156,6 +157,32 @@ class DataPackage:
                     # Most likely the field may be a Timeseries in this case, but it is a scalar or unused.
                     pass
         return new_foreign_keys
+
+    @staticmethod
+    def get_sequences_from_parametrized_sequences(
+        parametrized_sequences,
+    ) -> pd.DataFrame:
+        """
+        Takes Dictionary witha ll parametrized sequences per technology and tries to find Sequences
+        Parameters
+        ----------
+        parametrized_sequences
+
+        Returns
+        -------
+
+        """
+        for process_name, sequence in parametrized_sequences.items():
+            print(sequence)
+            print(process_name)
+            if len(sequence) != 0:
+                sequence = pd.DataFrame(index=pd.to_datetime(sequence.index))
+                sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
+                sequence["timeincrement"] = 1
+                return sequence
+            else:
+                pass
+        return pd.DataFrame()
 
     def save_datapackage_to_csv(self, destination: str) -> None:
         """
@@ -284,10 +311,14 @@ class DataPackage:
                 "balanced": [True for i in names],
             }
         )
+        sequences = cls.get_sequences_from_parametrized_sequences(
+            parametrized_sequences
+        )
 
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
             adapter=adapter,
             foreign_keys=foreign_keys,
+            sequences=sequences,
         )
