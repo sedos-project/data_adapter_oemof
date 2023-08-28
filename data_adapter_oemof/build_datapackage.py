@@ -83,7 +83,7 @@ class DataPackage:
     ]  # timeseries in form of {type:pd.DataFrame(type)}
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
-    sequences: pd.DataFrame()
+    periods: pd.DataFrame()
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -204,6 +204,18 @@ class DataPackage:
         # Check if filestructure is existent. Create folders if not:
         elements_path = os.path.join(destination, "data", "elements")
         sequences_path = os.path.join(destination, "data", "sequences")
+
+        if not self.periods.empty:
+            self.periods.to_csv(
+                os.path.join(
+                    destination,
+                    "data",
+                    "periods",
+                    "periods.csv",
+                    index=True,
+                    sep=";",
+                )
+            )
 
         os.makedirs(elements_path, exist_ok=True)
         os.makedirs(sequences_path, exist_ok=True)
