@@ -10,11 +10,7 @@ from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
 
-path_default = (
-    PATH_TEST_FILES
-    / "_files"
-    / "build_datapackage_goal"
-)
+path_default = PATH_TEST_FILES / "_files" / "build_datapackage_goal"
 
 
 def test_refactor_timeseries():
