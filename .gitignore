@@ -1,4 +1,4 @@
 .idea/
-collections/
+collections/*
 __pycache__/
-/structures/
+#/structures/

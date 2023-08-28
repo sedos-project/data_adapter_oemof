@@ -6,13 +6,13 @@
       "format": "csv",
       "mediatype": "text/csv",
       "name": "modex_tech_wind_turbine_onshore_sequence",
-      "path": "sequences/modex_tech_wind_turbine_onshore_sequence.csv",
+      "path": "data/sequences/modex_tech_wind_turbine_onshore_sequence.csv",
       "profile": "tabular-data-resource",
       "schema": {
         "fields": [
           {
             "format": "default",
-            "name": "",
+            "name": "timeindex",
             "type": "string"
           },
           {
@@ -21,6 +21,7 @@
             "type": "number"
           }
         ],
+        "foreignKeys": [],
         "missingValues": [
           ""
         ]
@@ -31,15 +32,10 @@
       "format": "csv",
       "mediatype": "text/csv",
       "name": "bus",
-      "path": "elements/bus.csv",
+      "path": "data/elements/bus.csv",
       "profile": "tabular-data-resource",
       "schema": {
         "fields": [
-          {
-            "format": "default",
-            "name": "",
-            "type": "string"
-          },
           {
             "format": "default",
             "name": "name",
@@ -52,13 +48,15 @@
           },
           {
             "format": "default",
-            "name": "blanced",
-            "type": "string"
+            "name": "balanced",
+            "type": "boolean"
           }
         ],
+        "foreignKeys": [],
         "missingValues": [
           ""
-        ]
+        ],
+        "primaryKey": "name"
       }
     },
     {
@@ -66,15 +64,10 @@
       "format": "csv",
       "mediatype": "text/csv",
       "name": "modex_tech_storage_battery",
-      "path": "elements/modex_tech_storage_battery.csv",
+      "path": "data/elements/modex_tech_storage_battery.csv",
       "profile": "tabular-data-resource",
       "schema": {
         "fields": [
-          {
-            "format": "default",
-            "name": "",
-            "type": "integer"
-          },
           {
             "format": "default",
             "name": "bus",
@@ -98,7 +91,7 @@
           {
             "format": "default",
             "name": "capacity",
-            "type": "integer"
+            "type": "number"
           },
           {
             "format": "default",
@@ -124,6 +117,21 @@
             "format": "default",
             "name": "expandable",
             "type": "boolean"
+          },
+          {
+            "format": "default",
+            "name": "lifetime",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "age",
+            "type": "integer"
+          },
+          {
+            "format": "default",
+            "name": "fixed_costs",
+            "type": "array"
           },
           {
             "format": "default",
@@ -154,11 +162,6 @@
             "format": "default",
             "name": "type",
             "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "year",
-            "type": "integer"
           }
         ],
         "foreignKeys": [
@@ -172,7 +175,8 @@
         ],
         "missingValues": [
           ""
-        ]
+        ],
+        "primaryKey": "name"
       }
     },
     {
@@ -180,15 +184,10 @@
       "format": "csv",
       "mediatype": "text/csv",
       "name": "modex_tech_generator_gas",
-      "path": "elements/modex_tech_generator_gas.csv",
+      "path": "data/elements/modex_tech_generator_gas.csv",
       "profile": "tabular-data-resource",
       "schema": {
         "fields": [
-          {
-            "format": "default",
-            "name": "",
-            "type": "integer"
-          },
           {
             "format": "default",
             "name": "from_bus",
@@ -268,11 +267,6 @@
             "format": "default",
             "name": "type",
             "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "year",
-            "type": "integer"
           }
         ],
         "foreignKeys": [
@@ -293,7 +287,8 @@
         ],
         "missingValues": [
           ""
-        ]
+        ],
+        "primaryKey": "name"
       }
     },
     {
@@ -301,15 +296,10 @@
       "format": "csv",
       "mediatype": "text/csv",
       "name": "modex_tech_wind_turbine_onshore",
-      "path": "elements/modex_tech_wind_turbine_onshore.csv",
+      "path": "data/elements/modex_tech_wind_turbine_onshore.csv",
       "profile": "tabular-data-resource",
       "schema": {
         "fields": [
-          {
-            "format": "default",
-            "name": "",
-            "type": "integer"
-          },
           {
             "format": "default",
             "name": "bus",
@@ -362,6 +352,21 @@
           },
           {
             "format": "default",
+            "name": "lifetime",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "age",
+            "type": "integer"
+          },
+          {
+            "format": "default",
+            "name": "fixed_costs",
+            "type": "number"
+          },
+          {
+            "format": "default",
             "name": "output_parameters",
             "type": "object"
           },
@@ -374,11 +379,6 @@
             "format": "default",
             "name": "type",
             "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "year",
-            "type": "integer"
           }
         ],
         "foreignKeys": [
@@ -398,7 +398,8 @@
         ],
         "missingValues": [
           ""
-        ]
+        ],
+        "primaryKey": "name"
       }
     }
   ]
