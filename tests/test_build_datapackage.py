@@ -12,6 +12,8 @@ from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeserie
 
 path_default = PATH_TEST_FILES / "_files" / "build_datapackage_goal"
 
+# Todo: reduce warnings
+
 
 def test_refactor_timeseries():
     timeseries = pandas.DataFrame(
