@@ -141,6 +141,9 @@ class DataPackage:
                         }
                     )
                 elif any(components[field.name].isin(mapper.timeseries.columns)):
+                    # Todo clean up on examples:
+                    #   -remove DE from hackerthon or
+                    #   -create propper example with realistic project data
                     warnings.warn(
                         "Not all profile columns are set within the given profiles."
                         f" Please check if there is a timeseries for every Component in "
@@ -155,8 +158,9 @@ class DataPackage:
                         }
                     )
                 else:
-                    # Most likely the field may be a Timeseries in this case, but it
-                    # is a scalar or unused.
+                    # The Field is allowed to be a timeseries
+                    # -> and likely is a supposed to be a timeseries
+                    # but a scalar or `unused` is found.
                     pass
         return new_foreign_keys
 
