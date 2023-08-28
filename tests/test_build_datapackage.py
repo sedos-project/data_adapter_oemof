@@ -11,7 +11,7 @@ from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
 
-path_default = PATH_TEST_FILES / "_files" / "build_datapackage_goal"
+path_default = PATH_TEST_FILES / "_files"
 
 # Todo: reduce warnings
 
@@ -191,12 +191,13 @@ def test_build_datapackage():
 
     mock_adapter.get_process.side_effect = mock_get_process
     # Call the method with the mock adapter
-    test_path = os.path.join(path_default, "..", "build_datapackage_test")
+    test_path = os.path.join(path_default, "build_datapackage_test")
+    goal_path = os.path.join(path_default, "build_datapackage_goal")
     result = DataPackage.build_datapackage(mock_adapter)
     result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
-        path_default,
+        goal_path,
         test_path,
     )
 
@@ -248,7 +249,7 @@ def test_read_datapackage():
 
 
 def test_period_csv_creation():
-    sequence_created = DataPackage.get_sequences_from_parametrized_sequences(
+    sequence_created = DataPackage.get_periods_from_parametrized_sequences(
         {
             "bus": pd.DataFrame(),
             "dispatchable": [],

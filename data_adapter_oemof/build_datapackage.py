@@ -166,12 +166,12 @@ class DataPackage:
         return new_foreign_keys
 
     @staticmethod
-    def get_sequences_from_parametrized_sequences(
+    def get_periods_from_parametrized_sequences(
         parametrized_sequences,
     ) -> pd.DataFrame:
         """
-        Takes Dictionary witha ll parametrized sequences per technology and tries to find Sequences
-        Parameters
+        Takes Dictionary with all parametrized sequences per technology and tries to find periods
+        csv
         ----------
         parametrized_sequences
 
@@ -180,8 +180,6 @@ class DataPackage:
 
         """
         for process_name, sequence in parametrized_sequences.items():
-            print(sequence)
-            print(process_name)
             if len(sequence) != 0:
                 sequence = pd.DataFrame(index=pd.to_datetime(sequence.index))
                 sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
@@ -212,21 +210,21 @@ class DataPackage:
         # Check if filestructure is existent. Create folders if not:
         elements_path = os.path.join(destination, "data", "elements")
         sequences_path = os.path.join(destination, "data", "sequences")
+        periods_path = os.path.join(destination, "data", "periods")
+
+        os.makedirs(elements_path, exist_ok=True)
+        os.makedirs(sequences_path, exist_ok=True)
+        os.makedirs(periods_path, exist_ok=True)
 
         if not self.periods.empty:
             self.periods.to_csv(
                 os.path.join(
-                    destination,
-                    "data",
-                    "periods",
-                    "periods.csv",
-                    index=True,
-                    sep=";",
-                )
-            )
+                    periods_path,
+                    "periods.csv",),
+                index=True,
+                sep=";",)
 
-        os.makedirs(elements_path, exist_ok=True)
-        os.makedirs(sequences_path, exist_ok=True)
+
 
         # Save elements to elements folder named by keys + .csv
         for process_name, process_adapted_data in self.parametrized_elements.items():
@@ -331,7 +329,7 @@ class DataPackage:
                 "balanced": [True for i in names],
             }
         )
-        sequences = cls.get_sequences_from_parametrized_sequences(
+        periods = cls.get_periods_from_parametrized_sequences(
             parametrized_sequences
         )
 
@@ -340,5 +338,5 @@ class DataPackage:
             parametrized_sequences=parametrized_sequences,
             adapter=adapter,
             foreign_keys=foreign_keys,
-            sequences=sequences,
+            periods=periods,
         )
