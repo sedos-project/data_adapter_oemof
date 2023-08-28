@@ -1,18 +1,10 @@
 import dataclasses
-import os
 import typing
 
 import pandas as pd
-import numpy as np
 
-from data_adapter_oemof.adapters import (
-    ExtractionTurbineAdapter,
-    LinkAdapter,
-    VolatileAdapter,
-)
+from data_adapter_oemof.adapters import ExtractionTurbineAdapter, VolatileAdapter
 from data_adapter_oemof.mappings import Mapper
-from unittest import mock
-from data_adapter.preprocessing import Adapter
 
 
 def test_get_with_mapping():
@@ -252,11 +244,6 @@ def test_get_sequence_name():
             },
         }
     )
-    structure = {
-        "modex_tech_wind_turbine_onshore": {
-            "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
-        },
-    }
 
     for component_data in scalars.to_dict(orient="records"):
         mapper = Mapper(
