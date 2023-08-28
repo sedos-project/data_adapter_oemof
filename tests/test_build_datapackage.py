@@ -198,7 +198,7 @@ def test_build_datapackage():
     result.save_datapackage_to_csv("_files/build_datapackage_test")
 
     check_if_csv_dirs_equal(
-        "_files/build_datapackage_goal",
+        "tests/_files/build_datapackage_goal",
         "_files/build_datapackage_test",
     )
 

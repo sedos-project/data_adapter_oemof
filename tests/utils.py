@@ -71,6 +71,7 @@ def check_if_csv_dirs_equal(dir_a, dir_b):
     files_b = get_all_file_paths(dir_b)
 
     print(f"files a are: {files_a}")
+    print(f"dir a is {dir_a}")
     print(f"files b are: {files_b}")
     files_a = [file for file in files_a if file.split(".")[-1] == "csv"]
     files_b = [file for file in files_b if file.split(".")[-1] == "csv"]
