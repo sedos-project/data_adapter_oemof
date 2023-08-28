@@ -1,13 +1,9 @@
 import dataclasses
 import os
 import warnings
-
-import numpy as np
-import pandas as pd
-import os
-
-from datapackage import Package
 from typing import Union
+
+import pandas as pd
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
 from datapackage import Package
@@ -82,7 +78,8 @@ def _listify_to_periodic(group_df) -> pd.Series:
     """
     Method to aggregate scalar values to periodical values.
     Grouping for "name" consisting of "region" "carrier" and "tech" or given "name"
-    For each group check whether scalar values differ over the years. If yes write as lists if not the
+    For each group check whether scalar values differ over the years.
+    If yes write as lists if not the
     original Value is written.
 
     If there is no "year" column assume the Data is already aggregated and pass as given.
@@ -98,7 +95,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
 
     """
 
-    if not "year" in group_df.columns:
+    if "year" not in group_df.columns:
         return group_df
 
     unique_values = pd.Series()
@@ -291,7 +288,8 @@ class DataPackage:
 
         First searches for the sequence length which is the length of the complete sequence.
 
-        Then iterates for every element in parametrized elements, groups them for name and applies aggregation method
+        Then iterates for every element in parametrized elements, groups them for name
+        then applies aggregation method
 
         Returns None
         -------
