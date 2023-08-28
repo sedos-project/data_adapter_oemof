@@ -194,12 +194,15 @@ def test_build_datapackage():
 
     mock_adapter.get_process.side_effect = mock_get_process
     # Call the method with the mock adapter
+    path = os.getcwd()
+    test_path = os.path.join(path, "_files", "build_datapackage_test")
+    goal_path = os.path.join(path, "_files", "build_datapackage_goal")
     result = DataPackage.build_datapackage(mock_adapter)
-    result.save_datapackage_to_csv("_files/build_datapackage_test")
+    result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
-        "tests/_files/build_datapackage_goal",
-        "_files/build_datapackage_test",
+        goal_path,
+        test_path,
     )
 
 
