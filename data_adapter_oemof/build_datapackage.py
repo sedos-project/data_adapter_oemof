@@ -1,4 +1,5 @@
 import dataclasses
+import os
 import warnings
 
 import numpy as np
@@ -7,9 +8,10 @@ import os
 
 from datapackage import Package
 from typing import Union
-
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
+from datapackage import Package
+
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import PROCESS_TYPE_MAP, Mapper
 
@@ -24,7 +26,8 @@ def refactor_timeseries(timeseries: pd.DataFrame):
     Parameters
     ----------
     timeseries: pd.DataFrame
-        timeseries in parameter-model format (https://github.com/sedos-project/oedatamodel#oedatamodel-parameter)
+        timeseries in parameter-model format
+        (https://github.com/sedos-project/oedatamodel#oedatamodel-parameter)
 
     Returns
     pd.DataFrame Tabular form of timeseries for multiple periods of similar
@@ -34,7 +37,6 @@ def refactor_timeseries(timeseries: pd.DataFrame):
     """
     # Combine all time series into one DataFrame
     df_timeseries = pd.DataFrame()
-    timeseries_timesteps = []
     if timeseries.empty:
         return df_timeseries
     # Iterate over different time periods/years
@@ -160,14 +162,16 @@ class DataPackage:
         struct: list
             Energy System structure defining input/outputs for Processes
         mapper: Mapper
-            for one element of the Process (foreign keys have to be equal for all components of a Process)
+            for one element of the Process
+            (foreign keys have to be equal for all components of a Process)
         components: list
-            all components as of a Process as dicts. Helps to check what columns that could be pointing to sequences
-            are found in Sequences.
+            all components as of a Process as dicts. Helps to check what columns
+            that could be pointing to sequences are found in Sequences.
 
         Returns
         -------
-        list of foreignKeys for Process including bus references and pointers to files containing `profiles`
+        list of foreignKeys for Process including bus references and pointers to files
+        containing `profiles`
         """
         new_foreign_keys = []
         components = pd.DataFrame(components)
@@ -192,9 +196,13 @@ class DataPackage:
                         }
                     )
                 elif any(components[field.name].isin(mapper.timeseries.columns)):
+                    # Todo clean up on examples:
+                    #   -remove DE from hackerthon or
+                    #   -create propper example with realistic project data
                     warnings.warn(
                         "Not all profile columns are set within the given profiles."
-                        f" Please check if there is a timeseries for every Component in {mapper.process_name}"
+                        f" Please check if there is a timeseries for every Component in "
+                        f"{mapper.process_name}"
                     )
                     new_foreign_keys.append(
                         {
@@ -205,7 +213,9 @@ class DataPackage:
                         }
                     )
                 else:
-                    # Most likely the field may be a Timeseries in this case, but it is a scalar or unused.
+                    # The Field is allowed to be a timeseries
+                    # -> and likely is a supposed to be a timeseries
+                    # but a scalar or `unused` is found.
                     pass
         return new_foreign_keys
 
@@ -218,8 +228,9 @@ class DataPackage:
         self: DataPackage
             DataPackage to save
         destination: str
-            String to where the datapackage save to. More convenient to use os.path. If last level of folder stucture
-            does not exist, it will be created (as well as /elements and /sequences)
+            String to where the datapackage save to. More convenient to use os.path.
+            If last level of folder stucture does not exist, it will be created
+            (as well as /elements and /sequences)
 
         Returns
         -------
@@ -311,8 +322,8 @@ class DataPackage:
         Parameters
         ----------
         adapter: Adapter
-            Adapter from oemof_data_adapter that is able to handle parameter model data from Databus.
-            Adapter needs to be initialized with `structure_name`. Use `links_
+            Adapter from oemof_data_adapter that is able to handle parameter model data
+            from Databus. Adapter needs to be initialized with `structure_name`. Use `links_
 
         Returns
         -------
@@ -360,8 +371,8 @@ class DataPackage:
             parametrized_elements["bus"] += process_busses
 
             # getting foreign keys with last component
-            #   foreign keys have to be equal for every component within a Process as foreign key columns cannot
-            #   have mixed meaning
+            #   foreign keys have to be equal for every component within a Process
+            #   as foreign key columns cannot have mixed meaning
             foreign_keys[process_name] = cls.get_foreign_keys(
                 struct, component_mapper, components
             )

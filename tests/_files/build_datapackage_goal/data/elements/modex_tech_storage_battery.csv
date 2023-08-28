@@ -1,0 +1,4 @@
+bus;carrier;tech;storage_capacity;capacity;capacity_cost;storage_capacity_cost;storage_capacity_potential;capacity_potential;expandable;lifetime;age;fixed_costs;marginal_cost;efficiency;input_parameters;output_parameters;name;type
+electricity;Lithium;storage_battery;0;17.8;0;;inf;inf;False;;0;[];0;1;{};{};BB-2016-storage_battery;storage
+electricity;Lithium;storage_battery;0;17.8;0;;inf;inf;False;;0;[];0;1;{};{};BB-2030-storage_battery;storage
+electricity;Lithium;storage_battery;0;17.8;0;;inf;inf;False;;0;[];0;1;{};{};BB-2050-storage_battery;storage

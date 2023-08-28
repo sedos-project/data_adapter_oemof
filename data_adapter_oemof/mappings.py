@@ -135,9 +135,10 @@ class Mapper:
             If found, search for similarities in the structure CSV.
             If not, search for name similarities:
                 Between the structure CSV and the adapter's buses take name from the structure.
-        Note: If passed class has more than two busses or different names for busses fields it is highly recommended
-        to provide BUS_NAME_MAP entry for this class. If multiple instances of the same facade
-        shall be having different inputs/outputs a facade Adapter has to be added for each.
+        Note: If passed class has more than two busses or different names for busses fields it
+        is highly recommended to provide BUS_NAME_MAP entry for this class.
+        If multiple instances of the same facade shall be having different inputs/outputs
+        a facade Adapter has to be added for each.
         :param struct: dict
         :return: dictionary with tabular like Busses
         """
@@ -153,7 +154,6 @@ class Mapper:
 
         bus_dict = {}
         for bus in bus_occurrences_in_fields:  # emission_bus
-
             # 1. Check for existing mappings
             try:
                 bus_dict[bus] = self.bus_map[self.adapter.__name__][bus]
@@ -169,8 +169,8 @@ class Mapper:
                 struct = struct["default"]
             else:
                 warnings.warn(
-                    "Please check structure and provide either one set of inputs/outputs or specify as default"
-                    "Parameter specific busses not implemented yet"
+                    "Please check structure and provide either one set of inputs/outputs "
+                    "or specify as default Parameter specific busses not implemented yet"
                 )
 
             # 2. Check for default busses
@@ -183,7 +183,7 @@ class Mapper:
                     busses = struct["outputs"]
                 if len(busses) != 1:
                     raise MappingError(
-                        f"Could not map {bus=} to default bus - too many options"
+                        f"Could not map {bus} to default bus - too many options"
                     )
                 bus_dict[bus] = busses[0]
                 continue

@@ -6,5 +6,5 @@ VolatileAdapter:
   bus: electricity
 
 ConversionAdapter:
-  from_bus: auto
-  to_bus: auto
+  from_bus: ch4
+  to_bus: electricity

@@ -1,27 +1,18 @@
 import os
-
-import pandas
-import unittest
-
-import pandas as pd
-from data_adapter.preprocessing import Adapter
 from unittest import mock
 
-from oemof.solph import EnergySystem, Model
-import oemof.tabular
-
+import pandas
+import pandas as pd
+import pytest
 from data_adapter.databus import download_collection
+from data_adapter.preprocessing import Adapter
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
+
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
 
+path_default = PATH_TEST_FILES / "_files" / "build_datapackage_goal"
 
-path_default = (
-    PATH_TEST_FILES
-    / "_files"
-    / "tabular_datapackage_mininmal_example"
-    / "data"
-    / "elements"
-)
+# Todo: reduce warnings
 
 
 def test_refactor_timeseries():
@@ -140,6 +131,7 @@ def test_build_datapackage():
                     "thermal_efficiency": {0: 0.5, 1: 0.5, 2: 0.45},
                 }
             )
+
             process_mock.timeseries = pd.DataFrame()
             return process_mock
         elif process_name == "modex_tech_wind_turbine_onshore":
@@ -193,8 +185,7 @@ def test_build_datapackage():
             "default": {"inputs": ["electricity"], "outputs": []}
         },
         "modex_tech_generator_gas": {
-            "emission_factor": {"inputs": ["ch4"], "outputs": ["co2"]},
-            "default": {"inputs": ["ch4"], "outputs": ["electricity", "heat"]},
+            "default": {"inputs": ["ch4"], "outputs": ["electricity"]},
         },
         "modex_tech_wind_turbine_onshore": {
             "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
@@ -203,11 +194,13 @@ def test_build_datapackage():
 
     mock_adapter.get_process.side_effect = mock_get_process
     # Call the method with the mock adapter
+    test_path = os.path.join(path_default, "..", "build_datapackage_test")
     result = DataPackage.build_datapackage(mock_adapter)
-    result.save_datapackage_to_csv("_files/build_datapackage_test")
+    result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
-        "_files/build_datapackage_goal", "_files/build_datapackage_test"
+        path_default,
+        test_path,
     )
 
 
@@ -215,6 +208,7 @@ def test_save_datapackage():
     pass
 
 
+@pytest.mark.skip(reason="Wait for changes in data_adapter and PR#45.")
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
@@ -225,40 +219,32 @@ def test_build_tabular_datapackage_from_adapter():
         structure_name="structure",
         links_name="links",
     )
+    return "FIXME before test can be run"
     dta = DataPackage.build_datapackage(adapter=adapter)
     dir = os.path.join(os.getcwd(), "_files", "tabular_datapackage_hack_a_thon")
     dta.save_datapackage_to_csv(dir)
 
     check_if_csv_dirs_equal(PATH_TMP, path_default)
-    # FIXME: Get them closer together
-    #  - Bus naming with regions -> get regions funktion von Hendrik
-    #  - multiple inputs/outputs
+    # FIXME:
+    #  - Timeseries must be fixed on data_adapter and naming from Multiindex
+    #  refactoring is missing from #45
 
 
+@pytest.mark.skip(reason="Needs period csv implementation first.")
 def test_read_datapackage():
-    from oemof.solph import EnergySystem, Model
-    import oemof.tabular.datapackage
-    from oemof.tabular.facades import (
-        Load,
-        Dispatchable,
-        Bus,
-        Link,
-        Storage,
-        Volatile,
-        Conversion,
-    )
-
-    es = EnergySystem.from_datapackage(
-        "_files/build_datapackage_test/datapackage.json",
-        typemap={
-            "load": Load,
-            "dispatchable": Dispatchable,
-            "bus": Bus,
-            "link": Link,
-            "storage": Storage,
-            "volatile": Volatile,
-            "conversion": Conversion,
-        },
-    )
-    model = Model(es)
+    # FIXME: Period csv is missing.
+    # return "FIXME first"
+    # es = EnergySystem.from_datapackage(
+    #     "_files/build_datapackage_test/datapackage.json",
+    #     typemap={
+    #         "load": Load,
+    #         "dispatchable": Dispatchable,
+    #         "bus": Bus,
+    #         "link": Link,
+    #         "storage": Storage,
+    #         "volatile": Volatile,
+    #         "conversion": Conversion,
+    #     },
+    # )
+    # model = Model(es)
     pass

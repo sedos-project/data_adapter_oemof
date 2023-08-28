@@ -1,4 +1,0 @@
-,bus,carrier,tech,profile,capacity,capacity_potential,capacity_minimum,expandable,marginal_cost,capacity_cost,output_parameters,name,type,year
-0,electricity,carrier,tech,onshore_BB,5700.03,inf,,False,0,,{},BB-carrier-tech,volatile,2016
-1,electricity,carrier,tech,onshore_BB,5700.03375,inf,,False,0,,{},BB-carrier-tech,volatile,2030
-2,electricity,carrier,tech,onshore_BB,5700.03375,inf,,False,0,,{},BB-carrier-tech,volatile,2050

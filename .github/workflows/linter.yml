@@ -1,0 +1,40 @@
+# This workflow will run linters with a single version of Python
+
+name: Black
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - release/*
+  pull_request:
+
+jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - name: Install Python dependencies
+        run: pip install black flake8 isort
+
+      - name: Black
+        if: success() || failure()
+        run: black --check .
+
+      - name: flake8
+        if: success() || failure()
+        run: flake8 data_adapter_oemof tests
+
+      - name: isort
+        if: success() || failure()
+        run: isort --verbose --check-only --diff data_adapter_oemof tests
