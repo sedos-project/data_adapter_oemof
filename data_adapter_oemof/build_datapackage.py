@@ -76,19 +76,16 @@ def refactor_timeseries(timeseries: pd.DataFrame):
 # Define a function to aggregate differing values into a list
 def _listify_to_periodic(group_df) -> pd.Series:
     """
-    Method to aggregate scalar values to periodical values.
-    Grouping for "name" consisting of "region" "carrier" and "tech" or given "name"
-    For each group check whether scalar values differ over the years.
-    If yes write as lists if not the
-    original Value is written.
+    Method to aggregate scalar values to periodical values grouped by "name"
+    For each group, check whether scalar values differ over the years.
+    If yes, write as lists, if not, the original value is written.
 
-    If there is no "year" column assume the Data is already aggregated and pass as given.
+    If there is no "year" column, assume the data is already aggregated and
+    pass as given.
 
     Parameters
     ----------
     group_df
-    element_name
-    sequence_length
 
     Returns
     -------
@@ -284,7 +281,7 @@ class DataPackage:
     @staticmethod
     def yearly_scalars_to_periodic_values(scalar_dataframe) -> None:
         """
-        Turns yearly sclar values to periodic values
+        Turns yearly scalar values to periodic values
 
         First searches for the sequence length which is the length of the complete sequence.
 
@@ -337,7 +334,7 @@ class DataPackage:
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
-                # FIXME: Will Regions be lists of strings or stings?
+                # FIXME: Will Regions be lists of strings or strings?
                 timeseries.columns = (
                     timeseries.columns.get_level_values(0)
                     + "_"
