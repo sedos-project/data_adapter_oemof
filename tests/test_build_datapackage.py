@@ -6,11 +6,12 @@ import pandas as pd
 import pytest
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
+from pandas import Timestamp
 from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
 
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
 
-path_default = PATH_TEST_FILES / "_files" / "build_datapackage_goal"
+path_default = PATH_TEST_FILES / "_files"
 
 # Todo: reduce warnings
 
@@ -194,12 +195,13 @@ def test_build_datapackage():
 
     mock_adapter.get_process.side_effect = mock_get_process
     # Call the method with the mock adapter
-    test_path = os.path.join(path_default, "..", "build_datapackage_test")
+    test_path = os.path.join(path_default, "build_datapackage_test")
+    goal_path = os.path.join(path_default, "build_datapackage_goal")
     result = DataPackage.build_datapackage(mock_adapter)
     result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
-        path_default,
+        goal_path,
         test_path,
     )
 
@@ -248,3 +250,54 @@ def test_read_datapackage():
     # )
     # model = Model(es)
     pass
+
+
+def test_period_csv_creation():
+    sequence_created = DataPackage.get_periods_from_parametrized_sequences(
+        {
+            "bus": pd.DataFrame(),
+            "dispatchable": [],
+            "wind_power": pd.DataFrame(
+                {
+                    "onshore_BB": {
+                        "2016-01-01T00:00:00": 0.0516,
+                        "2016-01-01T01:00:00": 0.051,
+                        "2016-01-01T02:00:00": 0.0444,
+                        "2030-01-01T00:00:00": 0.0526,
+                        "2030-01-01T01:00:00": 0.051,
+                        "2030-01-01T02:00:00": 0.0444,
+                        "2050-01-01T00:00:00": 0.0536,
+                        "2050-01-01T01:00:00": 0.051,
+                        "2050-01-01T02:00:00": 0.0444,
+                    },
+                }
+            ),
+        }
+    )
+    sequence_goal = pd.DataFrame(
+        {
+            "periods": {
+                Timestamp("2016-01-01 00:00:00"): 0,
+                Timestamp("2016-01-01 01:00:00"): 0,
+                Timestamp("2016-01-01 02:00:00"): 0,
+                Timestamp("2030-01-01 00:00:00"): 1,
+                Timestamp("2030-01-01 01:00:00"): 1,
+                Timestamp("2030-01-01 02:00:00"): 1,
+                Timestamp("2050-01-01 00:00:00"): 2,
+                Timestamp("2050-01-01 01:00:00"): 2,
+                Timestamp("2050-01-01 02:00:00"): 2,
+            },
+            "timeincrement": {
+                Timestamp("2016-01-01 00:00:00"): 1,
+                Timestamp("2016-01-01 01:00:00"): 1,
+                Timestamp("2016-01-01 02:00:00"): 1,
+                Timestamp("2030-01-01 00:00:00"): 1,
+                Timestamp("2030-01-01 01:00:00"): 1,
+                Timestamp("2030-01-01 02:00:00"): 1,
+                Timestamp("2050-01-01 00:00:00"): 1,
+                Timestamp("2050-01-01 01:00:00"): 1,
+                Timestamp("2050-01-01 02:00:00"): 1,
+            },
+        }
+    )
+    pd.testing.assert_frame_equal(sequence_goal, sequence_created)

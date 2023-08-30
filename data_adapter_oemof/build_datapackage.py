@@ -131,6 +131,7 @@ class DataPackage:
     ]  # timeseries in form of {type:pd.DataFrame(type)}
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
+    periods: pd.DataFrame()
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -213,6 +214,31 @@ class DataPackage:
                     pass
         return new_foreign_keys
 
+    @staticmethod
+    def get_periods_from_parametrized_sequences(
+        parametrized_sequences,
+    ) -> pd.DataFrame:
+        """
+        Takes Dictionary with all parametrized sequences per technology and tries to find periods
+        csv. First sequence found will be to dervie periods.
+        ----------
+        parametrized_sequences
+
+        Returns
+        -------
+
+        """
+        for process_name, sequence in parametrized_sequences.items():
+            if len(sequence) != 0:
+                sequence = pd.DataFrame(index=pd.to_datetime(sequence.index))
+                sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
+                # TODO timeincrement might be adjusted later to modify objective weighting
+                sequence["timeincrement"] = 1
+                return sequence
+            else:
+                pass
+        return pd.DataFrame()
+
     def save_datapackage_to_csv(self, destination: str) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
@@ -234,9 +260,21 @@ class DataPackage:
         # Check if filestructure is existent. Create folders if not:
         elements_path = os.path.join(destination, "data", "elements")
         sequences_path = os.path.join(destination, "data", "sequences")
+        periods_path = os.path.join(destination, "data", "periods")
 
         os.makedirs(elements_path, exist_ok=True)
         os.makedirs(sequences_path, exist_ok=True)
+        os.makedirs(periods_path, exist_ok=True)
+
+        if not self.periods.empty:
+            self.periods.to_csv(
+                os.path.join(
+                    periods_path,
+                    "periods.csv",
+                ),
+                index=True,
+                sep=";",
+            )
 
         # Save elements to elements folder named by keys + .csv
         for process_name, process_adapted_data in self.parametrized_elements.items():
@@ -383,10 +421,12 @@ class DataPackage:
                 "balanced": [True for i in names],
             }
         )
+        periods = cls.get_periods_from_parametrized_sequences(parametrized_sequences)
 
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
             adapter=adapter,
             foreign_keys=foreign_keys,
+            periods=periods,
         )
