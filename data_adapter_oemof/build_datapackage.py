@@ -220,7 +220,7 @@ class DataPackage:
     ) -> pd.DataFrame:
         """
         Takes Dictionary with all parametrized sequences per technology and tries to find periods
-        csv
+        csv. First sequence found will be to dervie periods.
         ----------
         parametrized_sequences
 
@@ -232,6 +232,7 @@ class DataPackage:
             if len(sequence) != 0:
                 sequence = pd.DataFrame(index=pd.to_datetime(sequence.index))
                 sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
+                # TODO timeincrement might be adjusted later to modify objective weighting
                 sequence["timeincrement"] = 1
                 return sequence
             else:
