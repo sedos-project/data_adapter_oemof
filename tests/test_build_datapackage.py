@@ -123,7 +123,11 @@ def test_build_datapackage():
                         1: "gas",
                         2: "gas",
                     },
-                    "condensing_efficiency": {0: 0.85, 1: 0.85, 2: 0.9},
+                    "condensing_efficiency": {
+                        0: 0.16,
+                        1: 0.3,
+                        2: 0.5,
+                    },
                     "electric_efficiency": {0: 0.35, 1: 0.35, 2: 0.4},
                     "thermal_efficiency": {0: 0.5, 1: 0.5, 2: 0.45},
                 }

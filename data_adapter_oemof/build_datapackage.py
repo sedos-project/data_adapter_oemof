@@ -1,6 +1,7 @@
 import dataclasses
 import os
 import warnings
+from typing import Union
 
 import pandas as pd
 from data_adapter import core
@@ -70,6 +71,54 @@ def refactor_timeseries(timeseries: pd.DataFrame):
         df_timeseries = pd.concat([df_timeseries, df_timeseries_year], axis=0)
 
     return df_timeseries
+
+
+# Define a function to aggregate differing values into a list
+def _listify_to_periodic(group_df) -> pd.Series:
+    """
+    Method to aggregate scalar values to periodical values grouped by "name"
+    For each group, check whether scalar values differ over the years.
+    If yes, write as lists, if not, the original value is written.
+
+    If there is no "year" column, assume the data is already aggregated and
+    pass as given.
+
+    Parameters
+    ----------
+    group_df
+
+    Returns
+    -------
+
+    """
+
+    if "year" not in group_df.columns:
+        return group_df
+
+    unique_values = pd.Series()
+    for col in group_df.columns:  # Exclude 'name' column
+        if isinstance(group_df[col][group_df.index[0]], dict):
+            # Unique input/output parameters are not allowed per period
+            unique_values[col] = group_df[col][group_df.index[0]]
+            continue
+        # Lists and Series can be passed for special Facades only.
+        # Sequences shall be passed as sequences (via links.csv):
+        elif any(
+            [
+                isinstance(col_entry, Union[list, pd.Series])
+                for col_entry in group_df[col]
+            ]
+        ):
+            values = group_df[col].explode().unique()
+        else:
+            values = group_df[col].unique()
+        if len(values) > 1:
+            unique_values[col] = list(group_df[col])
+        else:
+            unique_values[col] = group_df[col].iloc[0]
+    unique_values["name"] = "_".join(group_df.name)
+    unique_values.drop("year")
+    return unique_values
 
 
 @dataclasses.dataclass
@@ -266,6 +315,37 @@ class DataPackage:
 
         return None
 
+    @staticmethod
+    def yearly_scalars_to_periodic_values(scalar_dataframe) -> None:
+        """
+        Turns yearly scalar values to periodic values
+
+        First searches for the sequence length which is the length of the complete sequence.
+
+        Then iterates for every element in parametrized elements, groups them for name
+        then applies aggregation method
+
+        Returns None
+        -------
+
+        """
+        identifiers = ["region", "carrier", "tech"]
+        # Check if the identifiers exist if not they will be omitted
+        for poss, existing in enumerate(
+            [id in scalar_dataframe.columns for id in identifiers]
+        ):
+            if existing:
+                continue
+            else:
+                scalar_dataframe[identifiers[poss]] = identifiers[poss]
+
+        scalar_dataframe = (
+            scalar_dataframe.groupby(["region", "carrier", "tech"])
+            .apply(lambda x: _listify_to_periodic(x))
+            .reset_index(drop=True)
+        )
+        return scalar_dataframe
+
     @classmethod
     def build_datapackage(cls, adapter: Adapter):
         """
@@ -290,12 +370,22 @@ class DataPackage:
         for process_name, struct in es_structure.items():
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
+            if isinstance(timeseries.columns, pd.MultiIndex):
+                # FIXME: Will Regions be lists of strings or strings?
+                timeseries.columns = (
+                    timeseries.columns.get_level_values(0)
+                    + "_"
+                    + [x[0] for x in timeseries.columns.get_level_values(1).values]
+                )
             facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
             process_busses = []
+            process_scalars = cls.yearly_scalars_to_periodic_values(
+                process_data.scalars
+            )
             # Build class from adapter with Mapper and add up for each component within the Element
-            for component_data in process_data.scalars.to_dict(orient="records"):
+            for component_data in process_scalars.to_dict(orient="records"):
                 component_mapper = Mapper(
                     adapter=facade_adapter,
                     process_name=process_name,
@@ -322,6 +412,7 @@ class DataPackage:
             parametrized_elements[process_name] = pd.DataFrame(components)
 
             parametrized_sequences = {process_name: timeseries}
+        # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
                 "name": (names := pd.unique(parametrized_elements["bus"])),

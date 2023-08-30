@@ -162,6 +162,11 @@
             "format": "default",
             "name": "type",
             "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
           }
         ],
         "foreignKeys": [
@@ -267,6 +272,11 @@
             "format": "default",
             "name": "type",
             "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
           }
         ],
         "foreignKeys": [
@@ -323,7 +333,7 @@
           {
             "format": "default",
             "name": "capacity",
-            "type": "number"
+            "type": "array"
           },
           {
             "format": "default",
@@ -353,7 +363,7 @@
           {
             "format": "default",
             "name": "lifetime",
-            "type": "number"
+            "type": "array"
           },
           {
             "format": "default",
@@ -363,7 +373,7 @@
           {
             "format": "default",
             "name": "fixed_costs",
-            "type": "number"
+            "type": "array"
           },
           {
             "format": "default",
@@ -379,6 +389,11 @@
             "format": "default",
             "name": "type",
             "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
           }
         ],
         "foreignKeys": [
