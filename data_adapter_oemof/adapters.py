@@ -4,7 +4,7 @@ from oemof.tabular import facades
 from oemof.tabular._facade import Facade
 
 from data_adapter_oemof import calculations
-from data_adapter_oemof.mappings import Mapper
+from data_adapter_oemof.mappings import Mapper, field_mock
 
 logger = logging.getLogger()
 
@@ -12,7 +12,10 @@ logger = logging.getLogger()
 class Adapter:
     type: str = "adapter"
     facade: Facade = None
-    extra_attributes = ("name", "type")
+    extra_attributes = (
+        field_mock(name="name", type=str),
+        field_mock(name="type", type=str),
+    )
 
     def as_dict(self) -> dict:
         return self.facade_dict
