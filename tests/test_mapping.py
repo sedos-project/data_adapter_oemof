@@ -251,6 +251,7 @@ def test_get_sequence_name():
             process_name="modex_tech_wind_turbine_onshore",
             data=component_data,
             timeseries=timeseries,
+            mapping={"modex_tech_wind_turbine_onshore": {"profile": "onshore"}},
         )
         profile_col = mapper.get("profile", field_type=typing.Sequence)
 
