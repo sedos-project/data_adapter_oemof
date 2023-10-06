@@ -175,7 +175,7 @@ class DataPackage:
                 {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
             )
 
-        for field in mapper.fields_names():
+        for field in mapper.get_fields():
             if (
                 mapper.is_sequence(field.type)
                 and field.name in components.columns

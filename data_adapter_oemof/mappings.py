@@ -16,7 +16,7 @@ DEFAULT_MAPPING = {
     "tech": "tech",
 }
 
-field_mock = collections.namedtuple(typename="field_mock", field_names=["name", "type"])
+Field = collections.namedtuple(typename="Field", field_names=["name", "type"])
 
 
 class MappingError(Exception):
@@ -44,11 +44,11 @@ class Mapper:
         self.mapping = mapping
         self.bus_map = bus_map
 
-    def fields_names(self):
+    def get_fields(self):
         return [
-            field_mock(name=field.name, type=field.type)
+            Field(name=field.name, type=field.type)
             for field in dataclasses.fields(self.adapter.facade)
-        ] + list(self.adapter.extra_attributes)
+        ] + list(self.adapter.extra_fields)
 
     def map_key(self, key):
         """Use adapter specific mapping if available, otherwise use default
@@ -152,7 +152,7 @@ class Mapper:
         :return: dictionary with tabular like Busses
         """
         bus_occurrences_in_fields = [
-            field.name for field in self.fields_names() if "bus" in field.name
+            field.name for field in self.get_fields() if "bus" in field.name
         ]
         if len(bus_occurrences_in_fields) == 0:
             logger.warning(
@@ -220,7 +220,7 @@ class Mapper:
 
         mapped_all_class_fields = {
             field.name: value
-            for field in self.fields_names()
+            for field in self.get_fields()
             if (value := self.get(field.name, field.type)) is not None
         }
         mapped_all_class_fields.update(self.get_busses(struct))
