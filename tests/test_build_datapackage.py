@@ -187,7 +187,7 @@ def test_build_datapackage():
     test_path = os.path.join(path_default, "build_datapackage_test")
     goal_path = os.path.join(path_default, "build_datapackage_goal")
     process_adapter_map = {
-        "modex_tech_generator_gas": "ConversionAdapter",
+        "modex_tech_generator_gas": "ExtractionTurbineAdapter",
         "modex_tech_storage_battery": "StorageAdapter",
         "modex_tech_wind_turbine_onshore": "VolatileAdapter",
     }
