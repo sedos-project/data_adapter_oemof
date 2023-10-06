@@ -1,4 +1,5 @@
 .idea/
 collections/*
+tests/collections/
 __pycache__/
-#/structures/
+/structures/

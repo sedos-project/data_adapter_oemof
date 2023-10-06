@@ -74,7 +74,7 @@ def test_get_with_sequence():
         "condensing_efficiency": "condensing_efficiency_DE",
     }
 
-    type = {i.name: i.type for i in dataclasses.fields(mapper.adapter)}
+    type = {i.name: i.type for i in dataclasses.fields(mapper.adapter.facade)}
 
     for key, _ in expected.items():
         assert expected[key] == mapper.get(key, type.get(key))

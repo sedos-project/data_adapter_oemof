@@ -498,7 +498,7 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "data-adapter"
-version = "0.11.1"
+version = "0.11.2"
 description = "Provides general functionality for other data adapters"
 optional = false
 python-versions = ">=3.8.1,<4.0.0"
@@ -516,8 +516,8 @@ sqlalchemy = "^1.4.46"
 [package.source]
 type = "git"
 url = "https://git@github.com/sedos-project/data_adapter"
-reference = "main"
-resolved_reference = "eba77f2866b2374830de29381dc028e02c383279"
+reference = "dev"
+resolved_reference = "2e81c2a145123023e1a863bf835255611775f0af"
 
 [[package]]
 name = "datapackage"
@@ -744,13 +744,13 @@ test = ["objgraph", "psutil"]
 
 [[package]]
 name = "identify"
-version = "2.5.26"
+version = "2.5.27"
 description = "File identification library for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "identify-2.5.26-py2.py3-none-any.whl", hash = "sha256:c22a8ead0d4ca11f1edd6c9418c3220669b3b7533ada0a0ffa6cc0ef85cf9b54"},
-    {file = "identify-2.5.26.tar.gz", hash = "sha256:7243800bce2f58404ed41b7c002e53d4d22bcf3ae1b7900c2d7aefd95394bf7f"},
+    {file = "identify-2.5.27-py2.py3-none-any.whl", hash = "sha256:fdb527b2dfe24602809b2201e033c2a113d7bdf716db3ca8e3243f735dcecaba"},
+    {file = "identify-2.5.27.tar.gz", hash = "sha256:287b75b04a0e22d727bc9a41f0d4f3c1bcada97490fa6eabb5b28f0e9097e733"},
 ]
 
 [package.extras]
@@ -878,23 +878,6 @@ files = [
 
 [package.dependencies]
 six = "*"
-
-[[package]]
-name = "isort"
-version = "5.12.0"
-description = "A Python utility / library to sort Python imports."
-optional = false
-python-versions = ">=3.8.0"
-files = [
-    {file = "isort-5.12.0-py3-none-any.whl", hash = "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"},
-    {file = "isort-5.12.0.tar.gz", hash = "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504"},
-]
-
-[package.extras]
-colors = ["colorama (>=0.4.3)"]
-pipfile-deprecated-finder = ["pip-shims (>=0.5.2)", "pipreqs", "requirementslib"]
-plugins = ["setuptools"]
-requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "jinja2"
@@ -1378,12 +1361,12 @@ files = [
 
 [[package]]
 name = "petl"
-version = "1.7.13"
+version = "1.7.14"
 description = "A Python package for extracting, transforming and loading tables of data."
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 files = [
-    {file = "petl-1.7.13.tar.gz", hash = "sha256:964136f10582a511807929fae9854af229a67a972f64cfc7c636a65efca157d7"},
+    {file = "petl-1.7.14.tar.gz", hash = "sha256:d4802e3c4804bf85f2267a0102fcad35c61e6a37c90d9e1a1674331f35a90a7f"},
 ]
 
 [package.extras]
@@ -1419,13 +1402,13 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-co
 
 [[package]]
 name = "pluggy"
-version = "1.2.0"
+version = "1.3.0"
 description = "plugin and hook calling mechanisms for python"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "pluggy-1.2.0-py3-none-any.whl", hash = "sha256:c2fd55a7d7a3863cba1a013e4e2414658b1d07b6bc57b3919e0c63c9abb99849"},
-    {file = "pluggy-1.2.0.tar.gz", hash = "sha256:d12f0c4b579b15f5e054301bb226ee85eeeba08ffec228092f8defbaa3a4c4b3"},
+    {file = "pluggy-1.3.0-py3-none-any.whl", hash = "sha256:d89c696a773f8bd377d18e5ecda92b7a3793cbe66c87060a6fb58c7b6e1061f7"},
+    {file = "pluggy-1.3.0.tar.gz", hash = "sha256:cf61ae8f126ac6f7c451172cf30e3e43d3ca77615509771b3a984a0730651e12"},
 ]
 
 [package.extras]
@@ -1536,27 +1519,27 @@ tests = ["hypothesis (>=3.27.0)", "pytest (>=3.2.1,!=3.3.0)"]
 
 [[package]]
 name = "pyomo"
-version = "6.6.1"
+version = "6.6.2"
 description = "Pyomo: Python Optimization Modeling Objects"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "Pyomo-6.6.1-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:ca93f624c536bd043cfa9dad7426cc8e317b95eb854d1f9796a4629fa8c37830"},
-    {file = "Pyomo-6.6.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d5ee14bdbfbe532379329d0e50306bdc609feb548b5e77c2d51b43077b6bbd7c"},
-    {file = "Pyomo-6.6.1-cp310-cp310-win_amd64.whl", hash = "sha256:32644ad06a962917bcc1246ebbdc825b30342ea8cada39e01ef483d1eb60456c"},
-    {file = "Pyomo-6.6.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:fa2442abdd4872320c0a8eca960136fdd9d4faa14353be3391eff11403547027"},
-    {file = "Pyomo-6.6.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1f795a4fb345ab5676acf57b39643a3605f1d88c6d10d6710514d959bd52bfb1"},
-    {file = "Pyomo-6.6.1-cp311-cp311-win_amd64.whl", hash = "sha256:44e0b12f82f0c70ed246bb8b5eed8279cee07d7f2218bc8dd955562b9a82e595"},
-    {file = "Pyomo-6.6.1-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:05764117cecff51897ef473b000afbb6b353f51b70ce2101f16c9c447c8c0d31"},
-    {file = "Pyomo-6.6.1-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:96302d16a5fa94e6985d388fc42d7bfbcddd6f65a165edf92497bdc40bd33bec"},
-    {file = "Pyomo-6.6.1-cp37-cp37m-win_amd64.whl", hash = "sha256:1283eb424a4f23eeefb82716124dc43611a6131e3a1cfee45c7bd7d3901ad392"},
-    {file = "Pyomo-6.6.1-cp38-cp38-macosx_10_15_x86_64.whl", hash = "sha256:2a6311679f60d1e2f3e611029d4436188e4873e33dcc7f110426e5b96248164f"},
-    {file = "Pyomo-6.6.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2b14a4b72f9a10cc28303ba9625f493cf19d4398d91632b7bff5bd36f6bfe670"},
-    {file = "Pyomo-6.6.1-cp38-cp38-win_amd64.whl", hash = "sha256:f9b99bbbc9cada3af590627a1daba21676f7c63f55f957c8025f5da3c8cca7fd"},
-    {file = "Pyomo-6.6.1-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:d27678616ea4e619554b158a9321f3d71702504ed6b0df4f3d38c2a2940a6eae"},
-    {file = "Pyomo-6.6.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:024fec287be5bc7bde660888f9f9309f71cb76dfef99a2b61ec286045a2c03a3"},
-    {file = "Pyomo-6.6.1-cp39-cp39-win_amd64.whl", hash = "sha256:f32de1a02f35bf3888229d3ddee3e2e176f3de8ec6d506d2660830794991afa2"},
-    {file = "Pyomo-6.6.1.tar.gz", hash = "sha256:3fb0aba7b0f4120e6ce0f242502c0e61478d61e326bc90b7dc392bbefd114b34"},
+    {file = "Pyomo-6.6.2-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:a6bf4c8e8560b03a23fee783ea425c01abfe7b17544a8011fed5da09e9253615"},
+    {file = "Pyomo-6.6.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8508e8cf654ada06675da2ae4291935f0ba1c8bd44285d133b1bc2e2ce0350f1"},
+    {file = "Pyomo-6.6.2-cp310-cp310-win_amd64.whl", hash = "sha256:c866666093c055a9956dabee42b876e9533eba8703d892d73945620b252e333c"},
+    {file = "Pyomo-6.6.2-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:cd2e262b5d2e754b47c2f376c7ff0f48dff74f2fdad08b995db0b1539553c64d"},
+    {file = "Pyomo-6.6.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:95fe255dd402af84e1294dc22437a2c292ef708f04974da0aa56eb10065178f1"},
+    {file = "Pyomo-6.6.2-cp311-cp311-win_amd64.whl", hash = "sha256:6a2463b38bbe1f8e50584ba87659ec425e420236070b078b707849fac7fb6b02"},
+    {file = "Pyomo-6.6.2-cp37-cp37m-macosx_11_0_x86_64.whl", hash = "sha256:cdd2bc12a0e536d3cc5a5535efaf8af8499d12e790b564e46897d68092e335b3"},
+    {file = "Pyomo-6.6.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1e3fe82aaabb7f5aa0ab60f4fb05ba038dee014f9dfc10657d1b6cd0e5910f90"},
+    {file = "Pyomo-6.6.2-cp37-cp37m-win_amd64.whl", hash = "sha256:067c2f533bb0f05b673f95caa38f6b6d3d2f774a3b97aca280b1350a1516857f"},
+    {file = "Pyomo-6.6.2-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:f26cb95531580fb4932cad04962aca854bc7bd3832c77f66ef7c502891c59b6f"},
+    {file = "Pyomo-6.6.2-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5c94e2a711f59ac81bd576955529944b286a3fd87cdfe95011534966746af289"},
+    {file = "Pyomo-6.6.2-cp38-cp38-win_amd64.whl", hash = "sha256:47402204e99df3fefd6ee584b45cfca4b00f60a1dce20208340449b152b308a2"},
+    {file = "Pyomo-6.6.2-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:9a739bc8add47c1a6275746d272c6e664d0240923a9b6fd58800173e3f513a12"},
+    {file = "Pyomo-6.6.2-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:867d6351718e8d0e14b5144a83a964348fd0d16dd5d19db429296349f17755c9"},
+    {file = "Pyomo-6.6.2-cp39-cp39-win_amd64.whl", hash = "sha256:e22380fe8615b8e29cc4e01dd3b08ce9575867242fe4fb974589dfd93f00926b"},
+    {file = "Pyomo-6.6.2.tar.gz", hash = "sha256:c8ad55213ff8b1a2c4e469110db8079722d5a6f364c6c46a42e2f750fc9e4d26"},
 ]
 
 [package.dependencies]
@@ -1899,29 +1882,29 @@ crt = ["botocore[crt] (>=1.20.29,<2.0a.0)"]
 
 [[package]]
 name = "setuptools"
-version = "68.1.0"
+version = "68.1.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-68.1.0-py3-none-any.whl", hash = "sha256:e13e1b0bc760e9b0127eda042845999b2f913e12437046e663b833aa96d89715"},
-    {file = "setuptools-68.1.0.tar.gz", hash = "sha256:d59c97e7b774979a5ccb96388efc9eb65518004537e85d52e81eaee89ab6dd91"},
+    {file = "setuptools-68.1.2-py3-none-any.whl", hash = "sha256:3d8083eed2d13afc9426f227b24fd1659489ec107c0e86cec2ffdde5c92e790b"},
+    {file = "setuptools-68.1.2.tar.gz", hash = "sha256:3d4dfa6d95f1b101d695a6160a7626e15583af71a5f52176efa5d39a054d475d"},
 ]
 
 [package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-hoverxref (<2)", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (==0.8.3)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
+docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (>=3.5,<=7.1.2)", "sphinx-favicon", "sphinx-hoverxref (<2)", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (==0.8.3)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
 testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8-2020", "ini2toml[lite] (>=0.9)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pip (>=19.1)", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy (>=0.9.1)", "pytest-perf", "pytest-ruff", "pytest-timeout", "pytest-xdist", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
 name = "shellingham"
-version = "1.5.2"
+version = "1.5.3"
 description = "Tool to Detect Surrounding Shell"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "shellingham-1.5.2-py2.py3-none-any.whl", hash = "sha256:db9b385e903ebfe07958f6df493d47d4432ff5bed71e75ed3e613ace090be5f3"},
-    {file = "shellingham-1.5.2.tar.gz", hash = "sha256:95946024df2db98c83382606a9ae875f613b15c950c980a3bf7a5adde40e7720"},
+    {file = "shellingham-1.5.3-py2.py3-none-any.whl", hash = "sha256:419c6a164770c9c7cfcaeddfacb3d31ac7a8db0b0f3e9c1287679359734107e9"},
+    {file = "shellingham-1.5.3.tar.gz", hash = "sha256:cb4a6fec583535bc6da17b647dd2330cf7ef30239e05d547d99ae3705fd0f7f8"},
 ]
 
 [[package]]
@@ -2325,4 +2308,4 @@ docs = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8.1,<3.11"
-content-hash = "405d0685bb24e4746de2f4273703e9019d180fc68a0a13529859a37b5ecac55c"
+content-hash = "6c98ac20f1f11d8ad34518a8a7eb949de6c85e26a566dd1408c10f3d7e6d05f0"

@@ -175,7 +175,7 @@ class DataPackage:
                 {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
             )
 
-        for field in dataclasses.fields(mapper.adapter):
+        for field in mapper.get_fields():
             if (
                 mapper.is_sequence(field.type)
                 and field.name in components.columns
@@ -393,10 +393,11 @@ class DataPackage:
                     data=component_data,
                     timeseries=timeseries,
                 )
-                component = facade_adapter.parametrize_dataclass(
-                    struct, component_mapper
+                components.append(
+                    FACADE_ADAPTERS[facade_adapter_name](
+                        struct=struct, mapper=component_mapper
+                    ).facade_dict
                 )
-                components.append(component.as_dict())
                 # Fill with all busses occurring, needed for foreign keys as well!
                 process_busses += list(component_mapper.get_busses(struct).values())
 
