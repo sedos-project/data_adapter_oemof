@@ -31,10 +31,8 @@ if not STRUCTURES_DIR.exists():
 
 # Maps from oemof.tabular parameter names
 # to ontological terms or to sedos nomenclature as fallback option
-GLOBAL_PARAMETER_MAP = load_yaml(
-    Path(__file__).parent / "mappings" / "GLOBAL_PARAMETER_MAP.yaml"
-)
+PARAMETER_MAP = load_yaml(Path(__file__).parent / "mappings" / "PARAMETER_MAP.yaml")
 PROCESS_ADAPTER_MAP = load_yaml(
     Path(__file__).parent / "mappings" / "PROCESS_ADAPTER_MAP.yaml"
 )
-BUS_NAME_MAP = load_yaml(Path(__file__).parent / "mappings" / "BUS_NAME_MAP.yaml")
+BUS_MAP = load_yaml(Path(__file__).parent / "mappings" / "BUS_MAP.yaml")

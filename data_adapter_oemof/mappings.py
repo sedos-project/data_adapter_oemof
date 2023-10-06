@@ -7,7 +7,7 @@ from typing import Optional, Type
 
 import pandas
 
-from .settings import BUS_NAME_MAP, GLOBAL_PARAMETER_MAP
+from .settings import BUS_MAP, PARAMETER_MAP
 
 logger = logging.getLogger()
 
@@ -34,9 +34,9 @@ class Mapper:
         bus_map=None,
     ):
         if mapping is None:
-            mapping = GLOBAL_PARAMETER_MAP
+            mapping = PARAMETER_MAP
         if bus_map is None:
-            bus_map = BUS_NAME_MAP
+            bus_map = BUS_MAP
         self.adapter = adapter
         self.process_name = process_name
         self.data = data

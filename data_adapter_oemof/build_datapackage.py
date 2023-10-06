@@ -1,7 +1,7 @@
 import dataclasses
 import os
 import warnings
-from typing import Union
+from typing import Optional, Union
 
 import pandas as pd
 from data_adapter import core
@@ -9,7 +9,8 @@ from data_adapter.preprocessing import Adapter
 from datapackage import Package
 
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
-from data_adapter_oemof.mappings import PROCESS_TYPE_MAP, Mapper
+from data_adapter_oemof.mappings import Mapper
+from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
 
 
 def refactor_timeseries(timeseries: pd.DataFrame):
@@ -348,7 +349,13 @@ class DataPackage:
         return scalar_dataframe
 
     @classmethod
-    def build_datapackage(cls, adapter: Adapter):
+    def build_datapackage(
+        cls,
+        adapter: Adapter,
+        process_adapter_map: Optional[dict] = PROCESS_ADAPTER_MAP,
+        parameter_map: Optional[dict] = PARAMETER_MAP,
+        bus_map: Optional[dict] = BUS_MAP,
+    ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
 
@@ -357,6 +364,12 @@ class DataPackage:
         adapter: Adapter
             Adapter from oemof_data_adapter that is able to handle parameter model data
             from Databus. Adapter needs to be initialized with `structure_name`. Use `links_
+        process_adapter_map
+            Maps process names to adapter names, if not set default mapping is used
+        parameter_map
+            Maps parameter names from adapter to facade, if not set default mapping is used
+        bus_map
+            Maps facade busses to adapter busses, if not set default mapping is used
 
         Returns
         -------
@@ -378,7 +391,7 @@ class DataPackage:
                     + "_"
                     + [x[0] for x in timeseries.columns.get_level_values(1).values]
                 )
-            facade_adapter_name: str = PROCESS_TYPE_MAP[process_name]
+            facade_adapter_name: str = process_adapter_map[process_name]
             facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
             components = []
             process_busses = []
@@ -392,6 +405,8 @@ class DataPackage:
                     process_name=process_name,
                     data=component_data,
                     timeseries=timeseries,
+                    mapping=parameter_map,
+                    bus_map=bus_map,
                 )
                 components.append(
                     FACADE_ADAPTERS[facade_adapter_name](
