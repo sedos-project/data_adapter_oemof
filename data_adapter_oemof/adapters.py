@@ -17,9 +17,6 @@ class Adapter:
         Field(name="type", type=str),
     )
 
-    def as_dict(self) -> dict:
-        return self.facade_dict
-
     def __init__(self, struct: dict, mapper: Mapper):
         self.facade_dict = self.get_default_parameters(struct, mapper)
 
