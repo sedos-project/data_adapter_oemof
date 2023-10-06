@@ -63,18 +63,25 @@ class Mapper:
         if self.process_name in self.mapping and key in self.mapping[self.process_name]:
             return self.mapping[self.process_name][key]
 
-        # 2. Check facade-specific mappings second
+        # 2. Check adapter-specific mappings second
         if (
             self.adapter.__name__ in self.mapping
             and key in self.mapping[self.adapter.__name__]
         ):
             return self.mapping[self.adapter.__name__][key]
 
-        # 3. Check default mappings third
+        # 3. Check facade-specific mappings third
+        if (
+            self.adapter.facade.__name__ in self.mapping
+            and key in self.mapping[self.adapter.facade.__name__]
+        ):
+            return self.mapping[self.adapter.facade.__name__][key]
+
+        # 4. Check default mappings fourth
         if key in self.mapping.get("DEFAULT", []):
             return self.mapping["DEFAULT"][key]
 
-        # 4. Use key if no mapping available
+        # 5. Use key if no mapping available
         logger.warning(f"Key not found. Did not map '{key}'")
         return key
 

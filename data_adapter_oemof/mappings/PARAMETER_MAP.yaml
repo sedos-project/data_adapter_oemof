@@ -5,3 +5,5 @@ DEFAULT:
   marginal_cost: variable_costs
   fixed_cost: fixed_costs
   capacity_cost: capital_costs
+Conversion:
+  marginal_cost: fuel_costs
