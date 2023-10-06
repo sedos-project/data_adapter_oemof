@@ -45,17 +45,6 @@ def test_refactor_timeseries():
     pandas.testing.assert_frame_equal(expected_df, refactored_ts)
 
 
-def test_scalar_building():
-    """
-    Test to eval if process is read in correctly and scalar data is created accordingly
-    TODO:
-        - Write Test data-set
-        - Write result data
-
-    :return:
-    """
-
-
 def test_build_datapackage():
     """
     Test build Datapackage with mocking Adapter
@@ -197,17 +186,18 @@ def test_build_datapackage():
     # Call the method with the mock adapter
     test_path = os.path.join(path_default, "build_datapackage_test")
     goal_path = os.path.join(path_default, "build_datapackage_goal")
-    result = DataPackage.build_datapackage(mock_adapter)
+    process_adapter_map = {
+        "modex_tech_generator_gas": "ConversionAdapter",
+        "modex_tech_storage_battery": "StorageAdapter",
+        "modex_tech_wind_turbine_onshore": "VolatileAdapter",
+    }
+    result = DataPackage.build_datapackage(mock_adapter, process_adapter_map)
     result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
         goal_path,
         test_path,
     )
-
-
-def test_save_datapackage():
-    pass
 
 
 @pytest.mark.skip(reason="Wait for changes in data_adapter and PR#45.")

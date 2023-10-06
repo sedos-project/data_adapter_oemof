@@ -3,11 +3,11 @@ import dataclasses
 import difflib
 import logging
 import warnings
-from pathlib import Path
 from typing import Optional, Type
 
 import pandas
-import yaml
+
+from .settings import BUS_NAME_MAP, GLOBAL_PARAMETER_MAP
 
 logger = logging.getLogger()
 
@@ -230,35 +230,3 @@ class Mapper:
     def is_sequence(field_type: Type):
         # TODO: Implement it using typing hints
         return "Sequence" in str(field_type)
-
-
-def load_yaml(file_path):
-    with open(file_path, "r", encoding="UTF-8") as file:
-        dictionary = yaml.load(file, Loader=yaml.FullLoader)
-
-    return dictionary
-
-
-TYPE_MAP = {
-    "volatile": "",
-}
-
-CARRIER_MAP = {
-    "electricity": "",
-}
-
-TECH_MAP = {
-    "onshore": "",
-}
-
-# Maps from oemof.tabular parameter names
-# to ontological terms or to sedos nomenclature as fallback option
-GLOBAL_PARAMETER_MAP = load_yaml(
-    Path(__file__).parent / "mappings" / "GLOBAL_PARAMETER_MAP.yaml"
-)
-
-PROCESS_TYPE_MAP = load_yaml(
-    Path(__file__).parent / "mappings" / "PROCESS_TYPE_MAP.yaml"
-)
-
-BUS_NAME_MAP = load_yaml(Path(__file__).parent / "mappings" / "BUS_NAME_MAP.yaml")

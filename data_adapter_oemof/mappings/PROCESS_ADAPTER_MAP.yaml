@@ -1,0 +1,4 @@
+# This is a mapping file to map the various processes to the data adapter class.
+volatile: VolatileAdapter
+storage: StorageAdapter
+conversion: ConversionAdapter

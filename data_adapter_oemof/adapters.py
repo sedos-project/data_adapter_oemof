@@ -154,7 +154,5 @@ class VolatileAdapter(Adapter):
 
 # Create a dictionary of all adapter classes defined in this module
 FACADE_ADAPTERS = {
-    adapter.type: adapter
-    for name, adapter in globals().items()
-    if name.endswith("Adapter")
+    name: adapter for name, adapter in globals().items() if name.endswith("Adapter")
 }

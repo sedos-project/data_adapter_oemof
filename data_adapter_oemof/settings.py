@@ -1,5 +1,8 @@
 import os
 import pathlib
+from pathlib import Path
+
+from data_adapter_oemof.utils import load_yaml
 
 ROOT_DIR = pathlib.Path(__file__).parent
 
@@ -25,3 +28,13 @@ if not STRUCTURES_DIR.exists():
         "You should either create the structure folder or "
         "change path to structure folder by changing environment variable 'STRUCTURES_DIR'.",
     )
+
+# Maps from oemof.tabular parameter names
+# to ontological terms or to sedos nomenclature as fallback option
+GLOBAL_PARAMETER_MAP = load_yaml(
+    Path(__file__).parent / "mappings" / "GLOBAL_PARAMETER_MAP.yaml"
+)
+PROCESS_ADAPTER_MAP = load_yaml(
+    Path(__file__).parent / "mappings" / "PROCESS_ADAPTER_MAP.yaml"
+)
+BUS_NAME_MAP = load_yaml(Path(__file__).parent / "mappings" / "BUS_NAME_MAP.yaml")
