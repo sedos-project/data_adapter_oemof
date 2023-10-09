@@ -235,6 +235,7 @@ class DataPackage:
                 sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
                 # TODO timeincrement might be adjusted later to modify objective weighting
                 sequence["timeincrement"] = 1
+                sequence.index.name = "timeindex"
                 return sequence
             else:
                 pass
