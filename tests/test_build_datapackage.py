@@ -97,8 +97,8 @@ def test_build_datapackage():
                     "year": {0: 2016, 1: 2030, 2: 2050},
                     "installed_capacity": {
                         0: 330.2,
-                        1: 330.2014,
-                        2: 330.2014,
+                        1: 330.2,
+                        2: 330.2,
                     },
                     "emission_factor": {0: 0.2, 1: 0.2, 2: 0.2},
                     "fuel_costs": {0: 25.9, 1: 25.9, 2: 49.36},
@@ -196,8 +196,9 @@ def test_build_datapackage():
     "marginal_cost": "variable_costs",
     "fixed_cost": "fixed_costs",
     "capacity_cost": "capital_costs" },
-        "Conversion":{
-    "marginal_cost": "fuel_costs"
+        "ExtractionTurbineAdapter":{
+    "carrier_cost": "fuel_costs",
+    "capacity":"installed_capacity"
         }
     }
     result = DataPackage.build_datapackage(adapter=mock_adapter,
