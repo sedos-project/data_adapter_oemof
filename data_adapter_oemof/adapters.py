@@ -1,4 +1,5 @@
 import logging
+import typing
 
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
@@ -132,6 +133,9 @@ class StorageAdapter(Adapter):
 
     type = "storage"
     facade = facades.Storage
+    extra_fields = Adapter.extra_fields + (
+        Field(name="invest_relation_output_capacity", type=typing.Sequence),
+    )
 
 
 class ExtractionTurbineAdapter(Adapter):

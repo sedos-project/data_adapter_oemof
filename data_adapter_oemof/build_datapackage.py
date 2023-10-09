@@ -328,8 +328,22 @@ class DataPackage:
         Then iterates for every element in parametrized elements, groups them for name
         then applies aggregation method
 
-        Returns None
-        -------
+        This leads to aggregating periodically changing values to a list
+        with as many entries as there are periods and
+        non changing values are kept as what they have been.
+        Only values should change periodically that can change and identifiers must be unique.
+        Examples:
+            |   region |   year |   invest_relation_output_capacity |   fixed_costs |
+            |---------:|-------:|----------------------------------:|--------------:|
+            |       BB |   2016 |                               3.3 |             1 |
+            |       BB |   2030 |                               3.3 |             2 |
+            |       BB |   2050 |                               3.3 |             3 |
+
+        Returns:
+            |   type    | fixed_costs| name | region | year | invest_relation_output_capacity |
+            |:--------- |-----------:|:------ |:---------|:---------------:|---:|
+            | storage   | [1, 2, 3]  | BB_Lithium_storage_battery | BB |[2016, 2030, 2050]|3.3 |
+
 
         """
         identifiers = ["region", "carrier", "tech"]

@@ -108,7 +108,7 @@ class Mapper:
             if key in self.timeseries.columns:
                 return key
             # 1.2.2 Take column name if only one time series is available
-            if len(self.timeseries) == 1:
+            if len(self.timeseries.columns) == 1:
                 timeseries_key = self.timeseries.columns[0]
                 logger.info(
                     "Key not found in timeseries. "

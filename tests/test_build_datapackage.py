@@ -193,17 +193,21 @@ def test_build_datapackage():
     }
     parameter_map = {
         "DEFAULT": {
-    "marginal_cost": "variable_costs",
-    "fixed_cost": "fixed_costs",
-    "capacity_cost": "capital_costs" },
-        "ExtractionTurbineAdapter":{
-    "carrier_cost": "fuel_costs",
-    "capacity":"installed_capacity"
-        }
+            "marginal_cost": "variable_costs",
+            "fixed_cost": "fixed_costs",
+            "capacity_cost": "capital_costs",
+        },
+        "ExtractionTurbineAdapter": {
+            "carrier_cost": "fuel_costs",
+            "capacity": "installed_capacity",
+        },
+        "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
     }
-    result = DataPackage.build_datapackage(adapter=mock_adapter,
-                                           process_adapter_map=process_adapter_map,
-                                           parameter_map=parameter_map)
+    result = DataPackage.build_datapackage(
+        adapter=mock_adapter,
+        process_adapter_map=process_adapter_map,
+        parameter_map=parameter_map,
+    )
     result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
@@ -212,7 +216,7 @@ def test_build_datapackage():
     )
 
 
-@pytest.mark.skip(reason="Wait for changes in data_adapter and PR#45.")
+@pytest.mark.skip(reason="Wait for changes in data_adapter")
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
@@ -223,8 +227,30 @@ def test_build_tabular_datapackage_from_adapter():
         structure_name="structure",
         links_name="links",
     )
-    return "FIXME before test can be run"
-    dta = DataPackage.build_datapackage(adapter=adapter)
+    process_adapter_map = {
+        "modex_tech_storage_battery": "StorageAdapter",
+        "modex_tech_generator_gas": "ConversionAdapter",
+        "modex_tech_wind_turbine_onshore": "VolatileAdapter",
+        "modex_demand": "LoadAdapter",
+    }
+
+    parameter_map = {
+        "DEFAULT": {
+            "marginal_cost": "variable_costs",
+            "fixed_cost": "fixed_costs",
+            "capacity_cost": "capital_costs",
+        },
+        "ExtractionTurbineAdapter": {
+            "carrier_cost": "fuel_costs",
+            "capacity": "installed_capacity",
+        },
+    }
+
+    dta = DataPackage.build_datapackage(
+        adapter=adapter,
+        process_adapter_map=process_adapter_map,
+        parameter_map=parameter_map,
+    )
     dir = os.path.join(os.getcwd(), "_files", "tabular_datapackage_hack_a_thon")
     dta.save_datapackage_to_csv(dir)
 
@@ -232,6 +258,7 @@ def test_build_tabular_datapackage_from_adapter():
     # FIXME:
     #  - Timeseries must be fixed on data_adapter and naming from Multiindex
     #  refactoring is missing from #45
+    #  - Write parameter map
 
 
 @pytest.mark.skip(reason="Needs period csv implementation first.")
