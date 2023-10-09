@@ -100,7 +100,7 @@ def test_build_datapackage():
                         1: 330.2,
                         2: 330.2,
                     },
-                    "emission_factor": {0: 0.2, 1: 0.2, 2: 0.2},
+                    "emission_factor": {0: 0.2, 1: 0.2, 2: 0.2}, # Todo: not implemented in any Facade yet?!
                     "fuel_costs": {0: 25.9, 1: 25.9, 2: 49.36},
                     "tech": {
                         0: "generator_gas",

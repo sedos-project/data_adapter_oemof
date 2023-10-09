@@ -140,6 +140,11 @@
                         "format": "default"
                     },
                     {
+                        "name": "invest_relation_output_capacity",
+                        "type": "number",
+                        "format": "default"
+                    },
+                    {
                         "name": "bus",
                         "type": "string",
                         "format": "default"
@@ -294,6 +299,11 @@
                         "format": "default"
                     },
                     {
+                        "name": "profile",
+                        "type": "string",
+                        "format": "default"
+                    },
+                    {
                         "name": "lifetime",
                         "type": "array",
                         "format": "default"
@@ -333,6 +343,12 @@
                         "reference": {
                             "fields": "name",
                             "resource": "bus"
+                        }
+                    },
+                    {
+                        "fields": "profile",
+                        "reference": {
+                            "resource": "modex_tech_wind_turbine_onshore_sequence"
                         }
                     }
                 ],

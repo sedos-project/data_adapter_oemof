@@ -3,3 +3,6 @@ collections/*
 tests/collections/
 __pycache__/
 /structures/
+/tests/_files/build_datapackage_test/
+/tests/_files/tabular_datapackage_hack_a_thon/
+/tests/_files/tabular_datapackage_mininmal_example/
