@@ -329,4 +329,5 @@ def test_period_csv_creation():
             },
         }
     )
+    sequence_goal.index.name = "timeindex"
     pd.testing.assert_frame_equal(sequence_goal, sequence_created)
