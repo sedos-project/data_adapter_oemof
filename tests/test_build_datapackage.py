@@ -191,7 +191,18 @@ def test_build_datapackage():
         "modex_tech_storage_battery": "StorageAdapter",
         "modex_tech_wind_turbine_onshore": "VolatileAdapter",
     }
-    result = DataPackage.build_datapackage(mock_adapter, process_adapter_map)
+    parameter_map = {
+        "DEFAULT": {
+    "marginal_cost": "variable_costs",
+    "fixed_cost": "fixed_costs",
+    "capacity_cost": "capital_costs" },
+        "Conversion":{
+    "marginal_cost": "fuel_costs"
+        }
+    }
+    result = DataPackage.build_datapackage(adapter=mock_adapter,
+                                           process_adapter_map=process_adapter_map,
+                                           parameter_map=parameter_map)
     result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
