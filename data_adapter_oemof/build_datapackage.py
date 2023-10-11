@@ -89,7 +89,22 @@ def _listify_to_periodic(group_df) -> pd.Series:
     group_df
 
     Returns
-    -------
+    ----------
+    pd.Series
+
+    Examples
+    ----------
+    |   region |   year |   invest_relation_output_capacity |   fixed_costs |
+    |---------:|-------:|----------------------------------:|--------------:|
+    |       BB |   2016 |                               3.3 |             1 |
+    |       BB |   2030 |                               3.3 |             2 |
+    |       BB |   2050 |                               3.3 |             3 |
+
+    ->
+    |   type    | fixed_costs| name | region | year | invest_relation_output_capacity |
+    |:--------- |-----------:|:------ |:---------|:---------------:|---:|
+    | storage   | [1, 2, 3]  | BB_Lithium_storage_battery | BB |[2016, 2030, 2050]|3.3 |
+
 
     """
 
@@ -106,7 +121,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
         # Sequences shall be passed as sequences (via links.csv):
         elif any(
             [
-                (isinstance(col_entry, list) or isinstance(col_entry, pd.Series))
+                isinstance(col_entry, (pd.Series, list))
                 for col_entry in group_df[col]
             ]
         ):
@@ -386,14 +401,17 @@ class DataPackage:
         Parameters
         ----------
         adapter: Adapter
-            Adapter from oemof_data_adapter that is able to handle parameter model data
-            from Databus. Adapter needs to be initialized with `structure_name`. Use `links_
+            Adapter from data_adapter that is able to handle parameter model data
+            from Databus. Adapter needs to be initialized with `structure_name`.
+            Use `links` to add data from different processes to each other.
+            Use `structure` to map busses to "processes" and "Adapters"
         process_adapter_map
             Maps process names to adapter names, if not set default mapping is used
         parameter_map
-            Maps parameter names from adapter to facade, if not set default mapping is used
+            Maps parameter names from adapter to facade, if not set default mapping is used.
+            Make sure to map "sequence" entries on "sequence profile names" (see example)
         bus_map
-            Maps facade busses to adapter busses, if not set default mapping is used
+            Maps facade bus names to adapter bus names, if not set default mapping is used
 
         Returns
         -------
