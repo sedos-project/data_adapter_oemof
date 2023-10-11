@@ -184,7 +184,8 @@ class Mapper:
             else:
                 warnings.warn(
                     "Please check structure and provide either one set of inputs/outputs "
-                    "or specify as default Parameter specific busses not implemented yet"
+                    "or specify as default Parameter specific busses not implemented yet. "
+                    f"No Bus found for Process {self.process_name} in Adapter {self.adapter}"
                 )
 
             # 2. Check for default busses

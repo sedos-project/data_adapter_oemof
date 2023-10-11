@@ -96,7 +96,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
     if "year" not in group_df.columns:
         return group_df
 
-    unique_values = pd.Series()
+    unique_values = pd.Series(dtype=object)
     for col in group_df.columns:  # Exclude 'name' column
         if isinstance(group_df[col][group_df.index[0]], dict):
             # Unique input/output parameters are not allowed per period
@@ -106,7 +106,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
         # Sequences shall be passed as sequences (via links.csv):
         elif any(
             [
-                isinstance(col_entry, Union[list, pd.Series])
+                (isinstance(col_entry, list) or isinstance(col_entry, pd.Series))
                 for col_entry in group_df[col]
             ]
         ):
@@ -310,8 +310,12 @@ class DataPackage:
                 resource["schema"].update({"foreignKeys": []})
             if "name" in field_names:
                 resource["schema"].update({"primaryKey": "name"})
+
+            elif "sequence" in resource["name"].split("_") or resource["name"] =="periods":
+                pass
             else:
-                warnings.warn("Primary keys differing from `name` not implemented yet")
+                warnings.warn("Primary keys differing from `name` not implemented yet."
+                          f"Check primary Keys for resource {resource['name']}")
 
         # re-initialize Package with added foreign keys and save datapackage.json
         Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
