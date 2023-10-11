@@ -1,7 +1,7 @@
 import dataclasses
 import os
 import warnings
-from typing import Optional, Union
+from typing import Optional
 
 import pandas as pd
 from data_adapter import core
@@ -311,11 +311,16 @@ class DataPackage:
             if "name" in field_names:
                 resource["schema"].update({"primaryKey": "name"})
 
-            elif "sequence" in resource["name"].split("_") or resource["name"] =="periods":
+            elif (
+                "sequence" in resource["name"].split("_")
+                or resource["name"] == "periods"
+            ):
                 pass
             else:
-                warnings.warn("Primary keys differing from `name` not implemented yet."
-                          f"Check primary Keys for resource {resource['name']}")
+                warnings.warn(
+                    "Primary keys differing from `name` not implemented yet."
+                    f"Check primary Keys for resource {resource['name']}"
+                )
 
         # re-initialize Package with added foreign keys and save datapackage.json
         Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
