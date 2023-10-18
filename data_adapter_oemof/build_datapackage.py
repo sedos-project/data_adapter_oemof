@@ -120,10 +120,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
         # Lists and Series can be passed for special Facades only.
         # Sequences shall be passed as sequences (via links.csv):
         elif any(
-            [
-                isinstance(col_entry, (pd.Series, list))
-                for col_entry in group_df[col]
-            ]
+            [isinstance(col_entry, (pd.Series, list)) for col_entry in group_df[col]]
         ):
             values = group_df[col].explode().unique()
         else:
