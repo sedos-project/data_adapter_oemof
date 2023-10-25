@@ -220,7 +220,6 @@ def test_build_datapackage():
     )
 
 
-# @pytest.mark.skip(reason="Wait for changes in data_adapter")
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
@@ -258,21 +257,16 @@ def test_build_tabular_datapackage_from_adapter():
         "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
     }
 
-    "input_ratio", "output_ratio"
-
     dta = DataPackage.build_datapackage(
         adapter=adapter,
         process_adapter_map=process_adapter_map,
         parameter_map=parameter_map,
     )
-    dir = os.path.join(os.getcwd(), "_files", "tabular_datapackage_hack_a_thon")
+    dir = os.path.join(path_default, "tabular_datapackage_hack_a_thon")
     dta.save_datapackage_to_csv(dir)
 
-    check_if_csv_dirs_equal(PATH_TMP, path_default)
-    # FIXME:
-    #  - Timeseries must be fixed on data_adapter and naming from Multiindex
-    #  refactoring is missing from #45
-    #  - Write parameter map
+    check_if_csv_dirs_equal(dir, os.path.join(path_default, "tabular_datapackage_hack_a_thon_goal"))
+    # FIXME: Demand is in different Format than expected.
 
 
 @pytest.mark.skip(reason="Needs period csv implementation first.")
