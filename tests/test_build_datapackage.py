@@ -220,7 +220,7 @@ def test_build_datapackage():
     )
 
 
-@pytest.mark.skip(reason="Wait for changes in data_adapter")
+# @pytest.mark.skip(reason="Wait for changes in data_adapter")
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
@@ -248,7 +248,17 @@ def test_build_tabular_datapackage_from_adapter():
             "carrier_cost": "fuel_costs",
             "capacity": "installed_capacity",
         },
+        "StorageAdapter": {
+            "capacity_potential": "expansion_limit",
+            "capacity": "installed_capacity",
+            "invest_relation_output_capacity": "e2p_ratio",
+            "inflow_conversion_factor": "input_ratio",
+            "outflow_conversion_factor": "output_ratio",
+        },
+        "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
     }
+
+    "input_ratio", "output_ratio"
 
     dta = DataPackage.build_datapackage(
         adapter=adapter,

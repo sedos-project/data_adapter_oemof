@@ -1187,13 +1187,13 @@ files = [
 
 [[package]]
 name = "oemof-network"
-version = "0.5.0a1"
+version = "0.5.0a5"
 description = "The network/graph submodules of oemof."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "oemof.network-0.5.0a1-py2.py3-none-any.whl", hash = "sha256:43fad16fdf82634e037d22d9bf66c4bae7f75b1069ef059f0b457b6992045e61"},
-    {file = "oemof.network-0.5.0a1.tar.gz", hash = "sha256:ea701d901bc1a87a5bfe31f2f117dbd841a04ad5f2a2af122212f90a92170715"},
+    {file = "oemof.network-0.5.0a5-py2.py3-none-any.whl", hash = "sha256:c68e4dbf5dbc040b8bd28bea9d0248a52c75ecdc7b21410b0494a3e720095da7"},
+    {file = "oemof.network-0.5.0a5.tar.gz", hash = "sha256:ea83b9a9b8b4afd0a46d36045ce891ff792f2831b080a7e5ff426976586263bc"},
 ]
 
 [package.dependencies]
@@ -1266,13 +1266,13 @@ resolved_reference = "d3eb24746d4a0d8db15df885a920fd08b50b62ff"
 
 [[package]]
 name = "oemof-tools"
-version = "0.4.2"
+version = "0.4.3"
 description = "Tiny tools of the oemof project."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "oemof.tools-0.4.2-py2.py3-none-any.whl", hash = "sha256:0b2db03c92ee25c986348a45d1ef845449bcdc23f0db0d6a54c2e4ea8a441574"},
-    {file = "oemof.tools-0.4.2.tar.gz", hash = "sha256:10ce086dbc6f4fa4bef92866c72de3ce4e23e55c5bdda8469d44643601b66bd0"},
+    {file = "oemof.tools-0.4.3-py2.py3-none-any.whl", hash = "sha256:dd951cf4570cde706ea3e9191c52007f45582b8a864398cd8c375938cf087c57"},
+    {file = "oemof.tools-0.4.3.tar.gz", hash = "sha256:f64851573fec793e3fc2046aa434b2076707c71861eb756e2b48688d1a7d673c"},
 ]
 
 [package.extras]
@@ -2254,13 +2254,13 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "1.26.17"
+version = "1.26.18"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 files = [
-    {file = "urllib3-1.26.17-py2.py3-none-any.whl", hash = "sha256:94a757d178c9be92ef5539b8840d48dc9cf1b2709c9d6b588232a055c524458b"},
-    {file = "urllib3-1.26.17.tar.gz", hash = "sha256:24d6a242c28d29af46c3fae832c36db3bbebcc533dd1bb549172cd739c82df21"},
+    {file = "urllib3-1.26.18-py2.py3-none-any.whl", hash = "sha256:34b97092d7e0a3a8cf7cd10e386f401b3737364026c45e622aa02903dffe0f07"},
+    {file = "urllib3-1.26.18.tar.gz", hash = "sha256:f8ecc1bba5667413457c529ab955bf8c67b45db799d159066261719e328580a0"},
 ]
 
 [package.extras]

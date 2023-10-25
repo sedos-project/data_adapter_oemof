@@ -2,3 +2,4 @@ id;process;parameter;inputs;outputs
 1;modex_tech_storage_battery;default;electricity;
 6;modex_tech_generator_gas;default;ch4;electricity
 10;modex_tech_wind_turbine_onshore;default;;electricity
+11;modex_demand;electricity;default

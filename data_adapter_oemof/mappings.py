@@ -82,7 +82,7 @@ class Mapper:
             return self.mapping["DEFAULT"][key]
 
         # 5. Use key if no mapping available
-        logger.warning(f"Key not found. Did not map '{key}'")
+        logger.debug(f"Key not found. Did not map '{key}'")
         return key
 
     def get_data(self, key, field_type: Optional[Type] = None):
@@ -123,7 +123,9 @@ class Mapper:
             return DEFAULT_MAPPING[key]
 
         # 3 Return None if no data is available
-        logger.warning(f"Could not get data for mapped key '{key}'")
+        logger.debug(
+            f"No {key} data in {self.process_name} as a {self.adapter.__name__}"
+        )
         return None
 
     def get(self, key, field_type: Optional[Type] = None):
