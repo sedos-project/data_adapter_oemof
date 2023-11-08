@@ -222,19 +222,22 @@ def test_build_datapackage():
 
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
-        "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
+        "https://databus.openenergyplatform.org/felixmaur/collections/hack-a-thon/"
     )
 
     adapter = Adapter(
         "hack-a-thon",
         structure_name="structure",
-        links_name="links",
     )
     process_adapter_map = {
         "modex_tech_storage_battery": "StorageAdapter",
-        "modex_tech_generator_gas": "ConversionAdapter",
         "modex_tech_wind_turbine_onshore": "VolatileAdapter",
-        "modex_demand": "LoadAdapter",
+        "modex_tech_load_load": "LoadAdapter",
+        "modex_tech_storage_pumped": "StorageAdapter",
+        "modex_tech_generator_steam": "DispatchableAdapter",
+        "modex_tech_photovoltaics_utility": "VolatileAdapter",
+        "modex_com_lignite": "CommodityAdapter",
+        "modex_tech_chp_steam": "DispatchableAdapter",
     }
 
     parameter_map = {
@@ -242,19 +245,22 @@ def test_build_tabular_datapackage_from_adapter():
             "marginal_cost": "variable_costs",
             "fixed_cost": "fixed_costs",
             "capacity_cost": "capital_costs",
-        },
-        "ExtractionTurbineAdapter": {
-            "carrier_cost": "fuel_costs",
             "capacity": "installed_capacity",
+            "capacity_potential": "expansion_limit",
+            "carrier_cost": "fuel_costs",
         },
         "StorageAdapter": {
-            "capacity_potential": "expansion_limit",
-            "capacity": "installed_capacity",
             "invest_relation_output_capacity": "e2p_ratio",
             "inflow_conversion_factor": "input_ratio",
             "outflow_conversion_factor": "output_ratio",
         },
-        "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
+        "CommodityAdapter": {
+            "amount": "natural_domestic_limit",
+        },
+        "DispatchableAdapter": {
+            "efficiency": "output_ratio",
+        },
+        # "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
     }
 
     dta = DataPackage.build_datapackage(

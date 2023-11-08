@@ -459,15 +459,15 @@ class DataPackage:
             parametrized_elements["bus"] += process_busses
 
             # getting foreign keys with last component
-            #   foreign keys have to be equal for every component within a Process
-            #   as foreign key columns cannot have mixed meaning
+            # foreign keys have to be equal for every component within a Process
+            # as foreign key columns cannot have mixed meaning
             foreign_keys[process_name] = cls.get_foreign_keys(
                 struct, component_mapper, components
             )
 
             parametrized_elements[process_name] = pd.DataFrame(components)
-
-            parametrized_sequences = {process_name: timeseries}
+            if not timeseries.empty:
+                parametrized_sequences.update({process_name: timeseries})
         # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
