@@ -7,7 +7,7 @@ import pytest
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
 from pandas import Timestamp
-from utils import PATH_TEST_FILES, PATH_TMP, check_if_csv_dirs_equal
+from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
 
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
 
@@ -97,10 +97,14 @@ def test_build_datapackage():
                     "year": {0: 2016, 1: 2030, 2: 2050},
                     "installed_capacity": {
                         0: 330.2,
-                        1: 330.2014,
-                        2: 330.2014,
+                        1: 330.2,
+                        2: 330.2,
                     },
-                    "emission_factor": {0: 0.2, 1: 0.2, 2: 0.2},
+                    "emission_factor": {
+                        0: 0.2,
+                        1: 0.2,
+                        2: 0.2,
+                    },  # Todo: not implemented in any Facade yet?!
                     "fuel_costs": {0: 25.9, 1: 25.9, 2: 49.36},
                     "tech": {
                         0: "generator_gas",
@@ -191,7 +195,23 @@ def test_build_datapackage():
         "modex_tech_storage_battery": "StorageAdapter",
         "modex_tech_wind_turbine_onshore": "VolatileAdapter",
     }
-    result = DataPackage.build_datapackage(mock_adapter, process_adapter_map)
+    parameter_map = {
+        "DEFAULT": {
+            "marginal_cost": "variable_costs",
+            "fixed_cost": "fixed_costs",
+            "capacity_cost": "capital_costs",
+        },
+        "ExtractionTurbineAdapter": {
+            "carrier_cost": "fuel_costs",
+            "capacity": "installed_capacity",
+        },
+        "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
+    }
+    result = DataPackage.build_datapackage(
+        adapter=mock_adapter,
+        process_adapter_map=process_adapter_map,
+        parameter_map=parameter_map,
+    )
     result.save_datapackage_to_csv(test_path)
 
     check_if_csv_dirs_equal(
@@ -200,7 +220,6 @@ def test_build_datapackage():
     )
 
 
-@pytest.mark.skip(reason="Wait for changes in data_adapter and PR#45.")
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
@@ -211,15 +230,45 @@ def test_build_tabular_datapackage_from_adapter():
         structure_name="structure",
         links_name="links",
     )
-    return "FIXME before test can be run"
-    dta = DataPackage.build_datapackage(adapter=adapter)
-    dir = os.path.join(os.getcwd(), "_files", "tabular_datapackage_hack_a_thon")
+    process_adapter_map = {
+        "modex_tech_storage_battery": "StorageAdapter",
+        "modex_tech_generator_gas": "ConversionAdapter",
+        "modex_tech_wind_turbine_onshore": "VolatileAdapter",
+        "modex_demand": "LoadAdapter",
+    }
+
+    parameter_map = {
+        "DEFAULT": {
+            "marginal_cost": "variable_costs",
+            "fixed_cost": "fixed_costs",
+            "capacity_cost": "capital_costs",
+        },
+        "ExtractionTurbineAdapter": {
+            "carrier_cost": "fuel_costs",
+            "capacity": "installed_capacity",
+        },
+        "StorageAdapter": {
+            "capacity_potential": "expansion_limit",
+            "capacity": "installed_capacity",
+            "invest_relation_output_capacity": "e2p_ratio",
+            "inflow_conversion_factor": "input_ratio",
+            "outflow_conversion_factor": "output_ratio",
+        },
+        "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
+    }
+
+    dta = DataPackage.build_datapackage(
+        adapter=adapter,
+        process_adapter_map=process_adapter_map,
+        parameter_map=parameter_map,
+    )
+    dir = os.path.join(path_default, "tabular_datapackage_hack_a_thon")
     dta.save_datapackage_to_csv(dir)
 
-    check_if_csv_dirs_equal(PATH_TMP, path_default)
-    # FIXME:
-    #  - Timeseries must be fixed on data_adapter and naming from Multiindex
-    #  refactoring is missing from #45
+    check_if_csv_dirs_equal(
+        dir, os.path.join(path_default, "tabular_datapackage_hack_a_thon_goal")
+    )
+    # FIXME: Demand is in different Format than expected.
 
 
 @pytest.mark.skip(reason="Needs period csv implementation first.")
@@ -290,4 +339,5 @@ def test_period_csv_creation():
             },
         }
     )
+    sequence_goal.index.name = "timeindex"
     pd.testing.assert_frame_equal(sequence_goal, sequence_created)

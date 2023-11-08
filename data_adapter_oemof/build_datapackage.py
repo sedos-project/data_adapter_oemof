@@ -1,7 +1,7 @@
 import dataclasses
 import os
 import warnings
-from typing import Optional, Union
+from typing import Optional
 
 import pandas as pd
 from data_adapter import core
@@ -89,14 +89,29 @@ def _listify_to_periodic(group_df) -> pd.Series:
     group_df
 
     Returns
-    -------
+    ----------
+    pd.Series
+
+    Examples
+    ----------
+    |   region |   year |   invest_relation_output_capacity |   fixed_costs |
+    |---------:|-------:|----------------------------------:|--------------:|
+    |       BB |   2016 |                               3.3 |             1 |
+    |       BB |   2030 |                               3.3 |             2 |
+    |       BB |   2050 |                               3.3 |             3 |
+
+    ->
+    |   type    | fixed_costs| name | region | year | invest_relation_output_capacity |
+    |:--------- |-----------:|:------ |:---------|:---------------:|---:|
+    | storage   | [1, 2, 3]  | BB_Lithium_storage_battery | BB |[2016, 2030, 2050]|3.3 |
+
 
     """
 
     if "year" not in group_df.columns:
         return group_df
 
-    unique_values = pd.Series()
+    unique_values = pd.Series(dtype=object)
     for col in group_df.columns:  # Exclude 'name' column
         if isinstance(group_df[col][group_df.index[0]], dict):
             # Unique input/output parameters are not allowed per period
@@ -105,10 +120,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
         # Lists and Series can be passed for special Facades only.
         # Sequences shall be passed as sequences (via links.csv):
         elif any(
-            [
-                isinstance(col_entry, Union[list, pd.Series])
-                for col_entry in group_df[col]
-            ]
+            [isinstance(col_entry, (pd.Series, list)) for col_entry in group_df[col]]
         ):
             values = group_df[col].explode().unique()
         else:
@@ -235,6 +247,7 @@ class DataPackage:
                 sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
                 # TODO timeincrement might be adjusted later to modify objective weighting
                 sequence["timeincrement"] = 1
+                sequence.index.name = "timeindex"
                 return sequence
             else:
                 pass
@@ -309,8 +322,17 @@ class DataPackage:
                 resource["schema"].update({"foreignKeys": []})
             if "name" in field_names:
                 resource["schema"].update({"primaryKey": "name"})
+
+            elif (
+                "sequence" in resource["name"].split("_")
+                or resource["name"] == "periods"
+            ):
+                pass
             else:
-                warnings.warn("Primary keys differing from `name` not implemented yet")
+                warnings.warn(
+                    "Primary keys differing from `name` not implemented yet."
+                    f"Check primary Keys for resource {resource['name']}"
+                )
 
         # re-initialize Package with added foreign keys and save datapackage.json
         Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
@@ -327,8 +349,22 @@ class DataPackage:
         Then iterates for every element in parametrized elements, groups them for name
         then applies aggregation method
 
-        Returns None
-        -------
+        This leads to aggregating periodically changing values to a list
+        with as many entries as there are periods and
+        non changing values are kept as what they have been.
+        Only values should change periodically that can change and identifiers must be unique.
+        Examples:
+            |   region |   year |   invest_relation_output_capacity |   fixed_costs |
+            |---------:|-------:|----------------------------------:|--------------:|
+            |       BB |   2016 |                               3.3 |             1 |
+            |       BB |   2030 |                               3.3 |             2 |
+            |       BB |   2050 |                               3.3 |             3 |
+
+        Returns:
+            |   type    | fixed_costs| name | region | year | invest_relation_output_capacity |
+            |:--------- |-----------:|:------ |:---------|:---------------:|---:|
+            | storage   | [1, 2, 3]  | BB_Lithium_storage_battery | BB |[2016, 2030, 2050]|3.3 |
+
 
         """
         identifiers = ["region", "carrier", "tech"]
@@ -362,14 +398,17 @@ class DataPackage:
         Parameters
         ----------
         adapter: Adapter
-            Adapter from oemof_data_adapter that is able to handle parameter model data
-            from Databus. Adapter needs to be initialized with `structure_name`. Use `links_
+            Adapter from data_adapter that is able to handle parameter model data
+            from Databus. Adapter needs to be initialized with `structure_name`.
+            Use `links` to add data from different processes to each other.
+            Use `structure` to map busses to "processes" and "Adapters"
         process_adapter_map
             Maps process names to adapter names, if not set default mapping is used
         parameter_map
-            Maps parameter names from adapter to facade, if not set default mapping is used
+            Maps parameter names from adapter to facade, if not set default mapping is used.
+            Make sure to map "sequence" entries on "sequence profile names" (see example)
         bus_map
-            Maps facade busses to adapter busses, if not set default mapping is used
+            Maps facade bus names to adapter bus names, if not set default mapping is used
 
         Returns
         -------

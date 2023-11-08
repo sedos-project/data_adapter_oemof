@@ -82,7 +82,7 @@ class Mapper:
             return self.mapping["DEFAULT"][key]
 
         # 5. Use key if no mapping available
-        logger.warning(f"Key not found. Did not map '{key}'")
+        logger.debug(f"Key not found. Did not map '{key}'")
         return key
 
     def get_data(self, key, field_type: Optional[Type] = None):
@@ -108,7 +108,7 @@ class Mapper:
             if key in self.timeseries.columns:
                 return key
             # 1.2.2 Take column name if only one time series is available
-            if len(self.timeseries) == 1:
+            if len(self.timeseries.columns) == 1:
                 timeseries_key = self.timeseries.columns[0]
                 logger.info(
                     "Key not found in timeseries. "
@@ -123,7 +123,9 @@ class Mapper:
             return DEFAULT_MAPPING[key]
 
         # 3 Return None if no data is available
-        logger.warning(f"Could not get data for mapped key '{key}'")
+        logger.debug(
+            f"No {key} data in {self.process_name} as a {self.adapter.__name__}"
+        )
         return None
 
     def get(self, key, field_type: Optional[Type] = None):
@@ -184,7 +186,8 @@ class Mapper:
             else:
                 warnings.warn(
                     "Please check structure and provide either one set of inputs/outputs "
-                    "or specify as default Parameter specific busses not implemented yet"
+                    "or specify as default Parameter specific busses not implemented yet. "
+                    f"No Bus found for Process {self.process_name} in Adapter {self.adapter}"
                 )
 
             # 2. Check for default busses

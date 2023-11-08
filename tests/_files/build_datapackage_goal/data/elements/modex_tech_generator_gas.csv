@@ -1,2 +1,2 @@
-from_bus;to_bus;carrier;tech;capacity;efficiency;marginal_cost;carrier_cost;capacity_cost;expandable;capacity_potential;capacity_minimum;input_parameters;output_parameters;name;type;year
-ch4;electricity;gas;generator_gas;;1;0;0;;False;inf;;{};{};BB_gas_generator_gas;conversion;[2016, 2030, 2050]
+type;carrier;tech;condensing_efficiency;electric_efficiency;thermal_efficiency;capacity;carrier_cost;name;region;year;electricity_bus;heat_bus;fuel_bus
+extraction_turbine;gas;generator_gas;[0.16, 0.3, 0.5];[0.35, 0.35, 0.4];[0.5, 0.5, 0.45];330.2;[25.9, 25.9, 49.36];BB_gas_generator_gas;BB;[2016, 2030, 2050];electricity;heat;ch4

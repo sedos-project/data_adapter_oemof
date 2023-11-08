@@ -31,6 +31,37 @@
       "encoding": "utf-8",
       "format": "csv",
       "mediatype": "text/csv",
+      "name": "periods",
+      "path": "data/periods/periods.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "timeindex",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "periods",
+            "type": "integer"
+          },
+          {
+            "format": "default",
+            "name": "timeincrement",
+            "type": "integer"
+          }
+        ],
+        "foreignKeys": [],
+        "missingValues": [
+          ""
+        ]
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
       "name": "bus",
       "path": "data/elements/bus.csv",
       "profile": "tabular-data-resource",
@@ -70,7 +101,7 @@
         "fields": [
           {
             "format": "default",
-            "name": "bus",
+            "name": "type",
             "type": "string"
           },
           {
@@ -85,48 +116,8 @@
           },
           {
             "format": "default",
-            "name": "storage_capacity",
-            "type": "integer"
-          },
-          {
-            "format": "default",
             "name": "capacity",
             "type": "number"
-          },
-          {
-            "format": "default",
-            "name": "capacity_cost",
-            "type": "integer"
-          },
-          {
-            "format": "default",
-            "name": "storage_capacity_cost",
-            "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "storage_capacity_potential",
-            "type": "number"
-          },
-          {
-            "format": "default",
-            "name": "capacity_potential",
-            "type": "number"
-          },
-          {
-            "format": "default",
-            "name": "expandable",
-            "type": "boolean"
-          },
-          {
-            "format": "default",
-            "name": "lifetime",
-            "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "age",
-            "type": "integer"
           },
           {
             "format": "default",
@@ -135,38 +126,28 @@
           },
           {
             "format": "default",
-            "name": "marginal_cost",
-            "type": "integer"
-          },
-          {
-            "format": "default",
-            "name": "efficiency",
-            "type": "integer"
-          },
-          {
-            "format": "default",
-            "name": "input_parameters",
-            "type": "object"
-          },
-          {
-            "format": "default",
-            "name": "output_parameters",
-            "type": "object"
-          },
-          {
-            "format": "default",
             "name": "name",
             "type": "string"
           },
           {
             "format": "default",
-            "name": "type",
+            "name": "region",
             "type": "string"
           },
           {
             "format": "default",
             "name": "year",
             "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "invest_relation_output_capacity",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "bus",
+            "type": "string"
           }
         ],
         "foreignKeys": [
@@ -195,12 +176,7 @@
         "fields": [
           {
             "format": "default",
-            "name": "from_bus",
-            "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "to_bus",
+            "name": "type",
             "type": "string"
           },
           {
@@ -215,53 +191,28 @@
           },
           {
             "format": "default",
+            "name": "condensing_efficiency",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "electric_efficiency",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "thermal_efficiency",
+            "type": "array"
+          },
+          {
+            "format": "default",
             "name": "capacity",
-            "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "efficiency",
-            "type": "integer"
-          },
-          {
-            "format": "default",
-            "name": "marginal_cost",
-            "type": "integer"
-          },
-          {
-            "format": "default",
-            "name": "carrier_cost",
-            "type": "integer"
-          },
-          {
-            "format": "default",
-            "name": "capacity_cost",
-            "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "expandable",
-            "type": "boolean"
-          },
-          {
-            "format": "default",
-            "name": "capacity_potential",
             "type": "number"
           },
           {
             "format": "default",
-            "name": "capacity_minimum",
-            "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "input_parameters",
-            "type": "object"
-          },
-          {
-            "format": "default",
-            "name": "output_parameters",
-            "type": "object"
+            "name": "carrier_cost",
+            "type": "array"
           },
           {
             "format": "default",
@@ -270,25 +221,47 @@
           },
           {
             "format": "default",
-            "name": "type",
+            "name": "region",
             "type": "string"
           },
           {
             "format": "default",
             "name": "year",
             "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "electricity_bus",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "heat_bus",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "fuel_bus",
+            "type": "string"
           }
         ],
         "foreignKeys": [
           {
-            "fields": "from_bus",
+            "fields": "electricity_bus",
             "reference": {
               "fields": "name",
               "resource": "bus"
             }
           },
           {
-            "fields": "to_bus",
+            "fields": "heat_bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "fuel_bus",
             "reference": {
               "fields": "name",
               "resource": "bus"
@@ -312,7 +285,7 @@
         "fields": [
           {
             "format": "default",
-            "name": "bus",
+            "name": "type",
             "type": "string"
           },
           {
@@ -332,43 +305,8 @@
           },
           {
             "format": "default",
-            "name": "capacity",
-            "type": "array"
-          },
-          {
-            "format": "default",
-            "name": "capacity_potential",
-            "type": "number"
-          },
-          {
-            "format": "default",
-            "name": "capacity_minimum",
-            "type": "string"
-          },
-          {
-            "format": "default",
-            "name": "expandable",
-            "type": "boolean"
-          },
-          {
-            "format": "default",
-            "name": "marginal_cost",
-            "type": "integer"
-          },
-          {
-            "format": "default",
-            "name": "capacity_cost",
-            "type": "string"
-          },
-          {
-            "format": "default",
             "name": "lifetime",
             "type": "array"
-          },
-          {
-            "format": "default",
-            "name": "age",
-            "type": "integer"
           },
           {
             "format": "default",
@@ -377,23 +315,23 @@
           },
           {
             "format": "default",
-            "name": "output_parameters",
-            "type": "object"
-          },
-          {
-            "format": "default",
             "name": "name",
             "type": "string"
           },
           {
             "format": "default",
-            "name": "type",
+            "name": "region",
             "type": "string"
           },
           {
             "format": "default",
             "name": "year",
             "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "bus",
+            "type": "string"
           }
         ],
         "foreignKeys": [

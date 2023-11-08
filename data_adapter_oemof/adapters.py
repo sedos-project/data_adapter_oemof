@@ -14,7 +14,6 @@ class Adapter:
     facade: Facade = None
     extra_fields = (
         Field(name="name", type=str),
-        Field(name="type", type=str),
         Field(name="region", type=str),
         Field(name="year", type=int),
     )
@@ -132,6 +131,11 @@ class StorageAdapter(Adapter):
 
     type = "storage"
     facade = facades.Storage
+    extra_fields = Adapter.extra_fields + (
+        Field(name="invest_relation_output_capacity", type=float),
+        Field(name="inflow_conversion_factor", type=float),
+        Field(name="outflow_conversion_factor", type=float),
+    )
 
 
 class ExtractionTurbineAdapter(Adapter):
