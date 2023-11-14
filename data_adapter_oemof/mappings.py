@@ -115,8 +115,10 @@ class Mapper:
                     f"Using existing timeseries column '{timeseries_key}'."
                 )
                 return timeseries_key
-            logger.info(f"For Process {self.process_name} no timeseries found "
-                        f"entry for mapped key '{key}'")
+            logger.info(
+                f"For Process {self.process_name} no timeseries found "
+                f"entry for mapped key '{key}'"
+            )
             return None
 
         # 2 Use defaults

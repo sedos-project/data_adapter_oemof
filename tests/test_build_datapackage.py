@@ -6,12 +6,12 @@ import pandas as pd
 import pytest
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
+from oemof.tabular.datapackage import EnergySystem, Model
+from oemof.tabular.facades import Bus, Commodity, Dispatchable, Load, Storage, Volatile
 from pandas import Timestamp
 from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
 
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
-from oemof.tabular.datapackage import EnergySystem, Model
-from oemof.tabular.facades import Dispatchable, Load, Commodity, Storage, Bus, Volatile
 
 path_default = PATH_TEST_FILES / "_files"
 
@@ -290,10 +290,12 @@ def test_read_datapackage():
             "bus": Bus,
             "storage": Storage,
             "volatile": Volatile,
-            "commodity": Commodity
+            "commodity": Commodity,
         },
     )
     model = Model(es)
+    test_model = 1
+    assert model, test_model
 
 
 def test_period_csv_creation():
