@@ -1,0 +1,6 @@
+type;carrier;amount;name;region;year;bus
+commodity;lignite;20363.0;BB_carrier_tech;BB;[2016, 2030, 2050];lignite
+commodity;lignite;3620.0;NI_carrier_tech;NI;[2016, 2030, 2050];lignite
+commodity;lignite;465000.0;NW_carrier_tech;NW;[2016, 2030, 2050];lignite
+commodity;lignite;27600.0;SN_carrier_tech;SN;[2016, 2030, 2050];lignite
+commodity;lignite;30000.0;ST_carrier_tech;ST;[2016, 2030, 2050];lignite
