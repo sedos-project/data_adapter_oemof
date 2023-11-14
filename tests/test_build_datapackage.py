@@ -277,23 +277,21 @@ def test_build_tabular_datapackage_from_adapter():
     # FIXME: Demand is in different Format than expected.
 
 
-@pytest.mark.skip(reason="Needs period csv implementation first.")
+#@pytest.mark.skip(reason="Needs period csv implementation first.")
 def test_read_datapackage():
-    # FIXME: Period csv is missing.
-    # return "FIXME first"
-    # es = EnergySystem.from_datapackage(
-    #     "_files/build_datapackage_test/datapackage.json",
-    #     typemap={
-    #         "load": Load,
-    #         "dispatchable": Dispatchable,
-    #         "bus": Bus,
-    #         "link": Link,
-    #         "storage": Storage,
-    #         "volatile": Volatile,
-    #         "conversion": Conversion,
-    #     },
-    # )
-    # model = Model(es)
+    es = EnergySystem.from_datapackage(
+        "_files/build_datapackage_test/datapackage.json",
+        typemap={
+            "load": Load,
+            "dispatchable": Dispatchable,
+            "bus": Bus,
+            "link": Link,
+            "storage": Storage,
+            "volatile": Volatile,
+            "conversion": Conversion,
+        },
+    )
+    model = Model(es)
     pass
 
 

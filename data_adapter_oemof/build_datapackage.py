@@ -4,6 +4,7 @@ import warnings
 from typing import Optional
 
 import pandas as pd
+import numpy as np
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
 from datapackage import Package
@@ -110,9 +111,8 @@ def _listify_to_periodic(group_df) -> pd.Series:
 
     if "year" not in group_df.columns:
         return group_df
-
     unique_values = pd.Series(dtype=object)
-    for col in group_df.columns:  # Exclude 'name' column
+    for col in group_df.columns:
         if isinstance(group_df[col][group_df.index[0]], dict):
             # Unique input/output parameters are not allowed per period
             unique_values[col] = group_df[col][group_df.index[0]]
@@ -256,6 +256,7 @@ class DataPackage:
     def save_datapackage_to_csv(self, destination: str) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
+        Using frictionless datapckage module
 
         Parameters
         ----------
