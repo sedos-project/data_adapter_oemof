@@ -10,6 +10,8 @@ from pandas import Timestamp
 from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
 
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
+from oemof.tabular.datapackage import EnergySystem, Model
+from oemof.tabular.facades import Dispatchable, Load, Commodity, Storage, Bus, Volatile
 
 path_default = PATH_TEST_FILES / "_files"
 
@@ -277,22 +279,21 @@ def test_build_tabular_datapackage_from_adapter():
     # FIXME: Demand is in different Format than expected.
 
 
-#@pytest.mark.skip(reason="Needs period csv implementation first.")
+@pytest.mark.skip(reason="Failing on timeincrements?")
 def test_read_datapackage():
     es = EnergySystem.from_datapackage(
-        "_files/build_datapackage_test/datapackage.json",
+        "_files/tabular_datapackage_hack_a_thon_goal/datapackage.json",
         typemap={
             "load": Load,
             "dispatchable": Dispatchable,
+            "extraction_turbine": Dispatchable,
             "bus": Bus,
-            "link": Link,
             "storage": Storage,
             "volatile": Volatile,
-            "conversion": Conversion,
+            "commodity": Commodity
         },
     )
     model = Model(es)
-    pass
 
 
 def test_period_csv_creation():

@@ -42,11 +42,10 @@ def check_if_csv_files_equal(csv_file_a, csv_file_b):
     csv_file_b
 
     """
-    print(csv_file_a)
     df1 = pd.read_csv(csv_file_a, delimiter=";")
     df2 = pd.read_csv(csv_file_b, delimiter=";")
 
-    pd.testing.assert_frame_equal(df1, df2, check_like=True)
+    assert pd.testing.assert_frame_equal(df1, df2, check_like=True) is None
 
 
 def check_if_csv_dirs_equal(dir_a, dir_b):
