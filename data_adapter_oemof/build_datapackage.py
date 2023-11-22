@@ -4,6 +4,7 @@ import warnings
 from typing import Optional
 
 import pandas as pd
+import tsam.timeseriesaggregation
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
 from datapackage import Package
@@ -11,6 +12,27 @@ from datapackage import Package
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
+
+def append_to_columnnames(df_dictionary: dict):
+    """
+    Appends the `key` to all column names for all Dataframes in dictionary.
+    . is used as seperator
+    Then concats all dataframes
+    Parameters
+    ----------
+    df_dictionary: Dictionary of Dataframes
+
+    Returns
+    concat pd.Dataframe
+    -------
+
+    """
+    renamed_df = []
+    for key, df in df_dictionary.items():
+        df.columns = list(map(lambda c: c+"."+key, df.columns))
+        renamed_df.append(df)
+    return pd.concat(renamed_df)
+
 
 
 def refactor_timeseries(timeseries: pd.DataFrame):
@@ -409,8 +431,21 @@ class DataPackage:
         -------
 
         """
+        # Refactor sequences into one Dataframe
         self.save_datapackage_to_csv(destination=destination)
-        df = pd.concat(self.parametrized_sequences.values())
+        sequences = append_to_columnnames(self.parametrized_sequences)
+        sequences.index = self.periods.index
+        df = pd.concat([self.periods, sequences], axis=1)
+
+        # Group sequences by Periods
+        for period, period_sequence in df.groupby(by="periods"):
+            period_sequence.drop(["periods", "timeincrement"], axis=1, inplace=True)
+            aggregation = tsam.timeseriesaggregation.TimeSeriesAggregation(
+                period_sequence,
+                **tsam_config
+            )
+            type_periods = aggregation.createTypicalPeriods()
+
     @classmethod
     def build_datapackage(
         cls,
