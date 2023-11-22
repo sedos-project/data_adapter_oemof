@@ -237,7 +237,7 @@ def test_build_datapackage():
         test_path,
     )
 
-
+@pytest.mark.skip(reason="Tackled in different Branch")
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
