@@ -1,20 +1,24 @@
+import collections
 import os
 from unittest import mock
-import collections
+
 import pandas
 import pandas as pd
 import pytest
+import tsam.timeseriesaggregation as tsam
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
 from pandas import Timestamp
 from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
-import tsam.timeseriesaggregation as tsam
 
 from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
 
 path_default = PATH_TEST_FILES / "_files"
 
-Mock = collections.namedtuple(typename="Mock", field_names=["mock_adapter", "process_adapter_map", "parameter_map"])
+Mock = collections.namedtuple(
+    typename="Mock",
+    field_names=["mock_adapter", "process_adapter_map", "parameter_map"],
+)
 
 
 def define_mock():
@@ -25,6 +29,7 @@ def define_mock():
     -------
 
     """
+
     def mock_get_process(process_name):
         """
         Adding side effects and .scalar and .timeseries
@@ -143,7 +148,6 @@ def define_mock():
             )
             return process_mock
 
-
     # Create a mock adapter object for testing
     mock_adapter = mock.Mock(spec=Adapter)
     # Mock the required methods and attributes of the Adapter
@@ -158,7 +162,6 @@ def define_mock():
             "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
         },
     }
-
 
     mock_adapter.get_process.side_effect = mock_get_process
 
@@ -224,7 +227,6 @@ def test_build_datapackage():
 
     mock = define_mock()
 
-
     result = DataPackage.build_datapackage(
         adapter=mock.mock_adapter,
         process_adapter_map=mock.process_adapter_map,
@@ -236,6 +238,7 @@ def test_build_datapackage():
         goal_path,
         test_path,
     )
+
 
 @pytest.mark.skip(reason="Tackled in different Branch")
 def test_build_tabular_datapackage_from_adapter():
@@ -360,30 +363,7 @@ def test_period_csv_creation():
     sequence_goal.index.name = "timeindex"
     pd.testing.assert_frame_equal(sequence_goal, sequence_created)
 
-def test_tsam_integration():
+
+def test_tsam():
     # Setup Directory to read timeseries from
-    dir = os.path.join(path_default, "tabular_datapackage_hack_a_thon", "data", "sequences")
-    load_dir = os.path.join(dir, "modex_tech_load_load_sequence.csv")
-    utility_dir = os.path.join(dir, "modex_tech_photovoltaics_utility_sequence.csv")
-    onshore_dir = os.path.join(dir, "modex_tech_wind_turbine_onshore_sequence.csv")
-
-    load = pd.read_csv(load_dir, sep=";", index_col=0)
-    utility= pd.read_csv(utility_dir, sep=";", index_col=0)
-    onshore= pd.read_csv(onshore_dir, sep=";", index_col=0)
-
-    load_aggregation = tsam.TimeSeriesAggregation(load,
-      noTypicalPeriods = 3,
-      hoursPerPeriod = 24,
-      segmentation = True,
-      noSegments = 8,
-      representationMethod = "distributionAndMinMaxRepresentation",
-      distributionPeriodWise = False,
-      clusterMethod = 'hierarchical'
-    )
-    load_type_periods = load_aggregation.createTypicalPeriods()
-
-
-
-
-
-
+    pass

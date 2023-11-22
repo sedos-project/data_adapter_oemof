@@ -275,8 +275,10 @@ class DataPackage:
 
         if not destination:
             if not self.path_to_datapackage:
-                raise ValueError("Please either state path on datapackage initialisation or"
-                                 "in save datapackage call ")
+                raise ValueError(
+                    "Please either state path on datapackage initialisation or"
+                    "in save datapackage call "
+                )
             destination = self.path_to_datapackage
         else:
             self.path_to_datapackage = destination
@@ -394,7 +396,7 @@ class DataPackage:
         )
         return scalar_dataframe
 
-    def time_series_aggregation(self, tsam_config: str, destination: str=None):
+    def time_series_aggregation(self, tsam_config: str, destination: str = None):
         """
         Aggregates time series in datapackage and saves the new datapackage with updated
         (sequence)Resources as well as aggregated sequence resources.
@@ -409,7 +411,6 @@ class DataPackage:
         """
         self.save_datapackage_to_csv(destination=destination)
 
-
     @classmethod
     def build_datapackage(
         cls,
@@ -417,7 +418,7 @@ class DataPackage:
         process_adapter_map: Optional[dict] = PROCESS_ADAPTER_MAP,
         parameter_map: Optional[dict] = PARAMETER_MAP,
         bus_map: Optional[dict] = BUS_MAP,
-        path_to_datapackage: str = None
+        path_to_datapackage: str = None,
     ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
