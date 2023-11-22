@@ -1,9 +1,5 @@
-import json
-
-import collections
 import os
 from unittest import mock
-
 import pandas
 import pandas as pd
 import pytest
@@ -17,21 +13,44 @@ from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeserie
 
 path_default = PATH_TEST_FILES / "_files"
 
-Mock = collections.namedtuple(
-    typename="Mock",
-    field_names=["mock_adapter", "process_adapter_map", "parameter_map"],
-)
+
+def test_refactor_timeseries():
+    timeseries = pandas.DataFrame(
+        {
+            "timeindex_start": ["01:00:00", "01:00:00", "09:00:00"],
+            "timeindex_stop": ["03:00:00", "03:00:00", "10:00:00"],
+            "timeindex_resolution": ["P0DT01H00M00S", "P0DT01H00M00S", "P0DT01H00M00S"],
+            "region": ["BB", "HH", "HH"],
+            "onshore": [[1, 2, 3], [4, 5, 6], [33, 34]],
+            "offshore": [[7, 8, 9], [10, 11, 12], [35, 36]],
+        }
+    )
+
+    refactored_ts = refactor_timeseries(timeseries)
+    expected_df = pandas.DataFrame(
+        {
+            "offshore_BB": [7.0, 8, 9, None, None],
+            "offshore_HH": [10.0, 11, 12, 35, 36],
+            "onshore_BB": [1.0, 2, 3, None, None],
+            "onshore_HH": [4.0, 5, 6, 33, 34],
+        },
+        index=pandas.DatetimeIndex(
+            ["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"]
+        ),
+    )
+    expected_df = expected_df.sort_index(axis=1)
+    refactored_ts = refactored_ts.sort_index(axis=1)
+    pandas.testing.assert_frame_equal(expected_df, refactored_ts)
 
 
-def define_mock():
+def test_build_datapackage():
     """
-    Defines a Mock to be used in tests
+    Test build Datapackage with mocking Adapter
     Returns
-    Mock tuple with mappers
     -------
-
     """
 
+    # Define different return values for get_process based on the structure
     def mock_get_process(process_name):
         """
         Adding side effects and .scalar and .timeseries
@@ -166,7 +185,9 @@ def define_mock():
     }
 
     mock_adapter.get_process.side_effect = mock_get_process
-
+    # Call the method with the mock adapter
+    test_path = os.path.join(path_default, "build_datapackage_test")
+    goal_path = os.path.join(path_default, "build_datapackage_goal")
     process_adapter_map = {
         "modex_tech_generator_gas": "ExtractionTurbineAdapter",
         "modex_tech_storage_battery": "StorageAdapter",
@@ -184,51 +205,6 @@ def define_mock():
         },
         "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
     }
-    return Mock(mock_adapter, process_adapter_map, parameter_map)
-
-
-def test_refactor_timeseries():
-    timeseries = pandas.DataFrame(
-        {
-            "timeindex_start": ["01:00:00", "01:00:00", "09:00:00"],
-            "timeindex_stop": ["03:00:00", "03:00:00", "10:00:00"],
-            "timeindex_resolution": ["P0DT01H00M00S", "P0DT01H00M00S", "P0DT01H00M00S"],
-            "region": ["BB", "HH", "HH"],
-            "onshore": [[1, 2, 3], [4, 5, 6], [33, 34]],
-            "offshore": [[7, 8, 9], [10, 11, 12], [35, 36]],
-        }
-    )
-
-    refactored_ts = refactor_timeseries(timeseries)
-    expected_df = pandas.DataFrame(
-        {
-            "offshore_BB": [7.0, 8, 9, None, None],
-            "offshore_HH": [10.0, 11, 12, 35, 36],
-            "onshore_BB": [1.0, 2, 3, None, None],
-            "onshore_HH": [4.0, 5, 6, 33, 34],
-        },
-        index=pandas.DatetimeIndex(
-            ["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"]
-        ),
-    )
-    expected_df = expected_df.sort_index(axis=1)
-    refactored_ts = refactored_ts.sort_index(axis=1)
-    pandas.testing.assert_frame_equal(expected_df, refactored_ts)
-
-
-def test_build_datapackage():
-    """
-    Test build Datapackage with mocking Adapter
-    Returns
-    -------
-    """
-    # Call the method with the mock adapter
-    test_path = os.path.join(path_default, "build_datapackage_test")
-    goal_path = os.path.join(path_default, "build_datapackage_goal")
-    # Define different return values for get_process based on the structure
-
-    mock = define_mock()
-
     result = DataPackage.build_datapackage(
         adapter=mock.mock_adapter,
         process_adapter_map=mock.process_adapter_map,
@@ -365,29 +341,30 @@ def test_period_csv_creation():
     sequence_goal.index.name = "timeindex"
     pd.testing.assert_frame_equal(sequence_goal, sequence_created)
 
+def test_tsam_integration():
+    # Setup Directory to read timeseries from
+    dir = os.path.join(path_default, "tabular_datapackage_hack_a_thon", "data", "sequences")
+    load_dir = os.path.join(dir, "modex_tech_load_load_sequence.csv")
+    utility_dir = os.path.join(dir, "modex_tech_photovoltaics_utility_sequence.csv")
+    onshore_dir = os.path.join(dir, "modex_tech_wind_turbine_onshore_sequence.csv")
 
-def test_tsam():
-    """
-    Tests if tsam aggregation is run successfully using mock
-    Returns
-    -------
+    load = pd.read_csv(load_dir, sep=";", index_col=0)
+    utility= pd.read_csv(utility_dir, sep=";", index_col=0)
+    onshore= pd.read_csv(onshore_dir, sep=";", index_col=0)
 
-    """
-    # Read tsam config:
-    with open(os.path.join(path_default, "tsam_config.json"), "r") as f:
-        config = json.load(f)
-
-    # Call the method with the mock adapter
-    test_path = os.path.join(path_default, "tsam_integration")
-    # goal_path = os.path.join(path_default, "build_datapackage_goal")
-    # Define different return values for get_process based on the structure
-
-    mock = define_mock()
-
-    result = DataPackage.build_datapackage(
-        adapter=mock.mock_adapter,
-        process_adapter_map=mock.process_adapter_map,
-        parameter_map=mock.parameter_map,
-        path_to_datapackage=test_path
+    load_aggregation = tsam.TimeSeriesAggregation(load,
+      noTypicalPeriods = 3,
+      hoursPerPeriod = 24,
+      segmentation = True,
+      noSegments = 8,
+      representationMethod = "distributionAndMinMaxRepresentation",
+      distributionPeriodWise = False,
+      clusterMethod = 'hierarchical'
     )
-    result.time_series_aggregation(tsam_config=config)
+    load_type_periods = load_aggregation.createTypicalPeriods()
+
+
+
+
+
+
