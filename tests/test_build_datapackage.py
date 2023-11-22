@@ -281,7 +281,7 @@ def test_build_tabular_datapackage_from_adapter():
 
 def test_read_datapackage():
     es = EnergySystem.from_datapackage(
-        "_files/tabular_datapackage_hack_a_thon_goal/datapackage.json",
+        os.path.join(path_default, "tabular_datapackage_hack_a_thon_goal", "datapackage.json"),
         typemap={
             "load": Load,
             "dispatchable": Dispatchable,
