@@ -245,7 +245,7 @@ class DataPackage:
                 sequence = pd.DataFrame(index=pd.to_datetime(sequence.index))
                 sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
                 # TODO timeincrement might be adjusted later to modify objective weighting
-                sequence["timeincrement"] = 1
+                sequence["increment"] = 1
                 sequence.index.name = "timeindex"
                 return sequence
             else:
