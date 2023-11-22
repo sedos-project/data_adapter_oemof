@@ -279,7 +279,6 @@ def test_build_tabular_datapackage_from_adapter():
     # FIXME: Demand is in different Format than expected.
 
 
-@pytest.mark.skip(reason="Failing on timeincrements?")
 def test_read_datapackage():
     es = EnergySystem.from_datapackage(
         "_files/tabular_datapackage_hack_a_thon_goal/datapackage.json",
