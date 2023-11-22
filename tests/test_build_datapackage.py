@@ -1,3 +1,5 @@
+import json
+
 import collections
 import os
 from unittest import mock
@@ -365,5 +367,27 @@ def test_period_csv_creation():
 
 
 def test_tsam():
-    # Setup Directory to read timeseries from
-    pass
+    """
+    Tests if tsam aggregation is run successfully using mock
+    Returns
+    -------
+
+    """
+    # Read tsam config:
+    with open(os.path.join(path_default, "tsam_config.json"), "r") as f:
+        config = json.load(f)
+
+    # Call the method with the mock adapter
+    test_path = os.path.join(path_default, "tsam_integration")
+    # goal_path = os.path.join(path_default, "build_datapackage_goal")
+    # Define different return values for get_process based on the structure
+
+    mock = define_mock()
+
+    result = DataPackage.build_datapackage(
+        adapter=mock.mock_adapter,
+        process_adapter_map=mock.process_adapter_map,
+        parameter_map=mock.parameter_map,
+        path_to_datapackage=test_path
+    )
+    result.time_series_aggregation(tsam_config=config)
