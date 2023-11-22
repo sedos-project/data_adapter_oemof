@@ -410,7 +410,7 @@ class DataPackage:
 
         """
         self.save_datapackage_to_csv(destination=destination)
-
+        df = pd.concat(self.parametrized_sequences.values())
     @classmethod
     def build_datapackage(
         cls,
@@ -514,4 +514,5 @@ class DataPackage:
             adapter=adapter,
             foreign_keys=foreign_keys,
             periods=periods,
+            path_to_datapackage=path_to_datapackage
         )
