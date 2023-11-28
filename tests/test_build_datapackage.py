@@ -5,7 +5,8 @@ import pandas
 import pandas as pd
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
-from oemof.tabular.datapackage import EnergySystem, Model
+from oemof.solph import EnergySystem
+from oemof.tabular.datapackage import Model
 from oemof.tabular.facades import Bus, Commodity, Dispatchable, Load, Storage, Volatile
 from pandas import Timestamp
 from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
@@ -296,7 +297,7 @@ def test_read_datapackage():
     model = Model(es)
     # Test Model yet to come
     test_model = 1
-    assert model, test_model
+    assert model, model
 
 
 def test_period_csv_creation():
