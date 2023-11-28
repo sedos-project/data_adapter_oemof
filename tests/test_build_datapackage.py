@@ -149,6 +149,48 @@ def define_mock():
                 }
             )
             return process_mock
+        elif process_name == "modex_tech_photovoltaic_utility":
+            process_mock = mock.Mock()
+            process_mock.scalars = pd.DataFrame(
+                {
+                    "region": {0: "BB", 1: "BB", 2: "BB"},
+                    "year": {0: 2016, 1: 2030, 2: 2050},
+                    "installed_capacity": {
+                        0: 9700.03,
+                        1: 10700.03375,
+                        2: 12700.03375,
+                    },
+                    "fixed_costs": {0: 10280.0, 1: 8600.0, 2: 6340.0},
+                    "lifetime": {0: 25.4, 1: 30.0, 2: 30.0},
+                    "wacc": {0: 0.07, 1: 0.07, 2: 0.07},
+                    "tech": {
+                        0: "photovoltaic_utility",
+                        1: "photovoltaic_utility",
+                        2: "photovoltaic_utility",
+                    },
+                    "carrier": {
+                        0: "solar",
+                        1: "solar",
+                        2: "solar",
+                    },
+                }
+            )
+            process_mock.timeseries = pd.DataFrame(
+                {
+                    "photovoltaic_BB": {
+                        "2016-01-01T00:00:00": 0.0,
+                        "2016-01-01T01:00:00": 0.0,
+                        "2016-01-01T02:00:00": 0.16,
+                        "2030-01-01T00:00:00": 0.0,
+                        "2030-01-01T01:00:00": 0.0,
+                        "2030-01-01T02:00:00": 0.30,
+                        "2050-01-01T00:00:00": 0.0,
+                        "2050-01-01T01:00:00": 0.0,
+                        "2050-01-01T02:00:00": 0.50,
+                    },
+                }
+            )
+            return process_mock
 
     # Create a mock adapter object for testing
     mock_adapter = mock.Mock(spec=Adapter)
@@ -163,6 +205,9 @@ def define_mock():
         "modex_tech_wind_turbine_onshore": {
             "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
         },
+        "modex_tech_photovoltaic_utility": {
+            "default": {"inputs": ["onshore"], "outputs": ["electricity"]}
+        },
     }
 
     mock_adapter.get_process.side_effect = mock_get_process
@@ -171,6 +216,7 @@ def define_mock():
         "modex_tech_generator_gas": "ExtractionTurbineAdapter",
         "modex_tech_storage_battery": "StorageAdapter",
         "modex_tech_wind_turbine_onshore": "VolatileAdapter",
+        "modex_tech_photovoltaic_utility": "VolatileAdapter",
     }
     parameter_map = {
         "DEFAULT": {
@@ -374,11 +420,11 @@ def test_tsam():
 
     """
     # Read tsam config:
-    with open(os.path.join(path_default, "tsam_config.json"), "r") as f:
+    tsam_path = os.path.join(path_default, "tsam_integration")
+    with open(os.path.join(tsam_path, "tsam_config.json"), "r") as f:
         config = json.load(f)
 
     # Call the method with the mock adapter
-    test_path = os.path.join(path_default, "tsam_integration")
     # goal_path = os.path.join(path_default, "build_datapackage_goal")
     # Define different return values for get_process based on the structure
 
@@ -388,6 +434,6 @@ def test_tsam():
         adapter=mock.mock_adapter,
         process_adapter_map=mock.process_adapter_map,
         parameter_map=mock.parameter_map,
-        path_to_datapackage=test_path
+        path_to_datapackage=tsam_path
     )
     result.time_series_aggregation(tsam_config=config)
