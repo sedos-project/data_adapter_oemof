@@ -1,12 +1,10 @@
 import collections
-import json
 import os
 from unittest import mock
 
 import pandas
 import pandas as pd
 import pytest
-import tsam.timeseriesaggregation as tsam
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
 from pandas import Timestamp
