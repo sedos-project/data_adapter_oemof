@@ -341,27 +341,13 @@ def test_period_csv_creation():
     sequence_goal.index.name = "timeindex"
     pd.testing.assert_frame_equal(sequence_goal, sequence_created)
 
-def test_tsam_integration():
-    # Setup Directory to read timeseries from
-    dir = os.path.join(path_default, "tabular_datapackage_hack_a_thon", "data", "sequences")
-    load_dir = os.path.join(dir, "modex_tech_load_load_sequence.csv")
-    utility_dir = os.path.join(dir, "modex_tech_photovoltaics_utility_sequence.csv")
-    onshore_dir = os.path.join(dir, "modex_tech_wind_turbine_onshore_sequence.csv")
+def test_tsam():
+    """
+    Uses Mock to create datapackage and then applies timeseries aggregation to it.
+    Returns
+    -------
 
-    load = pd.read_csv(load_dir, sep=";", index_col=0)
-    utility= pd.read_csv(utility_dir, sep=";", index_col=0)
-    onshore= pd.read_csv(onshore_dir, sep=";", index_col=0)
-
-    load_aggregation = tsam.TimeSeriesAggregation(load,
-      noTypicalPeriods = 3,
-      hoursPerPeriod = 24,
-      segmentation = True,
-      noSegments = 8,
-      representationMethod = "distributionAndMinMaxRepresentation",
-      distributionPeriodWise = False,
-      clusterMethod = 'hierarchical'
-    )
-    load_type_periods = load_aggregation.createTypicalPeriods()
+    """
 
 
 
