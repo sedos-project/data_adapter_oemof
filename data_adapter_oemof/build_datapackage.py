@@ -411,6 +411,8 @@ class DataPackage:
         """
         self.save_datapackage_to_csv(destination=destination)
         df = pd.concat(self.parametrized_sequences.values())
+        return df
+
     @classmethod
     def build_datapackage(
         cls,
@@ -426,7 +428,8 @@ class DataPackage:
         Parameters
         ----------
         path_to_datapackage
-            Path where the datapackage is saved. Path may also be specified in saving function seperately.
+            Path where the datapackage is saved.
+            Path may also be specified in saving function seperately.
         adapter: Adapter
             Adapter from data_adapter that is able to handle parameter model data
             from Databus. Adapter needs to be initialized with `structure_name`.
@@ -497,7 +500,7 @@ class DataPackage:
 
             parametrized_elements[process_name] = pd.DataFrame(components)
 
-            parametrized_sequences = {process_name: timeseries}
+            parametrized_sequences.update({process_name: timeseries})
         # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
@@ -514,5 +517,5 @@ class DataPackage:
             adapter=adapter,
             foreign_keys=foreign_keys,
             periods=periods,
-            path_to_datapackage=path_to_datapackage
+            path_to_datapackage=path_to_datapackage,
         )

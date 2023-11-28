@@ -1,6 +1,5 @@
-import json
-
 import collections
+import json
 import os
 from unittest import mock
 
@@ -434,6 +433,6 @@ def test_tsam():
         adapter=mock.mock_adapter,
         process_adapter_map=mock.process_adapter_map,
         parameter_map=mock.parameter_map,
-        path_to_datapackage=tsam_path
+        path_to_datapackage=tsam_path,
     )
     result.time_series_aggregation(tsam_config=config)
