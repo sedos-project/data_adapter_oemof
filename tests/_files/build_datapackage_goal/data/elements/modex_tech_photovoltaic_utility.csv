@@ -1,2 +1,0 @@
-type;carrier;tech;profile;lifetime;fixed_costs;name;region;year;bus
-volatile;solar;photovoltaic_utility;photovoltaic_BB;[25.4, 30.0, 30.0];[10280.0, 8600.0, 6340.0];BB_solar_photovoltaic_utility;BB;[2016, 2030, 2050];electricity

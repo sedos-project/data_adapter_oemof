@@ -1,2 +1,0 @@
-type;carrier;tech;capacity;fixed_costs;name;region;year;invest_relation_output_capacity;bus
-storage;Lithium;storage_battery;17.8;[1, 2, 3];BB_Lithium_storage_battery;BB;[2016, 2030, 2050];3.3;electricity

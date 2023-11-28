@@ -1,2 +1,0 @@
-type;carrier;tech;profile;lifetime;fixed_costs;name;region;year;bus
-volatile;wind;wind_turbine_onshore;onshore_BB;[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];BB_wind_wind_turbine_onshore;BB;[2016, 2030, 2050];electricity

@@ -1,2 +1,0 @@
-type;carrier;tech;condensing_efficiency;electric_efficiency;thermal_efficiency;capacity;carrier_cost;name;region;year;electricity_bus;heat_bus;fuel_bus
-extraction_turbine;gas;generator_gas;[0.16, 0.3, 0.5];[0.35, 0.35, 0.4];[0.5, 0.5, 0.45];330.2;[25.9, 25.9, 49.36];BB_gas_generator_gas;BB;[2016, 2030, 2050];electricity;heat;ch4
