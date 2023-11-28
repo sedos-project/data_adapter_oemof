@@ -409,30 +409,3 @@ def test_period_csv_creation():
     )
     sequence_goal.index.name = "timeindex"
     pd.testing.assert_frame_equal(sequence_goal, sequence_created)
-
-
-def test_tsam():
-    """
-    Tests if tsam aggregation is run successfully using mock
-    Returns
-    -------
-
-    """
-    # Read tsam config:
-    tsam_path = os.path.join(path_default, "tsam_integration")
-    with open(os.path.join(tsam_path, "tsam_config.json"), "r") as f:
-        config = json.load(f)
-
-    # Call the method with the mock adapter
-    # goal_path = os.path.join(path_default, "build_datapackage_goal")
-    # Define different return values for get_process based on the structure
-
-    mock = define_mock()
-
-    result = DataPackage.build_datapackage(
-        adapter=mock.mock_adapter,
-        process_adapter_map=mock.process_adapter_map,
-        parameter_map=mock.parameter_map,
-        path_to_datapackage=tsam_path,
-    )
-    result.time_series_aggregation(tsam_config=config)

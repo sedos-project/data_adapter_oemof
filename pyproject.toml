@@ -21,7 +21,6 @@ data_adapter = { git = "https://git@github.com/sedos-project/data_adapter", bran
 oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", tag = "v0.0.4.dev0"}
 boto3 = "1.26.125"  # fix boto3 to fasten up dependency resolution
 python-dotenv = "^0.21.0"
-tsam = "^2.3.0"
 
 [tool.poetry.dev-dependencies]
 black = "20.8b1"
