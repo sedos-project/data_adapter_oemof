@@ -433,29 +433,39 @@ class DataPackage:
         # Group sequences by Periods
         tsam_aggregated_typical_periods = []
         for period, period_sequence in sequences.groupby(by="periods"):
+            # Saving the old Index to have it for later periods creation
             index_old = period_sequence.index
+            # Throw away data that might disturb aggregation
             period_sequence.drop(["periods"], axis=1, inplace=True)
+            # Aggregate
             aggregation = tsam.TimeSeriesAggregation(period_sequence, **tsam_config)
             aggregation = aggregation.createTypicalPeriods()
+            # Use old Index with as many as needed entries
             aggregation.index = index_old[: len(aggregation)]
             tsam_aggregated_typical_periods.append(aggregation)
+        # Aggregate split periods back together again
         tsam_aggregated_typical_periods = pd.concat(
             tsam_aggregated_typical_periods, ignore_index=False
         )
 
+        # Rewrite the aggregated sequences to datapackage sequences
         for (
             sequence_file_name
         ) in tsam_aggregated_typical_periods.columns.get_level_values(level=0).unique():
+            # Get all sequences that belong in one sheet together
             sequence = tsam_aggregated_typical_periods.loc[
                 :,
                 tsam_aggregated_typical_periods.columns.get_level_values(level=0)
                 == sequence_file_name,
             ]
+            # Remove disturbing Multiindex again
             sequence.columns = sequence.columns.droplevel()
             self.parametrized_sequences[sequence_file_name] = sequence
+        # Recreate Periods
         self.periods = self.get_periods_from_parametrized_sequences(
             self.parametrized_sequences
         )
+        # Save with newly introduced tsam trigger
         self.save_datapackage_to_csv(tsam=True)
 
     @classmethod
