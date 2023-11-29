@@ -255,7 +255,8 @@ class DataPackage:
                 pass
         return pd.DataFrame()
 
-    def save_datapackage_to_csv(self, location_to_save_to: str = None, datapackage_name: str = "datapackage.json") -> None:
+    def save_datapackage_to_csv(self, location_to_save_to: str = None, datapackage_name: str = "datapackage.json",
+                                tsam: bool = False) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
 
@@ -282,6 +283,8 @@ class DataPackage:
         else:
             raise ValueError("Please state location_to_save_to either in datapackage or saving call")
 
+        if tsam:
+            location_to_save_to = location_to_save_to+"_tsam"
 
 
         # Check if filestructure is existent. Create folders if not:
@@ -418,21 +421,25 @@ class DataPackage:
         sequences["periods"] = self.periods.periods
 
         # Group sequences by Periods
-        type_periods = []
+        tsam_aggregated_typical_periods = []
         for period, period_sequence in sequences.groupby(by="periods"):
+            index_old = period_sequence["periods"].index
             period_sequence.drop(["periods"], axis=1, inplace=True)
             aggregation = tsam.TimeSeriesAggregation(
                 period_sequence,
                 **tsam_config
             )
-            type_periods.append(aggregation.createTypicalPeriods())
-        number_of_periods = len(type_periods)
-        typical_periods_sequences = pd.concat(type_periods, ignore_index=True)
+            aggregation = aggregation.createTypicalPeriods()
+            aggregation.index = index_old[:len(aggregation)]
+            tsam_aggregated_typical_periods.append(aggregation)
+        tsam_aggregated_typical_periods= pd.concat(tsam_aggregated_typical_periods, ignore_index=False)
 
-        for sequence_file_name in typical_periods_sequences.columns.get_level_values(level=0).unique():
-            sequence = typical_periods_sequences.loc[:, typical_periods_sequences.columns.get_level_values(level=0)==sequence_file_name]
+        for sequence_file_name in tsam_aggregated_typical_periods.columns.get_level_values(level=0).unique():
+            sequence = tsam_aggregated_typical_periods.loc[:, tsam_aggregated_typical_periods.columns.get_level_values(level=0)==sequence_file_name]
             sequence.columns = sequence.columns.droplevel()
             self.parametrized_sequences[sequence_file_name] = sequence
+        self.periods = self.get_periods_from_parametrized_sequences(self.parametrized_sequences)
+        self.save_datapackage_to_csv(tsam=True)
 
 
     @classmethod
@@ -518,8 +525,8 @@ class DataPackage:
             )
 
             parametrized_elements[process_name] = pd.DataFrame(components)
-
-            parametrized_sequences = {process_name: timeseries}
+            if not timeseries.empty:
+                parametrized_sequences.update({process_name: timeseries})
         # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
