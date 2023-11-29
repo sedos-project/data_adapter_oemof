@@ -167,6 +167,7 @@ class DataPackage:
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
     periods: pd.DataFrame()
+    location_to_save_to: str = None
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -275,7 +276,7 @@ class DataPackage:
                 pass
         return pd.DataFrame()
 
-    def save_datapackage_to_csv(self, destination: str) -> None:
+    def save_datapackage_to_csv(self, location_to_save_to: str = None, datapackage_name: str = "datapackage.json") -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
 
@@ -283,7 +284,7 @@ class DataPackage:
         ----------
         self: DataPackage
             DataPackage to save
-        destination: str
+        location_to_save_to: str
             String to where the datapackage save to. More convenient to use os.path.
             If last level of folder stucture does not exist, it will be created
             (as well as /elements and /sequences)
@@ -293,10 +294,21 @@ class DataPackage:
         None if the Datapackage has been saved correctly (no checks implemented)
 
         """
+
+        # check if datapackage already has defined its destination
+        if location_to_save_to:
+            pass
+        elif self.location_to_save_to:
+            location_to_save_to = self.location_to_save_to
+        else:
+            raise ValueError("Please state location_to_save_to either in datapackage or saving call")
+
+
+
         # Check if filestructure is existent. Create folders if not:
-        elements_path = os.path.join(destination, "data", "elements")
-        sequences_path = os.path.join(destination, "data", "sequences")
-        periods_path = os.path.join(destination, "data", "periods")
+        elements_path = os.path.join(location_to_save_to, "data", "elements")
+        sequences_path = os.path.join(location_to_save_to, "data", "sequences")
+        periods_path = os.path.join(location_to_save_to, "data", "periods")
 
         os.makedirs(elements_path, exist_ok=True)
         os.makedirs(sequences_path, exist_ok=True)
@@ -330,7 +342,7 @@ class DataPackage:
             )
 
         # From saved elements and keys create a Package
-        package = Package(base_path=destination)
+        package = Package(base_path=location_to_save_to)
         package.infer(pattern="**/*.csv")
 
         # Add foreign keys from self to Package
@@ -357,7 +369,7 @@ class DataPackage:
                 )
 
         # re-initialize Package with added foreign keys and save datapackage.json
-        Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
+        Package(package.descriptor).save(os.path.join(location_to_save_to, datapackage_name))
 
         return None
 
@@ -421,7 +433,7 @@ class DataPackage:
 
         """
         # Refactor sequences into one Dataframe
-        self.save_datapackage_to_csv(destination=destination)
+        self.save_datapackage_to_csv(location_to_save_to=destination)
         sequences = append_to_columnnames(self.parametrized_sequences)
         sequences.index = self.periods.index
         df = pd.concat([self.periods, sequences], axis=1)
@@ -443,6 +455,7 @@ class DataPackage:
         process_adapter_map: Optional[dict] = PROCESS_ADAPTER_MAP,
         parameter_map: Optional[dict] = PARAMETER_MAP,
         bus_map: Optional[dict] = BUS_MAP,
+        location_to_save_to: str = None
     ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
@@ -536,4 +549,5 @@ class DataPackage:
             adapter=adapter,
             foreign_keys=foreign_keys,
             periods=periods,
+            location_to_save_to=location_to_save_to
         )
