@@ -255,8 +255,12 @@ class DataPackage:
                 pass
         return pd.DataFrame()
 
-    def save_datapackage_to_csv(self, location_to_save_to: str = None, datapackage_name: str = "datapackage.json",
-                                tsam: bool = False) -> None:
+    def save_datapackage_to_csv(
+        self,
+        location_to_save_to: str = None,
+        datapackage_name: str = "datapackage.json",
+        tsam: bool = False,
+    ) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
 
@@ -281,11 +285,12 @@ class DataPackage:
         elif self.location_to_save_to:
             location_to_save_to = self.location_to_save_to
         else:
-            raise ValueError("Please state location_to_save_to either in datapackage or saving call")
+            raise ValueError(
+                "Please state location_to_save_to either in datapackage or saving call"
+            )
 
         if tsam:
-            location_to_save_to = location_to_save_to+"_tsam"
-
+            location_to_save_to = location_to_save_to + "_tsam"
 
         # Check if filestructure is existent. Create folders if not:
         elements_path = os.path.join(location_to_save_to, "data", "elements")
@@ -351,7 +356,9 @@ class DataPackage:
                 )
 
         # re-initialize Package with added foreign keys and save datapackage.json
-        Package(package.descriptor).save(os.path.join(location_to_save_to, datapackage_name))
+        Package(package.descriptor).save(
+            os.path.join(location_to_save_to, datapackage_name)
+        )
 
         return None
 
@@ -400,7 +407,6 @@ class DataPackage:
         )
         return scalar_dataframe
 
-
     def time_series_aggregation(self, tsam_config: str, destination: str = None):
         """
         Aggregates time series in datapackage and saves the new datapackage with updated
@@ -416,7 +422,11 @@ class DataPackage:
         """
         # Refactor sequences into one Dataframe
         self.save_datapackage_to_csv(location_to_save_to=destination)
-        sequences = pd.concat(self.parametrized_sequences.values(), axis = 1, keys=self.parametrized_sequences.keys())
+        sequences = pd.concat(
+            self.parametrized_sequences.values(),
+            axis=1,
+            keys=self.parametrized_sequences.keys(),
+        )
         sequences.index = self.periods.index
         sequences["periods"] = self.periods.periods
 
@@ -425,22 +435,28 @@ class DataPackage:
         for period, period_sequence in sequences.groupby(by="periods"):
             index_old = period_sequence["periods"].index
             period_sequence.drop(["periods"], axis=1, inplace=True)
-            aggregation = tsam.TimeSeriesAggregation(
-                period_sequence,
-                **tsam_config
-            )
+            aggregation = tsam.TimeSeriesAggregation(period_sequence, **tsam_config)
             aggregation = aggregation.createTypicalPeriods()
-            aggregation.index = index_old[:len(aggregation)]
+            aggregation.index = index_old[: len(aggregation)]
             tsam_aggregated_typical_periods.append(aggregation)
-        tsam_aggregated_typical_periods= pd.concat(tsam_aggregated_typical_periods, ignore_index=False)
+        tsam_aggregated_typical_periods = pd.concat(
+            tsam_aggregated_typical_periods, ignore_index=False
+        )
 
-        for sequence_file_name in tsam_aggregated_typical_periods.columns.get_level_values(level=0).unique():
-            sequence = tsam_aggregated_typical_periods.loc[:, tsam_aggregated_typical_periods.columns.get_level_values(level=0)==sequence_file_name]
+        for (
+            sequence_file_name
+        ) in tsam_aggregated_typical_periods.columns.get_level_values(level=0).unique():
+            sequence = tsam_aggregated_typical_periods.loc[
+                :,
+                tsam_aggregated_typical_periods.columns.get_level_values(level=0)
+                == sequence_file_name,
+            ]
             sequence.columns = sequence.columns.droplevel()
             self.parametrized_sequences[sequence_file_name] = sequence
-        self.periods = self.get_periods_from_parametrized_sequences(self.parametrized_sequences)
+        self.periods = self.get_periods_from_parametrized_sequences(
+            self.parametrized_sequences
+        )
         self.save_datapackage_to_csv(tsam=True)
-
 
     @classmethod
     def build_datapackage(
@@ -449,7 +465,7 @@ class DataPackage:
         process_adapter_map: Optional[dict] = PROCESS_ADAPTER_MAP,
         parameter_map: Optional[dict] = PARAMETER_MAP,
         bus_map: Optional[dict] = BUS_MAP,
-        location_to_save_to: str = None
+        location_to_save_to: str = None,
     ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
@@ -543,5 +559,5 @@ class DataPackage:
             adapter=adapter,
             foreign_keys=foreign_keys,
             periods=periods,
-            location_to_save_to=location_to_save_to
+            location_to_save_to=location_to_save_to,
         )

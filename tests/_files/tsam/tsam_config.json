@@ -1,9 +1,9 @@
 {
-  "noTypicalPeriods": 2,
-  "hoursPerPeriod": 1,
-  "segmentation": true,
-  "noSegments": 2,
-  "representationMethod": "distributionAndMinMaxRepresentation",
+  "clusterMethod": "hierarchical",
   "distributionPeriodWise": false,
-  "clusterMethod": "hierarchical"
+  "hoursPerPeriod": 1,
+  "noSegments": 2,
+  "noTypicalPeriods": 2,
+  "representationMethod": "distributionAndMinMaxRepresentation",
+  "segmentation": true
 }

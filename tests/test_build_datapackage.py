@@ -1,7 +1,5 @@
-import os
-from unittest import mock
-import tsam.timeseriesaggregation as tsam
 import json
+import os
 
 import pandas as pd
 import pytest
@@ -60,7 +58,7 @@ def test_build_datapackage():
     mock = define_mock()
 
     result = DataPackage.build_datapackage(
-        adapter= mock.mock_adapter,
+        adapter=mock.mock_adapter,
         process_adapter_map=mock.process_adapter_map,
         parameter_map=mock.parameter_map,
     )
@@ -195,6 +193,7 @@ def test_period_csv_creation():
     sequence_goal.index.name = "timeindex"
     pd.testing.assert_frame_equal(sequence_goal, sequence_created)
 
+
 def test_tsam():
     """
     Uses Mock to create datapackage and then applies timeseries aggregation to it.
@@ -212,7 +211,7 @@ def test_tsam():
         adapter=mock.mock_adapter,
         process_adapter_map=mock.process_adapter_map,
         parameter_map=mock.parameter_map,
-        location_to_save_to=tsam_folder
+        location_to_save_to=tsam_folder,
     )
 
     #############################################################################
@@ -225,4 +224,3 @@ def test_tsam():
         tsam_config = json.load(f)
 
     result.time_series_aggregation(tsam_config=tsam_config)
-
