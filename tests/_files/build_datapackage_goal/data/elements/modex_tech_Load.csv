@@ -1,0 +1,2 @@
+type;amount;profile;name;region;year;bus
+load;[1, 1, 2];Load_BB;BB_electricity_tech;BB;[2016, 2030, 2050];electricity
