@@ -415,13 +415,12 @@ class DataPackage:
         self.save_datapackage_to_csv(location_to_save_to=destination)
         sequences = pd.concat(self.parametrized_sequences.values(), axis = 1, keys=self.parametrized_sequences.keys())
         sequences.index = self.periods.index
-        self.periods.columns = pd.MultiIndex.from_product([["periods"], self.periods.columns])
-        df = pd.concat([self.periods, sequences], axis=1)
+        sequences["periods"] = self.periods.periods
 
         # Group sequences by Periods
         type_periods = []
-        for period, period_sequence in df.groupby(by="periods"):
-            period_sequence.drop(["periods", "timeincrement"], axis=1, inplace=True)
+        for period, period_sequence in sequences.groupby(by="periods"):
+            period_sequence.drop(["periods"], axis=1, inplace=True)
             aggregation = tsam.TimeSeriesAggregation(
                 period_sequence,
                 **tsam_config
@@ -430,8 +429,10 @@ class DataPackage:
         number_of_periods = len(type_periods)
         typical_periods_sequences = pd.concat(type_periods, ignore_index=True)
 
-        for sequence_file_name in typical_periods_sequences.columns:
-            sequence_file_name.split(".")
+        for sequence_file_name in typical_periods_sequences.columns.get_level_values(level=0).unique():
+            sequence = typical_periods_sequences.loc[:, typical_periods_sequences.columns.get_level_values(level=0)==sequence_file_name]
+            sequence.columns = sequence.columns.droplevel()
+            self.parametrized_sequences[sequence_file_name] = sequence
 
 
     @classmethod
