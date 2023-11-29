@@ -433,7 +433,7 @@ class DataPackage:
         # Group sequences by Periods
         tsam_aggregated_typical_periods = []
         for period, period_sequence in sequences.groupby(by="periods"):
-            index_old = period_sequence["periods"].index
+            index_old = period_sequence.index
             period_sequence.drop(["periods"], axis=1, inplace=True)
             aggregation = tsam.TimeSeriesAggregation(period_sequence, **tsam_config)
             aggregation = aggregation.createTypicalPeriods()
