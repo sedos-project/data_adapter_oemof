@@ -167,7 +167,6 @@ class DataPackage:
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
     periods: pd.DataFrame()
-    path_to_datapackage: str = None
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -276,7 +275,7 @@ class DataPackage:
                 pass
         return pd.DataFrame()
 
-    def save_datapackage_to_csv(self, destination: str = None) -> None:
+    def save_datapackage_to_csv(self, destination: str) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
 
@@ -294,17 +293,6 @@ class DataPackage:
         None if the Datapackage has been saved correctly (no checks implemented)
 
         """
-
-        if not destination:
-            if not self.path_to_datapackage:
-                raise ValueError(
-                    "Please either state path on datapackage initialisation or"
-                    "in save datapackage call "
-                )
-            destination = self.path_to_datapackage
-        else:
-            self.path_to_datapackage = destination
-
         # Check if filestructure is existent. Create folders if not:
         elements_path = os.path.join(destination, "data", "elements")
         sequences_path = os.path.join(destination, "data", "sequences")
@@ -418,6 +406,7 @@ class DataPackage:
         )
         return scalar_dataframe
 
+
     def time_series_aggregation(self, tsam_config: str, destination: str = None):
         """
         Aggregates time series in datapackage and saves the new datapackage with updated
@@ -446,6 +435,7 @@ class DataPackage:
             )
             type_periods = aggregation.createTypicalPeriods()
 
+
     @classmethod
     def build_datapackage(
         cls,
@@ -453,15 +443,12 @@ class DataPackage:
         process_adapter_map: Optional[dict] = PROCESS_ADAPTER_MAP,
         parameter_map: Optional[dict] = PARAMETER_MAP,
         bus_map: Optional[dict] = BUS_MAP,
-        path_to_datapackage: str = None,
     ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
 
         Parameters
         ----------
-        path_to_datapackage
-            Path where the datapackage is saved. Path may also be specified in saving function seperately.
         adapter: Adapter
             Adapter from data_adapter that is able to handle parameter model data
             from Databus. Adapter needs to be initialized with `structure_name`.
@@ -549,5 +536,4 @@ class DataPackage:
             adapter=adapter,
             foreign_keys=foreign_keys,
             periods=periods,
-            path_to_datapackage=path_to_datapackage
         )
