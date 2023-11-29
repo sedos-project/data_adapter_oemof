@@ -4,7 +4,7 @@ import warnings
 from typing import Optional
 
 import pandas as pd
-import tsam.timeseriesaggregation
+import tsam.timeseriesaggregation as tsam
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
 from datapackage import Package
@@ -31,7 +31,7 @@ def append_to_columnnames(df_dictionary: dict):
     for key, df in df_dictionary.items():
         df.columns = list(map(lambda c: c+"."+key, df.columns))
         renamed_df.append(df)
-    return pd.concat(renamed_df)
+    return pd.concat(renamed_df, axis=1)
 
 
 
@@ -441,7 +441,7 @@ class DataPackage:
         # Group sequences by Periods
         for period, period_sequence in df.groupby(by="periods"):
             period_sequence.drop(["periods", "timeincrement"], axis=1, inplace=True)
-            aggregation = tsam.timeseriesaggregation.TimeSeriesAggregation(
+            aggregation = tsam.TimeSeriesAggregation(
                 period_sequence,
                 **tsam_config
             )

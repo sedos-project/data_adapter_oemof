@@ -212,7 +212,7 @@ def test_tsam():
         adapter=mock.mock_adapter,
         process_adapter_map=mock.process_adapter_map,
         parameter_map=mock.parameter_map,
-        d
+        location_to_save_to=tsam_folder
     )
 
     #############################################################################
