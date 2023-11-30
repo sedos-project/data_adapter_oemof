@@ -246,8 +246,12 @@ class DataPackage:
         for process_name, sequence in parametrized_sequences.items():
             if len(sequence) != 0:
                 sequence = pd.DataFrame(index=pd.to_datetime(sequence.index))
-                sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
-                # TODO timeincrement might be adjusted later to modify objective weighting
+                # create mapping to count up unique years
+                year_mapping = {
+                    year: i for i, year in enumerate(sequence.index.year.unique())
+                }
+                # Map unique years to sequence instead of using groupby
+                sequence["periods"] = sequence.index.year.map(year_mapping)
                 sequence["timeincrement"] = 1
                 sequence.index.name = "timeindex"
                 return sequence
@@ -259,7 +263,6 @@ class DataPackage:
         self,
         location_to_save_to: str = None,
         datapackage_name: str = "datapackage.json",
-        tsam: bool = False,
     ) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
@@ -288,9 +291,6 @@ class DataPackage:
             raise ValueError(
                 "Please state location_to_save_to either in datapackage or saving call"
             )
-
-        if tsam:
-            location_to_save_to = location_to_save_to + "_tsam"
 
         # Check if filestructure is existent. Create folders if not:
         elements_path = os.path.join(location_to_save_to, "data", "elements")
@@ -427,18 +427,18 @@ class DataPackage:
             axis=1,
             keys=self.parametrized_sequences.keys(),
         )
+        # Setting sequence indices to be same as periods
         sequences.index = self.periods.index
-        sequences["periods"] = self.periods.periods
-
         # Group sequences by Periods
         tsam_aggregated_typical_periods = []
-        for period, period_sequence in sequences.groupby(by="periods"):
+        for period in pd.unique(self.periods["periods"]):
             # Saving the old Index to have it for later periods creation
-            index_old = period_sequence.index
-            # Throw away data that might disturb aggregation
-            period_sequence.drop(["periods"], axis=1, inplace=True)
+            index_old = self.periods.index[self.periods["periods"] == period]
+            period_sequence = sequences.loc[index_old]
             # Aggregate
-            aggregation = tsam.TimeSeriesAggregation(period_sequence, **tsam_config)
+            aggregation = tsam.TimeSeriesAggregation(
+                period_sequence, **tsam_config[str(period)]
+            )
             aggregation = aggregation.createTypicalPeriods()
             # Use old Index with as many as needed entries
             aggregation.index = index_old[: len(aggregation)]
