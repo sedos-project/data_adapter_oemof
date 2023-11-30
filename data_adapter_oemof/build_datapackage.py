@@ -407,7 +407,7 @@ class DataPackage:
         )
         return scalar_dataframe
 
-    def time_series_aggregation(self, tsam_config: str, destination: str = None):
+    def time_series_aggregation(self, tsam_config: str, location_to_save_to: str = None):
         """
         Aggregates time series in datapackage and saves the new datapackage with updated
         (sequence)Resources as well as aggregated sequence resources.
@@ -421,7 +421,6 @@ class DataPackage:
 
         """
         # Refactor sequences into one Dataframe
-        self.save_datapackage_to_csv(location_to_save_to=destination)
         sequences = pd.concat(
             self.parametrized_sequences.values(),
             axis=1,
@@ -431,6 +430,7 @@ class DataPackage:
         sequences.index = self.periods.index
         # Group sequences by Periods
         tsam_aggregated_typical_periods = []
+        tsa_parameters=[]
         for period in pd.unique(self.periods["periods"]):
             # Saving the old Index to have it for later periods creation
             index_old = self.periods.index[self.periods["periods"] == period]
@@ -438,6 +438,13 @@ class DataPackage:
             # Aggregate
             aggregation = tsam.TimeSeriesAggregation(
                 period_sequence, **tsam_config[period]
+            )
+            tsa_parameters.append(
+                {
+                    "timesteps_per_period": aggregation.hoursPerPeriod,
+                    "order": aggregation.clusterOrder,
+                    "timeindex": aggregation.timeIndex,
+                }
             )
             aggregation = aggregation.createTypicalPeriods()
             # Use old Index with as many as needed entries
@@ -447,7 +454,7 @@ class DataPackage:
         tsam_aggregated_typical_periods = pd.concat(
             tsam_aggregated_typical_periods, ignore_index=False
         )
-
+        self.parametrized_elements["tsa_parameters"] = pd.DataFrame(tsa_parameters)
         # Rewrite the aggregated sequences to datapackage sequences
         for (
             sequence_file_name
@@ -466,7 +473,7 @@ class DataPackage:
             self.parametrized_sequences
         )
         # Save with newly introduced tsam trigger
-        self.save_datapackage_to_csv(tsam=True)
+        self.save_datapackage_to_csv(location_to_save_to=location_to_save_to)
 
     @classmethod
     def build_datapackage(
