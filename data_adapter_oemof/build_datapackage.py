@@ -437,7 +437,7 @@ class DataPackage:
             period_sequence = sequences.loc[index_old]
             # Aggregate
             aggregation = tsam.TimeSeriesAggregation(
-                period_sequence, **tsam_config[str(period)]
+                period_sequence, **tsam_config[period]
             )
             aggregation = aggregation.createTypicalPeriods()
             # Use old Index with as many as needed entries

@@ -1,5 +1,5 @@
-{
-  "0": {
+[
+  {
     "clusterMethod": "hierarchical",
     "distributionPeriodWise": false,
     "hoursPerPeriod": 1,
@@ -8,7 +8,7 @@
     "representationMethod": "distributionAndMinMaxRepresentation",
     "segmentation": true
   },
-  "1": {
+  {
     "clusterMethod": "hierarchical",
     "distributionPeriodWise": false,
     "hoursPerPeriod": 1,
@@ -17,7 +17,7 @@
     "representationMethod": "distributionAndMinMaxRepresentation",
     "segmentation": true
   },
-  "2": {
+  {
     "clusterMethod": "hierarchical",
     "distributionPeriodWise": false,
     "hoursPerPeriod": 1,
@@ -26,4 +26,4 @@
     "representationMethod": "distributionAndMinMaxRepresentation",
     "segmentation": true
   }
-}
+]
