@@ -407,7 +407,9 @@ class DataPackage:
         )
         return scalar_dataframe
 
-    def time_series_aggregation(self, tsam_config: str, location_to_save_to: str = None):
+    def time_series_aggregation(
+        self, tsam_config: str, location_to_save_to: str = None
+    ):
         """
         Aggregates time series in datapackage and saves the new datapackage with updated
         (sequence)Resources as well as aggregated sequence resources.
@@ -430,7 +432,7 @@ class DataPackage:
         sequences.index = self.periods.index
         # Group sequences by Periods
         tsam_aggregated_typical_periods = []
-        tsa_parameters=[]
+        tsa_parameters = []
         for period in pd.unique(self.periods["periods"]):
             # Saving the old Index to have it for later periods creation
             index_old = self.periods.index[self.periods["periods"] == period]
