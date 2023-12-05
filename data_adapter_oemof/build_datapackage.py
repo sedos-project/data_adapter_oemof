@@ -147,6 +147,7 @@ class DataPackage:
     adapter: Adapter
     periods: pd.DataFrame()
     location_to_save_to: str = None
+    tsa_parameters: pd.DataFrame = None
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -296,10 +297,12 @@ class DataPackage:
         elements_path = os.path.join(location_to_save_to, "data", "elements")
         sequences_path = os.path.join(location_to_save_to, "data", "sequences")
         periods_path = os.path.join(location_to_save_to, "data", "periods")
+        tsam_path = os.path.join(location_to_save_to, "data", "tsam")
 
         os.makedirs(elements_path, exist_ok=True)
         os.makedirs(sequences_path, exist_ok=True)
         os.makedirs(periods_path, exist_ok=True)
+        os.makedirs(tsam_path, exist_ok=True)
 
         if not self.periods.empty:
             self.periods.to_csv(
@@ -310,6 +313,9 @@ class DataPackage:
                 index=True,
                 sep=";",
             )
+        if "timeindex" in self.tsa_parameters:
+            self.tsa_parameters.drop("timeindex", inplace=True, axis=1)
+        self.tsa_parameters.to_csv(os.path.join(tsam_path, "tsa_parameters.csv"), sep= ";")
 
         # Save elements to elements folder named by keys + .csv
         for process_name, process_adapted_data in self.parametrized_elements.items():
@@ -456,7 +462,7 @@ class DataPackage:
         tsam_aggregated_typical_periods = pd.concat(
             tsam_aggregated_typical_periods, ignore_index=False
         )
-        self.parametrized_elements["tsa_parameters"] = pd.DataFrame(tsa_parameters)
+        self.tsa_parameters = pd.DataFrame(tsa_parameters)
         # Rewrite the aggregated sequences to datapackage sequences
         for (
             sequence_file_name
