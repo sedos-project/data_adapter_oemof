@@ -315,7 +315,9 @@ class DataPackage:
             )
         if "timeindex" in self.tsa_parameters:
             self.tsa_parameters.drop("timeindex", inplace=True, axis=1)
-        self.tsa_parameters.to_csv(os.path.join(tsam_path, "tsa_parameters.csv"), sep= ";")
+        self.tsa_parameters.to_csv(
+            os.path.join(tsam_path, "tsa_parameters.csv"), sep=";"
+        )
 
         # Save elements to elements folder named by keys + .csv
         for process_name, process_adapted_data in self.parametrized_elements.items():
