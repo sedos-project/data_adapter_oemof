@@ -1,0 +1,29 @@
+[
+  {
+    "clusterMethod": "hierarchical",
+    "distributionPeriodWise": false,
+    "hoursPerPeriod": 1,
+    "noSegments": 2,
+    "noTypicalPeriods": 2,
+    "representationMethod": "distributionAndMinMaxRepresentation",
+    "segmentation": true
+  },
+  {
+    "clusterMethod": "hierarchical",
+    "distributionPeriodWise": false,
+    "hoursPerPeriod": 1,
+    "noSegments": 2,
+    "noTypicalPeriods": 2,
+    "representationMethod": "distributionAndMinMaxRepresentation",
+    "segmentation": true
+  },
+  {
+    "clusterMethod": "hierarchical",
+    "distributionPeriodWise": false,
+    "hoursPerPeriod": 1,
+    "noSegments": 2,
+    "noTypicalPeriods": 2,
+    "representationMethod": "distributionAndMinMaxRepresentation",
+    "segmentation": true
+  }
+]

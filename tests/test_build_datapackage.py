@@ -224,5 +224,5 @@ def test_tsam():
         tsam_config = json.load(f)
 
     result.time_series_aggregation(
-        tsam_config=tsam_config, location_to_save_to=tsam_folder + "_tsam"
+        tsam_config=tsam_config, location_to_save_to=tsam_folder
     )
