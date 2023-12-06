@@ -296,7 +296,6 @@ def test_read_datapackage():
     )
     model = Model(es)
     # Test Model yet to come
-    test_model = 1
     assert model, model
 
 
