@@ -226,3 +226,4 @@ def test_tsam():
     result.time_series_aggregation(
         tsam_config=tsam_config, location_to_save_to=tsam_folder
     )
+    check_if_csv_dirs_equal(tsam_folder, os.path.join(tsam_folder, "..", "tsam_goal"))
