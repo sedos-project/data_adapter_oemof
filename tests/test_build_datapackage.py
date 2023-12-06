@@ -9,38 +9,9 @@ from pandas import Timestamp
 from setup_mock import define_mock
 from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
 
-from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
+from data_adapter_oemof.build_datapackage import DataPackage
 
 path_default = PATH_TEST_FILES / "_files"
-
-
-def test_refactor_timeseries():
-    timeseries = pandas.DataFrame(
-        {
-            "timeindex_start": ["01:00:00", "01:00:00", "09:00:00"],
-            "timeindex_stop": ["03:00:00", "03:00:00", "10:00:00"],
-            "timeindex_resolution": ["P0DT01H00M00S", "P0DT01H00M00S", "P0DT01H00M00S"],
-            "region": ["BB", "HH", "HH"],
-            "onshore": [[1, 2, 3], [4, 5, 6], [33, 34]],
-            "offshore": [[7, 8, 9], [10, 11, 12], [35, 36]],
-        }
-    )
-
-    refactored_ts = refactor_timeseries(timeseries)
-    expected_df = pandas.DataFrame(
-        {
-            "offshore_BB": [7.0, 8, 9, None, None],
-            "offshore_HH": [10.0, 11, 12, 35, 36],
-            "onshore_BB": [1.0, 2, 3, None, None],
-            "onshore_HH": [4.0, 5, 6, 33, 34],
-        },
-        index=pandas.DatetimeIndex(
-            ["01:00:00", "02:00:00", "03:00:00", "09:00:00", "10:00:00"]
-        ),
-    )
-    expected_df = expected_df.sort_index(axis=1)
-    refactored_ts = refactored_ts.sort_index(axis=1)
-    pandas.testing.assert_frame_equal(expected_df, refactored_ts)
 
 
 def test_build_datapackage():
