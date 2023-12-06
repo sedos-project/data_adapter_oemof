@@ -464,7 +464,11 @@ class DataPackage:
         tsam_aggregated_typical_periods = pd.concat(
             tsam_aggregated_typical_periods, ignore_index=False
         )
-        self.tsa_parameters = pd.DataFrame(tsa_parameters)
+        tsa_parameters = pd.DataFrame(tsa_parameters)
+        tsa_parameters.index = list(pd.unique(self.periods["periods"]))
+        tsa_parameters.index.name = "periods"
+        self.tsa_parameters = tsa_parameters
+
         # Rewrite the aggregated sequences to datapackage sequences
         for (
             sequence_file_name
