@@ -10,10 +10,10 @@ from datapackage import Package
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
+from data_adapter_oemof.utils import has_mixed_types, convert_mixed_types_to_same_length
 
 import random
 import numpy as np
-
 
 # Define a function to aggregate differing values into a list
 def _listify_to_periodic(group_df) -> pd.Series:
@@ -74,10 +74,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
         if len(values) > 1:
             unique_values[col] = list(group_df[col])
         else:
-            if all(group_df[col].isna()):
-                unique_values[col] = group_df[col].iloc[0]
-            else:
-                unique_values[col] = [group_df[col].iloc[0] for i in group_df["year"]]
+            unique_values[col] = group_df[col].iloc[0]
     unique_values["name"] = "_".join(group_df.name)
     unique_values.drop("year")
     return unique_values
@@ -332,6 +329,8 @@ class DataPackage:
             .apply(lambda x: _listify_to_periodic(x))
             .reset_index(drop=True)
         )
+        scalar_dataframe = scalar_dataframe.apply(convert_mixed_types_to_same_length)
+
         return scalar_dataframe
 
     @classmethod
