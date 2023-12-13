@@ -3,15 +3,18 @@ import os
 import pandas
 import pandas as pd
 import pytest
+from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
+from pandas import Timestamp
+
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
+from data_adapter.structure import Structure
+
 from oemof.solph import EnergySystem
 from oemof.tabular.datapackage import Model
 from oemof.tabular.facades import Bus, Commodity, Dispatchable, Load, Storage, Volatile
-from pandas import Timestamp
-from setup_mock import define_mock
-from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
 
+from setup_mock import define_mock
 from data_adapter_oemof.build_datapackage import DataPackage
 
 path_default = PATH_TEST_FILES / "_files"
@@ -47,10 +50,14 @@ def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://databus.openenergyplatform.org/felixmaur/collections/hack-a-thon/"
     )
+    structure = Structure(
+        "SEDOS_Modellstruktur",
+        process_sheet="hack-a-thon"
+    )
 
     adapter = Adapter(
         "hack-a-thon",
-        structure_name="structure",
+        structure=structure,
     )
     process_adapter_map = {
         "modex_tech_storage_battery": "StorageAdapter",

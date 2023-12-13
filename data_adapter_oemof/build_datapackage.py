@@ -10,8 +10,10 @@ from datapackage import Package
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
+
 import random
 import numpy as np
+
 
 # Define a function to aggregate differing values into a list
 def _listify_to_periodic(group_df) -> pd.Series:
@@ -58,14 +60,18 @@ def _listify_to_periodic(group_df) -> pd.Series:
         # Lists and Series can be passed for special Facades only.
         # Sequences shall be passed as sequences (via links.csv):
         elif any(
-            [isinstance(col_entry, (pd.Series, list)) for col_entry in group_df[col]]
+                [isinstance(col_entry, (pd.Series, list)) for col_entry in group_df[col]]
         ):
             values = group_df[col].explode().unique()
         else:
+            # FIXME: Hotfix to replace nan values from lists:
+            if not all(group_df[col].isna()) and any(group_df[col].isna()):
+                group_df.loc[group_df[col].isna(), col] = group_df[col].dropna().sample(
+                    group_df[col].isna().sum(),  # get the same number of values as are missing
+                    replace=True  # repeat values
+                ).values  # throw out the index
             values = group_df[col].unique()
         if len(values) > 1:
-            # FIXME: Hotfix to replace nan values from lists:
-            group_df[col].fillna(lambda x: random.choice(group_df[group_df[col] != np.nan][col]), inplace=True)
             unique_values[col] = list(group_df[col])
         else:
             unique_values[col] = group_df[col].iloc[0]
@@ -361,7 +367,7 @@ class DataPackage:
         parametrized_sequences = {}
         foreign_keys = {}
         # Iterate Elements
-        for process_name, struct in es_structure.items():
+        for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
