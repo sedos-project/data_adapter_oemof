@@ -10,7 +10,8 @@ from datapackage import Package
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
-
+import random
+import numpy as np
 
 # Define a function to aggregate differing values into a list
 def _listify_to_periodic(group_df) -> pd.Series:
@@ -63,6 +64,8 @@ def _listify_to_periodic(group_df) -> pd.Series:
         else:
             values = group_df[col].unique()
         if len(values) > 1:
+            # FIXME: Hotfix to replace nan values from lists:
+            group_df[col].fillna(lambda x: random.choice(group_df[group_df[col] != np.nan][col]), inplace=True)
             unique_values[col] = list(group_df[col])
         else:
             unique_values[col] = group_df[col].iloc[0]
