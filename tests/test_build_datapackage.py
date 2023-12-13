@@ -3,18 +3,16 @@ import os
 import pandas
 import pandas as pd
 import pytest
-from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
-from pandas import Timestamp
-
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
 from data_adapter.structure import Structure
-
 from oemof.solph import EnergySystem
 from oemof.tabular.datapackage import Model
 from oemof.tabular.facades import Bus, Commodity, Dispatchable, Load, Storage, Volatile
-
+from pandas import Timestamp
 from setup_mock import define_mock
+from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
+
 from data_adapter_oemof.build_datapackage import DataPackage
 
 path_default = PATH_TEST_FILES / "_files"
@@ -50,10 +48,7 @@ def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://databus.openenergyplatform.org/felixmaur/collections/hack-a-thon/"
     )
-    structure = Structure(
-        "SEDOS_Modellstruktur",
-        process_sheet="hack-a-thon"
-    )
+    structure = Structure("SEDOS_Modellstruktur", process_sheet="hack-a-thon")
 
     adapter = Adapter(
         "hack-a-thon",
@@ -107,11 +102,11 @@ def test_build_tabular_datapackage_from_adapter():
     # FIXME: Demand is in different Format than expected.
 
 
-@pytest.mark.skip(reason="Failing because datatypes in one collumn must not be mixed!")
+@pytest.mark.skip(reason="Pumped storage data has no lifetime yet")
 def test_read_datapackage():
     es = EnergySystem.from_datapackage(
         os.path.join(
-            path_default, "tabular_datapackage_hack_a_thon_goal", "datapackage.json"
+            path_default, "tabular_datapackage_hack_a_thon", "datapackage.json"
         ),
         typemap={
             "load": Load,
