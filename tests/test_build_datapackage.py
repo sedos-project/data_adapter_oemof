@@ -107,7 +107,7 @@ def test_build_tabular_datapackage_from_adapter():
     # FIXME: Demand is in different Format than expected.
 
 
-@pytest.mark.skip(reason="Failing due to missing `lifetime` for a flow")
+@pytest.mark.skip(reason="Failing because datatypes in one collumn must not be mixed!")
 def test_read_datapackage():
     es = EnergySystem.from_datapackage(
         os.path.join(
