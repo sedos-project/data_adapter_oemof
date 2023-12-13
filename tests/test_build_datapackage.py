@@ -1,6 +1,5 @@
 import os
 
-import pandas
 import pandas as pd
 import pytest
 from data_adapter.databus import download_collection
