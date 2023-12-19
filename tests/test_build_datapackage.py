@@ -103,7 +103,6 @@ def test_build_tabular_datapackage_from_adapter():
     check_if_csv_dirs_equal(
         dir, os.path.join(path_default, "tabular_datapackage_hack_a_thon_goal")
     )
-    # FIXME: Demand is in different Format than expected.
 
 
 @pytest.mark.skip(reason="Pumped storage data has no lifetime yet")
