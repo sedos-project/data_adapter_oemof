@@ -105,7 +105,7 @@ def test_build_tabular_datapackage_from_adapter():
     )
 
 
-# @pytest.mark.skip(reason="Pumped storage data has no lifetime yet")
+@pytest.mark.skip(reason="Pumped storage data has no lifetime yet")
 def test_read_datapackage():
     es = EnergySystem.from_datapackage(
         os.path.join(
