@@ -48,7 +48,8 @@ def test_build_tabular_datapackage_from_adapter():
     download_collection(
         "https://databus.openenergyplatform.org/felixmaur/collections/hack-a-thon/"
     )
-    structure = Structure("SEDOS_Modellstruktur", process_sheet="hack-a-thon")
+    structure = Structure("SEDOS_Modellstruktur", process_sheet="hack-a-thon",
+                          parameter_sheet="Parameter_IO_hack-a-thon")
 
     adapter = Adapter(
         "hack-a-thon",
@@ -102,7 +103,7 @@ def test_build_tabular_datapackage_from_adapter():
     # FIXME: Demand is in different Format than expected.
 
 
-@pytest.mark.skip(reason="Pumped storage data has no lifetime yet")
+#@pytest.mark.skip(reason="Pumped storage data has no lifetime yet")
 def test_read_datapackage():
     es = EnergySystem.from_datapackage(
         os.path.join(
