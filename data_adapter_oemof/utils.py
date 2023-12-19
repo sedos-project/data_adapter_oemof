@@ -43,7 +43,7 @@ def convert_mixed_types_to_same_length(column):
         return [
             entry
             if isinstance(entry, list)
-            else list(np.full(max_length, entry))
+            else [entry for x in range(max_length)]
             if not pd.isna(entry)
             else np.nan  # Keep NaN as is
             for entry in column
