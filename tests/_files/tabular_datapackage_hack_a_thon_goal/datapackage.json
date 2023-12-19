@@ -345,7 +345,7 @@
           },
           {
             "format": "default",
-            "name": "increment",
+            "name": "timeincrement",
             "type": "integer"
           }
         ],
@@ -485,6 +485,11 @@
             "format": "default",
             "name": "capacity_potential",
             "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "lifetime",
+            "type": "number"
           },
           {
             "format": "default",
@@ -680,6 +685,11 @@
             "format": "default",
             "name": "capacity_cost",
             "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "lifetime",
+            "type": "number"
           },
           {
             "format": "default",
