@@ -62,7 +62,8 @@ def _listify_to_periodic(group_df) -> pd.Series:
         ):
             values = group_df[col].explode().unique()
         else:
-            # FIXME: Hotfix to replace nan values from lists:
+            # FIXME: Hotfix "if not" statement to replace nan values from lists:
+            #   in final data only complete datasets are expected.
             if not all(group_df[col].isna()) and any(group_df[col].isna()):
                 group_df.loc[group_df[col].isna(), col] = (
                     group_df[col]
@@ -71,7 +72,8 @@ def _listify_to_periodic(group_df) -> pd.Series:
                         group_df[col]
                         .isna()
                         .sum(),  # get the same number of values as are missing
-                        replace=True,  # repeat values
+                        replace=True,
+                        random_state=0,
                     )
                     .values
                 )  # throw out the index
