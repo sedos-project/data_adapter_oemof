@@ -252,7 +252,7 @@ class DataPackage:
                 index=True,
                 sep=";",
             )
-        if self.tsa_parameters:
+        if self.tsa_parameters is not None:
             if "timeindex" in self.tsa_parameters:
                 self.tsa_parameters.drop("timeindex", inplace=True, axis=1)
             self.tsa_parameters.to_csv(
