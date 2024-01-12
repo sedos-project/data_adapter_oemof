@@ -1,6 +1,6 @@
 .idea/
 collections/*
-tests/collections/
+tests/collections/*/
 __pycache__/
 /structures/
 /tests/_files/build_datapackage_test/
