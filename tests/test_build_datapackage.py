@@ -9,9 +9,10 @@ from pandas import Timestamp
 from setup_mock import define_mock
 from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
 
-from data_adapter_oemof.build_datapackage import DataPackage, refactor_timeseries
+from data_adapter_oemof.build_datapackage import DataPackage
 
 path_default = PATH_TEST_FILES / "_files"
+
 
 
 def test_refactor_timeseries():

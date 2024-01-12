@@ -4,6 +4,7 @@ import warnings
 from typing import Optional
 
 import pandas as pd
+
 import tsam.timeseriesaggregation as tsam
 from data_adapter import core
 from data_adapter.preprocessing import Adapter
@@ -12,67 +13,6 @@ from datapackage import Package
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
-
-
-def refactor_timeseries(timeseries: pd.DataFrame):
-    """
-    Takes timeseries in single line parameter-model format (start, end, freq,
-    region, ts-array...) and turns into Tabular matching format with timeindex
-    as timeseries timestamps,  technology-region as header and columns
-    containing data.
-
-    Parameters
-    ----------
-    timeseries: pd.DataFrame
-        timeseries in parameter-model format
-        (https://github.com/sedos-project/oedatamodel#oedatamodel-parameter)
-
-    Returns
-    pd.DataFrame Tabular form of timeseries for multiple periods of similar
-    technologies and regions.
-    -------
-
-    """
-    # Combine all time series into one DataFrame
-    df_timeseries = pd.DataFrame()
-    if timeseries.empty:
-        return df_timeseries
-    # Iterate over different time periods/years
-    for (start, end, freq), df in timeseries.groupby(
-        ["timeindex_start", "timeindex_stop", "timeindex_resolution"]
-    ):
-        # Get column names of timeseries only
-        ts_columns = set(df.columns).difference(core.TIMESERIES_COLUMNS.keys())
-
-        # Iterate over timeseries columns/technologies
-        # e.g. multiple efficiencies, onshore/offshore
-        df_timeseries_year = pd.DataFrame()
-        for profile_name in ts_columns:
-            # Unnest timeseries arrays for all regions
-            profile_column = df[["region", profile_name]].explode(profile_name)
-            # Creating cumcount index as fake-timeindex for every region
-            profile_column["index"] = profile_column.groupby("region").cumcount()
-            # Pivot table to have regions as columns
-            profile_column_pivot = pd.pivot_table(
-                profile_column, values=profile_name, index=["index"], columns=["region"]
-            )
-            profile_column_pivot.reset_index(drop=True)
-            # Rename column to: profile_name/technology + region
-            profile_column_pivot.columns = [
-                f"{profile_name}_{region}" for region in profile_column_pivot.columns
-            ]
-            # Add additional timeseries for same timeindex as columns
-            df_timeseries_year = pd.concat(
-                [df_timeseries_year, profile_column_pivot], axis=1
-            )
-
-        # Replace timeindex with actual date range
-        timeindex = pd.date_range(start=start, end=end, freq=pd.Timedelta(freq))
-        df_timeseries_year.index = timeindex
-        # Append additional date ranges
-        df_timeseries = pd.concat([df_timeseries, df_timeseries_year], axis=0)
-
-    return df_timeseries
 
 
 # Define a function to aggregate differing values into a list
