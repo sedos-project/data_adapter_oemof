@@ -14,7 +14,6 @@ from data_adapter_oemof.build_datapackage import DataPackage
 path_default = PATH_TEST_FILES / "_files"
 
 
-
 def test_refactor_timeseries():
     timeseries = pd.DataFrame(
         {
