@@ -212,7 +212,7 @@ def define_mock():
     # Create a mock adapter object for testing
     mock_adapter = mock.Mock(spec=Adapter)
     # Mock the required methods and attributes of the Adapter
-    mock_adapter.get_structure.return_value = {
+    mock_adapter.get_process_list.return_value = {
         "modex_tech_storage_battery": {
             "default": {"inputs": ["electricity"], "outputs": []}
         },

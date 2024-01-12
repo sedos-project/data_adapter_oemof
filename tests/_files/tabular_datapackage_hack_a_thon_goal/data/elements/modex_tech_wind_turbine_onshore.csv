@@ -1,18 +1,17 @@
-type;carrier;tech;profile;capacity_cost;lifetime;fixed_costs;name;region;year;bus
-volatile;carrier;tech;onshore_BB;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];BB_carrier_tech;BB;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_BE;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];BE_carrier_tech;BE;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_BW;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];BW_carrier_tech;BW;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_BY;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];BY_carrier_tech;BY;[2016, 2030, 2050];electricity
-volatile;carrier;tech;;;;;DE_carrier_tech;DE;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_HB;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];HB_carrier_tech;HB;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_HE;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];HE_carrier_tech;HE;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_HH;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];HH_carrier_tech;HH;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_MV;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];MV_carrier_tech;MV;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_NI;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];NI_carrier_tech;NI;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_NW;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];NW_carrier_tech;NW;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_RP;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];RP_carrier_tech;RP;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_SH;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];SH_carrier_tech;SH;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_SL;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];SL_carrier_tech;SL;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_SN;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];SN_carrier_tech;SN;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_ST;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];ST_carrier_tech;ST;[2016, 2030, 2050];electricity
-volatile;carrier;tech;onshore_TH;[1288000.0, 1040000.0, 960000.0];[25.4, 30.0, 30.0];[23280.0, 12600.0, 11340.0];TH_carrier_tech;TH;[2016, 2030, 2050];electricity
+type;carrier;tech;profile;capacity;capacity_potential;capacity_cost;lifetime;fixed_costs;name;region;year;bus
+volatile;carrier;tech;profile_BB;[5700.03, 5700.03375, 5700.03375];[22516.79, 22516.79, 22516.79];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];BB_carrier_tech;BB;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_BE;[11.0, 11.0018, 11.0018];[248.1, 248.1, 248.1];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];BE_carrier_tech;BE;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_BW;[751.03, 751.027686, 751.027686];[29537.65, 29537.65, 29537.65];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];BW_carrier_tech;BW;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_BY;[1854.03, 1854.03049, 1854.03049];[60736.86, 60736.86, 60736.86];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];BY_carrier_tech;BY;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_HB;[171.69, 171689.0, 171689.0];[171.69, 171.69, 171689.0];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];HB_carrier_tech;HB;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_HE;[1316.74, 1316.73603, 1316.73603];[19134.69, 19134.69, 19134.69];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];HE_carrier_tech;HE;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_HH;[54.3, 54296.0, 54296.0];[306.37, 306.37, 306.37];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];HH_carrier_tech;HH;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_MV;[3117.7, 3117.70392, 3117.70392];[19502.13, 19502.13, 19502.13];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];MV_carrier_tech;MV;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_NI;[8007.2, 8007.203624, 8007.203624];[43130.15, 43130.15, 43130.15];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];NI_carrier_tech;NI;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_NW;[3802.77, 3802.77057, 3802.77057];[32372.31, 32372.31, 32372.31];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];NW_carrier_tech;NW;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_RP;[2855.29, 2855.289006, 2855.289006];[19379.97, 19379.97, 19379.97];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];RP_carrier_tech;RP;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_SH;[5309.0, 5309.00481, 5309.00481];[14924.53, 14924.53, 14924.53];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];SH_carrier_tech;SH;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_SL;[279.51, 279.5141, 279.5141];[2079.15, 2079.15, 2079.15];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];SL_carrier_tech;SL;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_SN;[1124.02, 1124.02431, 1124.02431];[18617.69, 18617.69, 18617.69];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];SN_carrier_tech;SN;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_ST;[4515.35, 4515.34775, 4515.34775];[16844.83, 16844.83, 16844.83];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];ST_carrier_tech;ST;[2016, 2030, 2050];electricity
+volatile;carrier;tech;profile_TH;[1200.56, 1200.564449, 1200.564449];[15716.09, 15716.09, 15716.09];[1288000.0, 1040000.0, 960000.0];10.0;[23280.0, 12600.0, 11340.0];TH_carrier_tech;TH;[2016, 2030, 2050];electricity

@@ -4,6 +4,10 @@ import pandas as pd
 import pytest
 from data_adapter.databus import download_collection
 from data_adapter.preprocessing import Adapter
+from data_adapter.structure import Structure
+from oemof.solph import EnergySystem
+from oemof.tabular.datapackage import Model
+from oemof.tabular.facades import Bus, Commodity, Dispatchable, Load, Storage, Volatile
 from pandas import Timestamp
 from setup_mock import define_mock
 from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
@@ -39,22 +43,29 @@ def test_build_datapackage():
     )
 
 
-@pytest.mark.skip(reason="Tackled in different Branch")
 def test_build_tabular_datapackage_from_adapter():
     download_collection(
-        "https://energy.databus.dbpedia.org/felixmaur/collections/hack-a-thon/"
+        "https://databus.openenergyplatform.org/felixmaur/collections/hack-a-thon/"
+    )
+    structure = Structure(
+        "SEDOS_Modellstruktur",
+        process_sheet="hack-a-thon",
+        parameter_sheet="Parameter_IO_hack-a-thon",
     )
 
     adapter = Adapter(
         "hack-a-thon",
-        structure_name="structure",
-        links_name="links",
+        structure=structure,
     )
     process_adapter_map = {
         "modex_tech_storage_battery": "StorageAdapter",
-        "modex_tech_generator_gas": "ConversionAdapter",
         "modex_tech_wind_turbine_onshore": "VolatileAdapter",
-        "modex_demand": "LoadAdapter",
+        "modex_tech_load_load": "LoadAdapter",
+        "modex_tech_storage_pumped": "StorageAdapter",
+        "modex_tech_generator_steam": "DispatchableAdapter",
+        "modex_tech_photovoltaics_utility": "VolatileAdapter",
+        "modex_com_lignite": "CommodityAdapter",
+        "modex_tech_chp_steam": "DispatchableAdapter",
     }
 
     parameter_map = {
@@ -62,19 +73,22 @@ def test_build_tabular_datapackage_from_adapter():
             "marginal_cost": "variable_costs",
             "fixed_cost": "fixed_costs",
             "capacity_cost": "capital_costs",
-        },
-        "ExtractionTurbineAdapter": {
-            "carrier_cost": "fuel_costs",
             "capacity": "installed_capacity",
+            "capacity_potential": "expansion_limit",
+            "carrier_cost": "fuel_costs",
         },
         "StorageAdapter": {
-            "capacity_potential": "expansion_limit",
-            "capacity": "installed_capacity",
             "invest_relation_output_capacity": "e2p_ratio",
             "inflow_conversion_factor": "input_ratio",
             "outflow_conversion_factor": "output_ratio",
         },
-        "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
+        "CommodityAdapter": {
+            "amount": "natural_domestic_limit",
+        },
+        "DispatchableAdapter": {
+            "efficiency": "output_ratio",
+        },
+        # "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
     }
 
     dta = DataPackage.build_datapackage(
@@ -88,27 +102,27 @@ def test_build_tabular_datapackage_from_adapter():
     check_if_csv_dirs_equal(
         dir, os.path.join(path_default, "tabular_datapackage_hack_a_thon_goal")
     )
-    # FIXME: Demand is in different Format than expected.
 
 
-@pytest.mark.skip(reason="Needs period csv implementation first.")
+@pytest.mark.skip(reason="Pumped storage data has no lifetime yet")
 def test_read_datapackage():
-    # FIXME: Period csv is missing.
-    # return "FIXME first"
-    # es = EnergySystem.from_datapackage(
-    #     "_files/build_datapackage_test/datapackage.json",
-    #     typemap={
-    #         "load": Load,
-    #         "dispatchable": Dispatchable,
-    #         "bus": Bus,
-    #         "link": Link,
-    #         "storage": Storage,
-    #         "volatile": Volatile,
-    #         "conversion": Conversion,
-    #     },
-    # )
-    # model = Model(es)
-    pass
+    es = EnergySystem.from_datapackage(
+        os.path.join(
+            path_default, "tabular_datapackage_hack_a_thon", "datapackage.json"
+        ),
+        typemap={
+            "load": Load,
+            "dispatchable": Dispatchable,
+            "extraction_turbine": Dispatchable,
+            "bus": Bus,
+            "storage": Storage,
+            "volatile": Volatile,
+            "commodity": Commodity,
+        },
+    )
+    model = Model(es)
+    # Test Model yet to come
+    assert model, model
 
 
 def test_period_csv_creation():

@@ -10,6 +10,7 @@ from datapackage import Package
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
+from data_adapter_oemof.utils import convert_mixed_types_to_same_length
 
 
 # Define a function to aggregate differing values into a list
@@ -48,9 +49,8 @@ def _listify_to_periodic(group_df) -> pd.Series:
 
     if "year" not in group_df.columns:
         return group_df
-
     unique_values = pd.Series(dtype=object)
-    for col in group_df.columns:  # Exclude 'name' column
+    for col in group_df.columns:
         if isinstance(group_df[col][group_df.index[0]], dict):
             # Unique input/output parameters are not allowed per period
             unique_values[col] = group_df[col][group_df.index[0]]
@@ -62,6 +62,21 @@ def _listify_to_periodic(group_df) -> pd.Series:
         ):
             values = group_df[col].explode().unique()
         else:
+            # FIXME: Hotfix "if not" statement to replace nan values from lists:
+            #   in final data only complete datasets are expected.
+            if not all(group_df[col].isna()) and any(group_df[col].isna()):
+                group_df.loc[group_df[col].isna(), col] = (
+                    group_df[col]
+                    .dropna()
+                    .sample(
+                        group_df[col]
+                        .isna()
+                        .sum(),  # get the same number of values as are missing
+                        replace=True,
+                        random_state=0,
+                    )
+                    .values
+                )  # throw out the index
             values = group_df[col].unique()
         if len(values) > 1:
             unique_values[col] = list(group_df[col])
@@ -194,6 +209,7 @@ class DataPackage:
     def save_datapackage_to_csv(self, destination: str) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
+        Using frictionless datapckage module
 
         Parameters
         ----------
@@ -320,6 +336,8 @@ class DataPackage:
             .apply(lambda x: _listify_to_periodic(x))
             .reset_index(drop=True)
         )
+        scalar_dataframe = scalar_dataframe.apply(convert_mixed_types_to_same_length)
+
         return scalar_dataframe
 
     @classmethod
@@ -353,12 +371,11 @@ class DataPackage:
         DataPackage
 
         """
-        es_structure = adapter.get_structure()
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
         # Iterate Elements
-        for process_name, struct in es_structure.items():
+        for process_name, struct in adapter.get_process_list().items():
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
@@ -397,15 +414,15 @@ class DataPackage:
             parametrized_elements["bus"] += process_busses
 
             # getting foreign keys with last component
-            #   foreign keys have to be equal for every component within a Process
-            #   as foreign key columns cannot have mixed meaning
+            # foreign keys have to be equal for every component within a Process
+            # as foreign key columns cannot have mixed meaning
             foreign_keys[process_name] = cls.get_foreign_keys(
                 struct, component_mapper, components
             )
 
             parametrized_elements[process_name] = pd.DataFrame(components)
-
-            parametrized_sequences = {process_name: timeseries}
+            if not timeseries.empty:
+                parametrized_sequences.update({process_name: timeseries})
         # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {

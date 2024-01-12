@@ -1,4 +1,8 @@
 id;process;parameter;inputs;outputs
-1;modex_tech_storage_battery;default;electricity;
-6;modex_tech_generator_gas;default;ch4;electricity
-10;modex_tech_wind_turbine_onshore;default;;electricity
+1;modex_tech_storage_pumped;default;electricity;
+2;modex_tech_generator_steam;default;;electricity
+3;modex_tech_wind_turbine_onshore;default;;electricity
+4;modex_tech_photovoltaics_utility;default;;electricity
+6;modex_com_lignite;default;;lignite
+7;modex_tech_load_load;default;electricity;
+8;modex_tech_chp_steam;default;;electricity
