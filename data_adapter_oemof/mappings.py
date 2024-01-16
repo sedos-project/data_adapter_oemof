@@ -11,6 +11,7 @@ from .settings import BUS_MAP, PARAMETER_MAP
 
 logger = logging.getLogger()
 
+# Introduce default mapping that may be used as last fall back if no other mapping fits
 DEFAULT_MAPPING = {
     "carrier": "carrier",
     "tech": "tech",
@@ -25,13 +26,13 @@ class MappingError(Exception):
 
 class Mapper:
     def __init__(
-        self,
-        adapter,
-        process_name: str,
-        data: dict,
-        timeseries: pandas.DataFrame,
-        mapping=None,
-        bus_map=None,
+            self,
+            adapter,
+            process_name: str,
+            data: dict,
+            timeseries: pandas.DataFrame,
+            mapping=None,
+            bus_map=None,
     ):
         if mapping is None:
             mapping = PARAMETER_MAP
@@ -46,9 +47,9 @@ class Mapper:
 
     def get_fields(self):
         return [
-            Field(name=field.name, type=field.type)
-            for field in dataclasses.fields(self.adapter.facade)
-        ] + list(self.adapter.extra_fields)
+                   Field(name=field.name, type=field.type)
+                   for field in dataclasses.fields(self.adapter.facade)
+               ] + list(self.adapter.extra_fields)
 
     def map_key(self, key):
         """Use adapter specific mapping if available, otherwise use default
@@ -65,15 +66,15 @@ class Mapper:
 
         # 2. Check adapter-specific mappings second
         if (
-            self.adapter.__name__ in self.mapping
-            and key in self.mapping[self.adapter.__name__]
+                self.adapter.__name__ in self.mapping
+                and key in self.mapping[self.adapter.__name__]
         ):
             return self.mapping[self.adapter.__name__][key]
 
         # 3. Check facade-specific mappings third
         if (
-            self.adapter.facade.__name__ in self.mapping
-            and key in self.mapping[self.adapter.facade.__name__]
+                self.adapter.facade.__name__ in self.mapping
+                and key in self.mapping[self.adapter.facade.__name__]
         ):
             return self.mapping[self.adapter.facade.__name__][key]
 
