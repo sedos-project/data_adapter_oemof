@@ -9,7 +9,7 @@ from data_adapter_oemof.mappings import Field, Mapper
 logger = logging.getLogger()
 
 
-class Adapter:
+class FacadeAdapter:
     type: str = "adapter"
     facade: Facade = None
     extra_fields = (
@@ -42,7 +42,7 @@ class Adapter:
         return defaults
 
 
-class DispatchableAdapter(Adapter):
+class DispatchableAdapter(FacadeAdapter):
     """
     Dispatchable Adapter
     """
@@ -51,7 +51,7 @@ class DispatchableAdapter(Adapter):
     facade = facades.Dispatchable
 
 
-class HeatPumpAdapter(Adapter):
+class HeatPumpAdapter(FacadeAdapter):
     """
     HeatPump Adapter
     """
@@ -60,7 +60,7 @@ class HeatPumpAdapter(Adapter):
     facade = facades.HeatPump
 
 
-class LinkAdapter(Adapter):
+class LinkAdapter(FacadeAdapter):
     """
     Link Adapter
     """
@@ -69,7 +69,7 @@ class LinkAdapter(Adapter):
     facade = facades.Link
 
 
-class ReservoirAdapter(Adapter):
+class ReservoirAdapter(FacadeAdapter):
     """
     Reservoir Adapter
     """
@@ -78,7 +78,7 @@ class ReservoirAdapter(Adapter):
     facade = facades.Reservoir
 
 
-class ExcessAdapter(Adapter):
+class ExcessAdapter(FacadeAdapter):
     """
     Excess Adapter
     """
@@ -87,7 +87,7 @@ class ExcessAdapter(Adapter):
     facade = facades.Excess
 
 
-class BackpressureTurbineAdapter(Adapter):
+class BackpressureTurbineAdapter(FacadeAdapter):
     """
     BackpressureTurbine Adapter
     """
@@ -96,7 +96,7 @@ class BackpressureTurbineAdapter(Adapter):
     facade = facades.BackpressureTurbine
 
 
-class CommodityAdapter(Adapter):
+class CommodityAdapter(FacadeAdapter):
     """
     CommodityAdapter
     """
@@ -112,7 +112,7 @@ class CommodityAdapter(Adapter):
         return defaults
 
 
-class ConversionAdapter(Adapter):
+class ConversionAdapter(FacadeAdapter):
     """
     ConversionAdapter
     To use Conversion, map the inputs and outputs within the structure to avoid deduction failure.
@@ -122,7 +122,7 @@ class ConversionAdapter(Adapter):
     facade = facades.Conversion
 
 
-class LoadAdapter(Adapter):
+class LoadAdapter(FacadeAdapter):
     """
     LoadAdapter
     """
@@ -131,21 +131,21 @@ class LoadAdapter(Adapter):
     facade = facades.Load
 
 
-class StorageAdapter(Adapter):
+class StorageAdapter(FacadeAdapter):
     """
     StorageAdapter
     """
 
     type = "storage"
     facade = facades.Storage
-    extra_fields = Adapter.extra_fields + (
+    extra_fields = FacadeAdapter.extra_fields + (
         Field(name="invest_relation_output_capacity", type=float),
         Field(name="inflow_conversion_factor", type=float),
         Field(name="outflow_conversion_factor", type=float),
     )
 
 
-class ExtractionTurbineAdapter(Adapter):
+class ExtractionTurbineAdapter(FacadeAdapter):
     """
     ExtractionTurbineAdapter
     """
@@ -154,7 +154,7 @@ class ExtractionTurbineAdapter(Adapter):
     facade = facades.ExtractionTurbine
 
 
-class VolatileAdapter(Adapter):
+class VolatileAdapter(FacadeAdapter):
     """
     VolatileAdapter
     """

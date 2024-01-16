@@ -1,13 +1,19 @@
 import dataclasses
 import os
+import warnings
 from typing import Optional
 
+import pandas as pd
 from data_adapter.preprocessing import Adapter
 from datapackage import Package
 
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
+from data_adapter_oemof.mappings import Mapper
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
-from data_adapter_oemof.utils import *
+from data_adapter_oemof.utils import (
+    get_periods_from_parametrized_sequences,
+    yearly_scalars_to_periodic_values,
+)
 
 
 @dataclasses.dataclass
@@ -21,6 +27,76 @@ class DataPackage:
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
     periods: pd.DataFrame()
+
+    @staticmethod
+    def get_foreign_keys(
+        struct: dict[str, list[str]], mapper: Mapper, components: list
+    ) -> list:
+        """
+        Writes Foreign keys for one process.
+        Searches in adapter class for sequences fields
+
+        Parameters
+        ----------
+        struct: list
+            Energy System structure defining input/outputs for Processes
+        mapper: Mapper
+            for one element of the Process
+            (foreign keys have to be equal for all components of a Process)
+        components: list
+            all components as of a Process as dicts. Helps to check what columns
+            that could be pointing to sequences are found in Sequences.
+
+        Returns
+        -------
+        list of foreignKeys for Process including bus references and pointers to files
+        containing `profiles`
+        """
+        new_foreign_keys = []
+        components = pd.DataFrame(components)
+        for bus in mapper.get_busses(struct).keys():
+            new_foreign_keys.append(
+                {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
+            )
+
+        for field in mapper.get_fields():
+            if (
+                mapper.is_sequence(field.type)
+                and field.name in components.columns
+                and pd.api.types.infer_dtype(components[field.name]) == "string"
+            ):
+                if all(components[field.name].isin(mapper.timeseries.columns)):
+                    new_foreign_keys.append(
+                        {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": f"{mapper.process_name}_sequence"
+                            },
+                        }
+                    )
+                elif any(components[field.name].isin(mapper.timeseries.columns)):
+                    # Todo clean up on examples:
+                    #   -remove DE from hackathon or
+                    #   -create propper example with realistic project data
+                    warnings.warn(
+                        "Not all profile columns are set within the given profiles."
+                        f" Please check if there is a timeseries for every Component in "
+                        f"{mapper.process_name}"
+                    )
+                    new_foreign_keys.append(
+                        {
+                            "fields": field.name,
+                            "reference": {
+                                "resource": f"{mapper.process_name}_sequence"
+                            },
+                        }
+                    )
+                else:
+                    # The Field is allowed to be a timeseries
+                    # -> and likely is a supposed to be a timeseries
+                    # but a scalar or `unused` is found.
+                    pass
+        return new_foreign_keys
 
     def save_datapackage_to_csv(self, destination: str) -> None:
         """
@@ -182,7 +258,7 @@ class DataPackage:
             # getting foreign keys with last component
             # foreign keys have to be equal for every component within a Process
             # as foreign key columns cannot have mixed meaning
-            foreign_keys[process_name] = get_foreign_keys(
+            foreign_keys[process_name] = cls.get_foreign_keys(
                 struct, component_mapper, components
             )
 

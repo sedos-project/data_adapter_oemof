@@ -13,6 +13,7 @@ from setup_mock import define_mock
 from utils import PATH_TEST_FILES, check_if_csv_dirs_equal
 
 from data_adapter_oemof.build_datapackage import DataPackage
+from data_adapter_oemof.utils import get_periods_from_parametrized_sequences
 
 path_default = PATH_TEST_FILES / "_files"
 
@@ -126,7 +127,7 @@ def test_read_datapackage():
 
 
 def test_period_csv_creation():
-    sequence_created = DataPackage.get_periods_from_parametrized_sequences(
+    sequence_created = get_periods_from_parametrized_sequences(
         {
             "bus": pd.DataFrame(),
             "dispatchable": [],
