@@ -162,8 +162,18 @@ class VolatileAdapter(Adapter):
     type = "volatile"
     facade = facades.Volatile
 
+class Bev(Adapter):
+    """
+    BevAdapter
+    """
+
+    type = "bev"
+    facade = facades.Bev
+
 
 # Create a dictionary of all adapter classes defined in this module
 FACADE_ADAPTERS = {
     name: adapter for name, adapter in globals().items() if name.endswith("Adapter")
 }
+
+
