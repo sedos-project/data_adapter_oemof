@@ -11,6 +11,7 @@ from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
 
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
+from oemof.tabular import datapackage  # noqa
 
 
 # download_collection(
@@ -63,7 +64,7 @@ parameter_map = {
         "availability_inflex": "capacity_tra_connection_inflex_timeseries_fixed",
         # "tabular": "capacity_tra_vehicles_inst",  #todo: ?
         "fixed_costs": "cost_fix_tra",
-        # "tabular": "cost_inv_tra",  #todo: ?
+        "bev_invest_costs": "cost_inv_tra",
         # "tabular": "cost_var",  # part of DEFAULT
         # "tabular": "demand_annual",  #todo: ?
         # "tabular": "demand_timeseries_fixed",  #todo: ?
@@ -75,19 +76,26 @@ parameter_map = {
         "lifetime": "lifetime",
         # "tabular": "mileage",  #todo: ?
         # "tabular": "occupancy_rate",  #todo: ?
-        # "tabular": "share_tra_flex_g2v",  #todo: ?
-        # "tabular": "share_tra_flex_v2g",  #todo: ?
-        # "tabular": "share_tra_inflex",  #todo: ?
+        # "tabular": "share_tra_flex_g2v",  #todo: used in constraint?
+        # "tabular": "share_tra_flex_v2g",  #todo: used in constraint?
+        # "tabular": "share_tra_inflex",  #todo: used in constraint?
         # "tabular": "sto_init",  #todo: ?
         "max_storage_level": "sto_max_timeseries",
         "min_storage_level": "sto_min_timeseries",
         "loss_rate": "sto_self_discharge",
         # "tabular": "wacc",  #todo: ?
+        ### existing parameter, missing data ### todo: match
+        # "maximum_charging_power_investment": "data",
+        # "drive consumption": "data",
+        # "commodity_conversion_rate": "data",
+        # "age": "data",
+        # "invest_c_rate": "data",
+        # "fiexed_investment_costs": "data",
     },
 }
 
 dp = DataPackage.build_datapackage(
-    adapter=adapter,
+    adapter=transport_adapter,
     process_adapter_map=process_adapter_map,
     parameter_map=parameter_map,
 )

@@ -162,7 +162,7 @@ class VolatileAdapter(Adapter):
     type = "volatile"
     facade = facades.Volatile
 
-class Bev(Adapter):
+class BevAdapter(Adapter):
     """
     BevAdapter
     """
