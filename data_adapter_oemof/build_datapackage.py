@@ -4,6 +4,7 @@ import warnings
 from typing import Optional
 
 import pandas as pd
+import tsam.timeseriesaggregation as tsam
 from data_adapter.preprocessing import Adapter
 from datapackage import Package
 
@@ -98,6 +99,8 @@ class DataPackage:
     foreign_keys: dict  # foreign keys for timeseries profiles
     adapter: Adapter
     periods: pd.DataFrame()
+    location_to_save_to: str = None
+    tsa_parameters: pd.DataFrame = None
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -197,8 +200,12 @@ class DataPackage:
         for process_name, sequence in parametrized_sequences.items():
             if len(sequence) != 0:
                 sequence = pd.DataFrame(index=pd.to_datetime(sequence.index))
-                sequence["periods"] = sequence.groupby(sequence.index.year).ngroup()
-                # TODO timeincrement might be adjusted later to modify objective weighting
+                # create mapping to count up unique years
+                year_mapping = {
+                    year: i for i, year in enumerate(sequence.index.year.unique())
+                }
+                # Map unique years to sequence instead of using groupby
+                sequence["periods"] = sequence.index.year.map(year_mapping)
                 sequence["timeincrement"] = 1
                 sequence.index.name = "timeindex"
                 return sequence
@@ -206,7 +213,11 @@ class DataPackage:
                 pass
         return pd.DataFrame()
 
-    def save_datapackage_to_csv(self, destination: str) -> None:
+    def save_datapackage_to_csv(
+        self,
+        location_to_save_to: str = None,
+        datapackage_name: str = "datapackage.json",
+    ) -> None:
         """
         Saving the datapackage to a given destination in oemof.tabular readable format
         Using frictionless datapckage module
@@ -215,7 +226,7 @@ class DataPackage:
         ----------
         self: DataPackage
             DataPackage to save
-        destination: str
+        location_to_save_to: str
             String to where the datapackage save to. More convenient to use os.path.
             If last level of folder stucture does not exist, it will be created
             (as well as /elements and /sequences)
@@ -225,14 +236,27 @@ class DataPackage:
         None if the Datapackage has been saved correctly (no checks implemented)
 
         """
+
+        # check if datapackage already has defined its destination
+        if location_to_save_to:
+            pass
+        elif self.location_to_save_to:
+            location_to_save_to = self.location_to_save_to
+        else:
+            raise ValueError(
+                "Please state location_to_save_to either in datapackage or saving call"
+            )
+
         # Check if filestructure is existent. Create folders if not:
-        elements_path = os.path.join(destination, "data", "elements")
-        sequences_path = os.path.join(destination, "data", "sequences")
-        periods_path = os.path.join(destination, "data", "periods")
+        elements_path = os.path.join(location_to_save_to, "data", "elements")
+        sequences_path = os.path.join(location_to_save_to, "data", "sequences")
+        periods_path = os.path.join(location_to_save_to, "data", "periods")
+        tsam_path = os.path.join(location_to_save_to, "data", "tsam")
 
         os.makedirs(elements_path, exist_ok=True)
         os.makedirs(sequences_path, exist_ok=True)
         os.makedirs(periods_path, exist_ok=True)
+        os.makedirs(tsam_path, exist_ok=True)
 
         if not self.periods.empty:
             self.periods.to_csv(
@@ -242,6 +266,12 @@ class DataPackage:
                 ),
                 index=True,
                 sep=";",
+            )
+        if self.tsa_parameters is not None:
+            if "timeindex" in self.tsa_parameters:
+                self.tsa_parameters.drop("timeindex", inplace=True, axis=1)
+            self.tsa_parameters.to_csv(
+                os.path.join(tsam_path, "tsa_parameters.csv"), sep=";"
             )
 
         # Save elements to elements folder named by keys + .csv
@@ -262,7 +292,7 @@ class DataPackage:
             )
 
         # From saved elements and keys create a Package
-        package = Package(base_path=destination)
+        package = Package(base_path=location_to_save_to)
         package.infer(pattern="**/*.csv")
 
         # Add foreign keys from self to Package
@@ -289,7 +319,9 @@ class DataPackage:
                 )
 
         # re-initialize Package with added foreign keys and save datapackage.json
-        Package(package.descriptor).save(os.path.join(destination, "datapackage.json"))
+        Package(package.descriptor).save(
+            os.path.join(location_to_save_to, datapackage_name)
+        )
 
         return None
 
@@ -340,6 +372,80 @@ class DataPackage:
 
         return scalar_dataframe
 
+    def time_series_aggregation(
+        self, tsam_config: str, location_to_save_to: str = None
+    ):
+        """
+        Aggregates time series in datapackage and saves the new datapackage with updated
+        (sequence)Resources as well as aggregated sequence resources.
+        Parameters
+        ----------
+        tsam_config
+        destination
+
+        Returns
+        -------
+
+        """
+        # Refactor sequences into one Dataframe
+        sequences = pd.concat(
+            self.parametrized_sequences.values(),
+            axis=1,
+            keys=self.parametrized_sequences.keys(),
+        )
+        # Setting sequence indices to be same as periods
+        sequences.index = self.periods.index
+        # Group sequences by Periods
+        tsam_aggregated_typical_periods = []
+        tsa_parameters = []
+        for period in pd.unique(self.periods["periods"]):
+            # Saving the old Index to have it for later periods creation
+            index_old = self.periods.index[self.periods["periods"] == period]
+            period_sequence = sequences.loc[index_old]
+            # Aggregate
+            aggregation = tsam.TimeSeriesAggregation(
+                period_sequence, **tsam_config[period]
+            )
+            tsa_parameters.append(
+                {
+                    "timesteps_per_period": aggregation.hoursPerPeriod,
+                    "order": aggregation.clusterOrder,
+                    "timeindex": aggregation.timeIndex,
+                }
+            )
+            aggregation = aggregation.createTypicalPeriods()
+            # Use old Index with as many as needed entries
+            aggregation.index = index_old[: len(aggregation)]
+            tsam_aggregated_typical_periods.append(aggregation)
+        # Aggregate split periods back together again
+        tsam_aggregated_typical_periods = pd.concat(
+            tsam_aggregated_typical_periods, ignore_index=False
+        )
+        tsa_parameters = pd.DataFrame(tsa_parameters)
+        tsa_parameters.index = list(pd.unique(self.periods["periods"]))
+        tsa_parameters.index.name = "periods"
+        self.tsa_parameters = tsa_parameters
+
+        # Rewrite the aggregated sequences to datapackage sequences
+        for (
+            sequence_file_name
+        ) in tsam_aggregated_typical_periods.columns.get_level_values(level=0).unique():
+            # Get all sequences that belong in one sheet together
+            sequence = tsam_aggregated_typical_periods.loc[
+                :,
+                tsam_aggregated_typical_periods.columns.get_level_values(level=0)
+                == sequence_file_name,
+            ]
+            # Remove disturbing Multiindex again
+            sequence.columns = sequence.columns.droplevel()
+            self.parametrized_sequences[sequence_file_name] = sequence
+        # Recreate Periods
+        self.periods = self.get_periods_from_parametrized_sequences(
+            self.parametrized_sequences
+        )
+        # Save with newly introduced tsam trigger
+        self.save_datapackage_to_csv(location_to_save_to=location_to_save_to)
+
     @classmethod
     def build_datapackage(
         cls,
@@ -347,6 +453,7 @@ class DataPackage:
         process_adapter_map: Optional[dict] = PROCESS_ADAPTER_MAP,
         parameter_map: Optional[dict] = PARAMETER_MAP,
         bus_map: Optional[dict] = BUS_MAP,
+        location_to_save_to: str = None,
     ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
@@ -439,4 +546,5 @@ class DataPackage:
             adapter=adapter,
             foreign_keys=foreign_keys,
             periods=periods,
+            location_to_save_to=location_to_save_to,
         )

@@ -1,3 +1,4 @@
+import json
 import os
 
 import pandas as pd
@@ -23,6 +24,7 @@ def test_build_datapackage():
     Returns
     -------
     """
+
     # Call the method with the mock adapter
     test_path = os.path.join(path_default, "build_datapackage_test")
     goal_path = os.path.join(path_default, "build_datapackage_goal")
@@ -174,4 +176,39 @@ def test_period_csv_creation():
         }
     )
     sequence_goal.index.name = "timeindex"
-    pd.testing.assert_frame_equal(sequence_goal, sequence_created)
+    pd.testing.assert_frame_equal(sequence_goal, sequence_created, check_dtype=False)
+
+
+def test_tsam():
+    """
+    Uses Mock to create datapackage and then applies timeseries aggregation to it.
+    Returns
+    -------
+
+    """
+
+    tsam_folder = os.path.join(path_default, "tsam")
+
+    # Define Test mock - same as above
+    mock = define_mock()
+
+    result = DataPackage.build_datapackage(
+        adapter=mock.mock_adapter,
+        process_adapter_map=mock.process_adapter_map,
+        parameter_map=mock.parameter_map,
+        location_to_save_to=tsam_folder,
+    )
+
+    #############################################################################
+    # start tsam
+    #############################################################################
+
+    # read tsam config json
+
+    with open(os.path.join(tsam_folder, "tsam_config.json"), "r") as f:
+        tsam_config = json.load(f)
+
+    result.time_series_aggregation(
+        tsam_config=tsam_config, location_to_save_to=tsam_folder
+    )
+    check_if_csv_dirs_equal(tsam_folder, os.path.join(tsam_folder, "..", "tsam_goal"))
