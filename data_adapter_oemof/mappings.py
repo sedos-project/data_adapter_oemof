@@ -207,20 +207,21 @@ class Mapper:
                     )
                 bus_dict[bus] = busses[0]
                 continue
+            try:
+                # 3. Try to find close matches
+                match = difflib.get_close_matches(
+                    bus, struct["inputs"] + struct["outputs"], n=1, cutoff=0.2
+                )[0]
+                if match:
+                    bus_dict[bus] = match
+                    continue
 
-            # 3. Try to find close matches
-            match = difflib.get_close_matches(
-                bus, struct["inputs"] + struct["outputs"], n=1, cutoff=0.2
-            )[0]
-            if match:
-                bus_dict[bus] = match
-                continue
-
-            # 4. No mapping found
-            raise MappingError(
-                f"No Matching bus found for bus with `bus facade name` {bus}"
-                f" please adjust BUS_NAME_MAP or structure"
-            )
+            except IndexError:
+                # 4. No mapping found
+                raise MappingError(
+                    f"No Matching bus found for bus with `bus facade name` {bus}"
+                    f" please adjust BUS_NAME_MAP or structure"
+                )
 
         return bus_dict
 
