@@ -94,9 +94,28 @@ parameter_map = {
     },
 }
 
+bus_map = {
+    'ExtractionTurbineAdapter': {
+        'electricity_bus': 'electricity',
+        'heat_bus': 'heat'
+    },
+    'VolatileAdapter': {
+        'bus': 'electricity'
+    },
+    'ConversionAdapter': {
+        'from_bus': 'ch4',
+        'to_bus': 'electricity'
+    },
+    "BevAdapter": {
+        "electricity_bus": "electricity",
+        "commodity_bus": "mobility",
+    }
+}
+
 dp = DataPackage.build_datapackage(
     adapter=transport_adapter,
     process_adapter_map=process_adapter_map,
     parameter_map=parameter_map,
+    bus_map=bus_map
 )
 dp.save_datapackage_to_csv("./datapackage")
