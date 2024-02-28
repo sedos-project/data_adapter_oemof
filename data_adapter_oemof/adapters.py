@@ -9,6 +9,7 @@ from typing import Optional, Type, Union
 import pandas as pd
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
+from oemof_industry.mimo_converter import MIMO
 
 from data_adapter_oemof import calculations
 
@@ -398,6 +399,19 @@ class VolatileAdapter(Adapter):
 
     type = "volatile"
     facade = facades.Volatile
+
+
+class MIMOAdapter(Adapter):
+    """
+    MIMOAdapter
+    """
+
+    type = "mimo"
+    facade = MIMO
+
+    def get_default_parameters(self, struct: dict, mapper: Mapper) -> dict:
+        defaults = super().get_default_parameters(struct, mapper)
+        return defaults
 
 
 # Create a dictionary of all adapter classes defined in this module
