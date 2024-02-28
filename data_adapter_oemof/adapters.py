@@ -1,4 +1,5 @@
 import logging
+from collections import Counter
 
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
@@ -17,6 +18,7 @@ class Adapter:
         Field(name="region", type=str),
         Field(name="year", type=int),
     )
+    counter: int = Counter()
 
     def __init__(self, struct: dict, mapper: Mapper):
         self.facade_dict = self.get_default_parameters(struct, mapper)
@@ -34,7 +36,10 @@ class Adapter:
             defaults.update(
                 {
                     "name": calculations.get_name(
-                        mapper.get("region"), mapper.get("carrier"), mapper.get("tech")
+                        mapper.get("region"),
+                        mapper.get("carrier"),
+                        mapper.get("tech"),
+                        self.counter,
                     )
                 }
             )

@@ -23,8 +23,8 @@ def calculation(func):
 
 
 @calculation
-def get_name(region, carrier, tech):
-    return f"{region}-{carrier}-{tech}"
+def get_name(region, carrier, tech, counter):
+    return f"{region}-{carrier}-{tech}--{counter.next()}"
 
 
 @calculation
