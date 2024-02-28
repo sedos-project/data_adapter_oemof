@@ -1,4 +1,5 @@
 import os
+import pathlib
 
 os.environ["COLLECTIONS_DIR"] = "./collections/"
 os.environ["STRUCTURES_DIR"] = "./structures"
@@ -54,4 +55,5 @@ dp = DataPackage.build_datapackage(
     process_adapter_map=process_adapter_map,
     parameter_map=parameter_map,
 )
-dp.save_datapackage_to_csv("./datapackage")
+datapackage_path = pathlib.Path(__file__).parent / "datapackage"
+dp.save_datapackage_to_csv(str(datapackage_path))
