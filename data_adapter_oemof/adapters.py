@@ -414,6 +414,7 @@ class MIMOAdapter(Adapter):
         Field(name="region", type=str),
         Field(name="year", type=int),
         Field(name="groups", type=dict),
+        Field(name="capacity_cost", type=dict),
     )
 
     def get_default_parameters(self) -> dict:

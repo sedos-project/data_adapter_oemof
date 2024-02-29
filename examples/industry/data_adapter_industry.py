@@ -47,6 +47,7 @@ parameter_map = {
         "inflow_conversion_factor": "input_ratio",
         "outflow_conversion_factor": "output_ratio",
     },
+    "MIMOAdapter": {"capacity_cost": "cost_fix_capacity_w"},
     "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
 }
 
