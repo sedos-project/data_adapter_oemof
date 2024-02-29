@@ -177,7 +177,7 @@ class Adapter:
         mapped_key = self.map_key(key)
         return self.get_data(mapped_key, field_type)
 
-    def get_busses(self):
+    def get_busses(self) -> dict:
         """
         Identify mentioned buses in the facade.
         Determine if each bus in the facade is classified as an "input"/"output".
@@ -412,6 +412,25 @@ class MIMOAdapter(Adapter):
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
         return defaults
+
+    def get_busses(self) -> dict:
+        def get_bus_from_struct(bus_list: list, prefix: str) -> dict:
+            buses = {}
+            counter = 0
+            for bus_group in bus_list:
+                if isinstance(bus_group, str):
+                    buses[f"{prefix}{counter}"] = bus_group
+                    counter += 1
+                    continue
+                if isinstance(bus_group, list):
+                    for bus in bus_group:
+                        buses[f"{prefix}{counter}"] = bus
+                        counter += 1
+            return buses
+
+        return get_bus_from_struct(
+            self.structure["inputs"], prefix="from_bus_"
+        ) | get_bus_from_struct(self.structure["outputs"], prefix="to_bus_")
 
 
 # Create a dictionary of all adapter classes defined in this module
