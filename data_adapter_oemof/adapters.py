@@ -411,6 +411,7 @@ class MIMOAdapter(Adapter):
 
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
+        defaults["groups"] = self.get_groups()
         return defaults
 
     def get_busses(self) -> dict:
@@ -431,6 +432,14 @@ class MIMOAdapter(Adapter):
         return get_bus_from_struct(
             self.structure["inputs"], prefix="from_bus_"
         ) | get_bus_from_struct(self.structure["outputs"], prefix="to_bus_")
+
+    def get_groups(self) -> dict:
+        groups = {}
+        group_counter = 0
+        for bus_group in self.structure["inputs"] + self.structure["outputs"]:
+            if isinstance(bus_group, list):
+                groups[f"group_{group_counter}"] = bus_group
+        return groups
 
 
 # Create a dictionary of all adapter classes defined in this module
