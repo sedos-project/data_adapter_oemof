@@ -409,8 +409,8 @@ class MIMOAdapter(Adapter):
     type = "mimo"
     facade = MIMO
 
-    def get_default_parameters(self, struct: dict, mapper: Mapper) -> dict:
-        defaults = super().get_default_parameters(struct, mapper)
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
         return defaults
 
 
