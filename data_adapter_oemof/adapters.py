@@ -2,6 +2,7 @@ import collections
 import dataclasses
 import difflib
 import itertools
+import json
 import logging
 import warnings
 from typing import Optional, Type, Union
@@ -408,6 +409,12 @@ class MIMOAdapter(Adapter):
 
     type = "mimo"
     facade = MIMO
+    extra_fields = (
+        Field(name="name", type=str),
+        Field(name="region", type=str),
+        Field(name="year", type=int),
+        Field(name="groups", type=dict),
+    )
 
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
@@ -433,13 +440,13 @@ class MIMOAdapter(Adapter):
             self.structure["inputs"], prefix="from_bus_"
         ) | get_bus_from_struct(self.structure["outputs"], prefix="to_bus_")
 
-    def get_groups(self) -> dict:
+    def get_groups(self) -> str:
         groups = {}
         group_counter = 0
         for bus_group in self.structure["inputs"] + self.structure["outputs"]:
             if isinstance(bus_group, list):
                 groups[f"group_{group_counter}"] = bus_group
-        return groups
+        return json.dumps(groups)
 
 
 # Create a dictionary of all adapter classes defined in this module
