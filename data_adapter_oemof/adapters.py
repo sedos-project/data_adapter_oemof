@@ -199,7 +199,7 @@ class Adapter:
         ]
         if len(bus_occurrences_in_fields) == 0:
             logger.warning(
-                f"No busses found in facades fields for Dataadapter {self.__name__}"
+                f"No busses found in facades fields for Dataadapter {self.__class__.__name__}"
             )
 
         bus_dict = {}
