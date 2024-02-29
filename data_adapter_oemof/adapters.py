@@ -340,10 +340,12 @@ class CommodityAdapter(Adapter):
     type = "commodity"
     facade = facades.Commodity
 
-    def get_default_parameters(self, struct: dict, mapper: Mapper) -> dict:
-        defaults = super().get_default_parameters(struct, mapper)
-        if mapper.get("carrier") == "carrier":
-            defaults["carrier"] = mapper.get_busses(struct)["bus"]
+    def get_default_parameters(
+        self,
+    ) -> dict:
+        defaults = super().get_default_parameters()
+        if self.get("carrier") == "carrier":
+            defaults["carrier"] = self.get_busses()["bus"]
 
         return defaults
 
