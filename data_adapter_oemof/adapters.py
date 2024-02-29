@@ -419,6 +419,11 @@ class MIMOAdapter(Adapter):
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
         defaults["groups"] = self.get_groups()
+        keywords = ("emission_factor_", "conversion_factor_", "flow_share_")
+        for key, value in self.data.items():
+            for keyword in keywords:
+                if key.startswith(keyword):
+                    defaults[key] = value
         return defaults
 
     def get_busses(self) -> dict:
