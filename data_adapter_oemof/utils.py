@@ -26,7 +26,8 @@ def has_mixed_types(column) -> bool:
 
 def convert_mixed_types_to_same_length(column):
     """
-    Function to convert entries to arrays of the same length only for columns with mixed types
+    Function to convert entries to arrays of the same length
+    only for columns with mixed types
 
     Parameters
     ----------
