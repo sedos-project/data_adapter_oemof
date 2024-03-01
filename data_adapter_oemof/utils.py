@@ -26,7 +26,8 @@ def has_mixed_types(column) -> bool:
 
 def convert_mixed_types_to_same_length(column):
     """
-    Function to convert entries to arrays of the same length only for columns with mixed types
+    Function to convert entries to arrays of the same length
+    only for columns with mixed types
 
     Parameters
     ----------
@@ -41,11 +42,13 @@ def convert_mixed_types_to_same_length(column):
             len(entry) if isinstance(entry, list) else 1 for entry in column
         )
         return [
-            entry
-            if isinstance(entry, list)
-            else [entry for x in range(max_length)]
-            if not pd.isna(entry)
-            else np.nan  # Keep NaN as is
+            (
+                entry
+                if isinstance(entry, list)
+                else (
+                    [entry for x in range(max_length)] if not pd.isna(entry) else np.nan
+                )
+            )  # Keep NaN as is
             for entry in column
         ]
     else:

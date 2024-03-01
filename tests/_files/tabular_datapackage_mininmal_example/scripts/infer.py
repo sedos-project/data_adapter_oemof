@@ -2,6 +2,7 @@
 Run this script from the root directory of the datapackage to update
 or create meta data.
 """
+
 from oemof.tabular.datapackage import building
 
 building.infer_metadata(
