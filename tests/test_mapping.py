@@ -22,7 +22,7 @@ def test_get_with_mapping():
         "bus": "electricity",
         "capacity": 100.0,
         "carrier": "carrier",
-        "name": None,
+        "name": "modex_tech_wind_turbine_onshore--0",
         "region": "TH",
         "tech": "tech",
         "type": "volatile",
@@ -63,7 +63,7 @@ def test_get_with_sequence():
         "electricity_bus": "electricity",
         "heat_bus": "electricity",
         "fuel_bus": "ch4",
-        "name": None,
+        "name": "modex_tech_generator_gas--1",
     }
 
     unittest.TestCase().assertDictEqual(expected, adapter.facade_dict)
@@ -95,7 +95,7 @@ def test_get_busses():
         "electricity_bus": "electricity",
         "fuel_bus": "ch4",
         "heat_bus": "heat",
-        "name": None,
+        "name": "modex_tech_generator_gas--2",
         "tech": "tech",
         "type": "extraction_turbine",
     }
@@ -121,7 +121,7 @@ def test_default_bus_mapping():
     expected = {
         "bus": "from_struct",
         "carrier": "carrier",
-        "name": None,
+        "name": "modex_tech_wind_turbine_onshore--3",
         "tech": "tech",
         "type": "volatile",
     }
@@ -146,7 +146,7 @@ def test_default_bus_mapping():
     expected = {
         "bus": "from_bus_name_map",
         "carrier": "carrier",
-        "name": None,
+        "name": "modex_tech_wind_turbine_onshore--4",
         "tech": "tech",
         "type": "volatile",
     }
@@ -174,7 +174,7 @@ def test_get_matched_busses():
         "electricity_bus": "elec",
         "fuel_bus": "ch4fuel",
         "heat_bus": "heating",
-        "name": None,
+        "name": "modex_tech_wind_turbine_onshore--5",
         "tech": "tech",
         "type": "extraction_turbine",
     }
@@ -243,6 +243,6 @@ def test_get_sequence_name():
         "region": {0: "BB", 1: "BB", 2: "BB"},
         "year": {0: 2016, 1: 2030, 2: 2050},
         "bus": "electricity",
-        "name": None,
+        "name": "modex_tech_wind_turbine_onshore--6",
     }
     unittest.TestCase().assertDictEqual(expected, adapter.facade_dict)
