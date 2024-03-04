@@ -24,18 +24,18 @@ transport_adapter = Adapter(
     structure=structure,
 )
 process_adapter_map = {
-    "tra_road_mcar_fcev_pass_0": "ConversionAdapter",
-    "tra_road_mcar_fcev_pass_1": "ConversionAdapter",
-    "tra_road_mcar_bev_pass_0": "BevAdapter",
-    "tra_road_mcar_bev_pass_1": "BevAdapter",
-    "tra_road_mcar_hyb_pass_gasoline_0": "ConversionAdapter",
-    "tra_road_mcar_hyb_pass_gasoline_1": "ConversionAdapter",
-    "tra_road_mcar_hyb_pass_diesel_0": "ConversionAdapter",
-    "tra_road_mcar_hyb_pass_diesel_1": "ConversionAdapter",
-    "tra_road_mcar_ice_pass_gasoline_0": "ConversionAdapter",
-    "tra_road_mcar_ice_pass_gasoline_1": "ConversionAdapter",
-    "tra_road_mcar_ice_pass_diesel_0": "ConversionAdapter",
-    "tra_road_mcar_ice_pass_diesel_1": "ConversionAdapter"
+    "tra_road_mcar_fcev_pass_0": "TransportConversionAdapter",
+    "tra_road_mcar_fcev_pass_1": "TransportConversionAdapter",
+    "tra_road_mcar_bev_pass_0": "IndividualMobilitySectorAdapter",
+    "tra_road_mcar_bev_pass_1": "IndividualMobilitySectorAdapter",
+    "tra_road_mcar_hyb_pass_gasoline_0": "TransportConversionAdapter",
+    "tra_road_mcar_hyb_pass_gasoline_1": "TransportConversionAdapter",
+    "tra_road_mcar_hyb_pass_diesel_0": "TransportConversionAdapter",
+    "tra_road_mcar_hyb_pass_diesel_1": "TransportConversionAdapter",
+    "tra_road_mcar_ice_pass_gasoline_0": "TransportConversionAdapter",
+    "tra_road_mcar_ice_pass_gasoline_1": "TransportConversionAdapter",
+    "tra_road_mcar_ice_pass_diesel_0": "TransportConversionAdapter",
+    "tra_road_mcar_ice_pass_diesel_1": "TransportConversionAdapter"
 }
 
 parameter_map = {
@@ -56,8 +56,8 @@ parameter_map = {
         "outflow_conversion_factor": "output_ratio",
     },
     "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
-    "BevAdapter": {
-        # "tabular": "capacity_e_inst",  #todo: ?
+    "IndividualMobilitySectorAdapter": {
+        "storage_capacity": "capacity_e_inst",
         "charging_power_flex": "capacity_tra_connection_flex_max",
         "availability_flex": "capacity_tra_connection_flex_timeseries_upper",
         "charging_power_inflex": "capacity_tra_connection_inflex_max",
@@ -95,20 +95,16 @@ parameter_map = {
 }
 
 bus_map = {
-    'ExtractionTurbineAdapter': {
-        'electricity_bus': 'electricity',
-        'heat_bus': 'heat'
-    },
     'VolatileAdapter': {
         'bus': 'electricity'
     },
-    'ConversionAdapter': {
-        'from_bus': 'ch4',
-        'to_bus': 'electricity'
+    'TransportConversionAdapter': {
+        'from_bus': 'electricity',
+        'to_bus': 'mobility'
     },
-    "BevAdapter": {
+    "IndividualMobilitySectorAdapter": {
         "electricity_bus": "electricity",
-        "commodity_bus": "mobility",
+        "transport_commodity_bus": "mobility",
     }
 }
 

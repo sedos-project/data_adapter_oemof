@@ -131,7 +131,7 @@ class Mapper:
         )
         return None
 
-    def get(self, key, field_type: Optional[Type] = None):
+    def get(self, key, field_type: Optional[Type] = None, default = None):
         """
         Map key with adapter specific mapping and return data for key if
         available.
@@ -143,7 +143,10 @@ class Mapper:
         :return: str, numerical or None
         """
         mapped_key = self.map_key(key)
-        return self.get_data(mapped_key, field_type)
+        mapped_key = self.get_data(mapped_key, field_type)
+        if not mapped_key:
+            mapped_key = default
+        return mapped_key
 
     def get_busses(self, struct):
         """

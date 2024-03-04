@@ -162,13 +162,34 @@ class VolatileAdapter(Adapter):
     type = "volatile"
     facade = facades.Volatile
 
-class BevAdapter(Adapter):
+class IndividualMobilitySectorAdapter(Adapter):
     """
-    BevAdapter
+    IndividualMobilitySectorAdapter
     """
 
-    type = "bev"
-    facade = facades.Bev
+    type = "individual mobility sector"
+    facade = facades.IndividualMobilitySector  # .Bev
+
+    def get_default_parameters(self, struct: dict, mapper: Mapper) -> dict:
+        defaults = super().get_default_parameters(struct, mapper)
+        #defaults.update({"name": mapper.get("process_name", default="fake_name")})
+        defaults.update({"name": mapper.process_name})
+        return defaults
+
+
+class TransportConversionAdapter(Adapter):
+    """
+    TransportConversionAdapter
+    To use Conversion, map the inputs and outputs within the structure to avoid deduction failure.
+    """
+
+    type = "conversion"
+    facade = facades.Conversion
+
+    def get_default_parameters(self, struct: dict, mapper: Mapper) -> dict:
+        defaults = super().get_default_parameters(struct, mapper)
+        defaults.update({"name": mapper.process_name})
+        return defaults
 
 
 # Create a dictionary of all adapter classes defined in this module
