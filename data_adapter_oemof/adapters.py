@@ -1,6 +1,7 @@
 import collections
 import dataclasses
 import difflib
+import itertools
 import logging
 import warnings
 from typing import Optional, Type, Union
@@ -34,7 +35,7 @@ class Adapter:
         Field(name="region", type=str),
         Field(name="year", type=int),
     )
-    counter: int = collections.Counter()
+    counter: int = itertools.count()
 
     def __init__(
         self,
