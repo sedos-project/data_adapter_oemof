@@ -67,10 +67,8 @@ class Adapter:
             defaults.update(
                 {
                     "name": calculations.get_name(
-                        self.get("region"),
-                        self.get("carrier"),
-                        self.get("tech"),
-                        self.counter,
+                        self.process_name,
+                        counter=self.counter,
                     )
                 }
             )

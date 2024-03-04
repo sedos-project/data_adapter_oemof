@@ -22,9 +22,12 @@ def calculation(func):
     return decorated_func
 
 
-@calculation
-def get_name(region, carrier, tech, counter):
-    return f"{region}-{carrier}-{tech}--{counter.next()}"
+# @calculation # TODO maybe remove? @henhuy
+def get_name(*args, counter=None):
+    name = "--".join(args)
+    if counter:
+        name += f"--{next(counter)}"
+    return name
 
 
 @calculation
