@@ -482,7 +482,7 @@ class DataPackage:
         parametrized_sequences = {}
         foreign_keys = {}
         # Iterate Elements
-        for process_name, struct in adapter.get_process_list().items():
+        for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):

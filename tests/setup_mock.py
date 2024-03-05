@@ -212,7 +212,15 @@ def define_mock():
     # Create a mock adapter object for testing
     mock_adapter = mock.Mock(spec=Adapter)
     # Mock the required methods and attributes of the Adapter
-    mock_adapter.get_process_list.return_value = {
+
+    # Create a mock object for the "structure" attribute
+    mock_structure = mock.Mock()
+
+    # Assign the "structure" attribute to the mock object
+    mock_adapter.structure = mock_structure
+
+    # Define the processes dictionary
+    processes = {
         "modex_tech_storage_battery": {
             "default": {"inputs": ["electricity"], "outputs": []}
         },
@@ -227,6 +235,9 @@ def define_mock():
         },
         "modex_tech_Load": {"default": {"inputs": ["electricity"], "outputs": []}},
     }
+
+    # Set the processes dictionary as an attribute of the "structure" mock object
+    mock_adapter.structure.processes = processes
 
     mock_adapter.get_process.side_effect = mock_get_process
 

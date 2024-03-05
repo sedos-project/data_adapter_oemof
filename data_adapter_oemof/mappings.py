@@ -11,10 +11,7 @@ from .settings import BUS_MAP, PARAMETER_MAP
 
 logger = logging.getLogger()
 
-DEFAULT_MAPPING = {
-    "carrier": "carrier",
-    "tech": "tech",
-}
+DEFAULT_MAPPING = {}
 
 Field = collections.namedtuple(typename="Field", field_names=["name", "type"])
 
