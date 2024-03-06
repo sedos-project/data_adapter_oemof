@@ -212,3 +212,70 @@ def test_tsam():
         tsam_config=tsam_config, location_to_save_to=tsam_folder
     )
     check_if_csv_dirs_equal(tsam_folder, os.path.join(tsam_folder, "..", "tsam_goal"))
+
+def test_decomissioning():
+    """
+    Tests Decomissioning with ind_steel_cast example
+    Returns
+    -------
+
+    """
+
+    download_collection(
+        "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
+    )
+    structure = Structure(
+        "SEDOS_Modellstruktur",
+        process_sheet="process_set_steel_casting",
+        parameter_sheet="parameter_input_output_steel_ca",
+    )
+
+    adapter = Adapter(
+        "steel_industry_test",
+        structure=structure,
+    )
+    process_adapter_map = {
+        "modex_tech_storage_battery": "StorageAdapter",
+        "modex_tech_wind_turbine_onshore": "VolatileAdapter",
+        "modex_tech_load_load": "LoadAdapter",
+        "modex_tech_storage_pumped": "StorageAdapter",
+        "modex_tech_generator_steam": "DispatchableAdapter",
+        "modex_tech_photovoltaics_utility": "VolatileAdapter",
+        "modex_com_lignite": "CommodityAdapter",
+        "modex_tech_chp_steam": "DispatchableAdapter",
+    }
+
+    parameter_map = {
+        "DEFAULT": {
+            "marginal_cost": "variable_costs",
+            "fixed_cost": "fixed_costs",
+            "capacity_cost": "capital_costs",
+            "capacity": "installed_capacity",
+            "capacity_potential": "expansion_limit",
+            "carrier_cost": "fuel_costs",
+        },
+        "StorageAdapter": {
+            "invest_relation_output_capacity": "e2p_ratio",
+            "inflow_conversion_factor": "input_ratio",
+            "outflow_conversion_factor": "output_ratio",
+        },
+        "CommodityAdapter": {
+            "amount": "natural_domestic_limit",
+        },
+        "DispatchableAdapter": {
+            "efficiency": "output_ratio",
+        },
+        # "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
+    }
+
+    dta = DataPackage.build_datapackage(
+        adapter=adapter,
+        process_adapter_map=process_adapter_map,
+        parameter_map=parameter_map,
+    )
+    dir = os.path.join(path_default, "tabular_datapackage_hack_a_thon")
+    dta.save_datapackage_to_csv(dir)
+
+    check_if_csv_dirs_equal(
+        dir, os.path.join(path_default, "tabular_datapackage_hack_a_thon_goal")
+    )
