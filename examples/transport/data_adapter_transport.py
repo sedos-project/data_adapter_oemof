@@ -15,7 +15,7 @@ from oemof.tabular import datapackage  # noqa
 
 
 # download_collection(
-#     "https://databus.openenergyplatform.org/nailend/collections/emob_test_collection_1"
+#     "https://databus.openenergyplatform.org/felixmaur/collections/test_bev"
 # )
 
 structure = Structure("sedos_johannes_emob", process_sheet="Processes_tra_road_car")
@@ -35,7 +35,10 @@ process_adapter_map = {
     "tra_road_mcar_ice_pass_gasoline_0": "TransportConversionAdapter",
     "tra_road_mcar_ice_pass_gasoline_1": "TransportConversionAdapter",
     "tra_road_mcar_ice_pass_diesel_0": "TransportConversionAdapter",
-    "tra_road_mcar_ice_pass_diesel_1": "TransportConversionAdapter"
+    "tra_road_mcar_ice_pass_diesel_1": "TransportConversionAdapter",
+    "test_helper_sink_exo_pkm_road_mcar": "CommodityAdapter",
+    "test_pow_wind_turbine_on": "VolatileAdapter"
+
 }
 
 parameter_map = {
@@ -92,6 +95,7 @@ parameter_map = {
         # "invest_c_rate": "data",
         # "fiexed_investment_costs": "data",
     },
+    "VolatileAdapter": {"profile": "onshore"}
 }
 
 bus_map = {
