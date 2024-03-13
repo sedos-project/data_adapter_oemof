@@ -1,7 +1,7 @@
 import dataclasses
 import os
 import warnings
-from typing import Optional
+from typing import Optional, Type
 
 import pandas as pd
 import tsam.timeseriesaggregation as tsam
@@ -9,7 +9,7 @@ from data_adapter.preprocessing import Adapter
 from datapackage import Package
 
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
-from data_adapter_oemof.mappings import Mapper
+from data_adapter_oemof.adapters import Adapter as FacadeAdapter
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
 from data_adapter_oemof.utils import convert_mixed_types_to_same_length
 
@@ -116,18 +116,15 @@ class DataPackage:
         return split_dataframes
 
     @staticmethod
-    def get_foreign_keys(struct: list, mapper: Mapper, components: list) -> list:
+    def get_foreign_keys(facade_adapter: FacadeAdapter, components: list) -> list:
         """
         Writes Foreign keys for one process.
         Searches in adapter class for sequences fields
 
         Parameters
         ----------
-        struct: list
-            Energy System structure defining input/outputs for Processes
-        mapper: Mapper
-            for one element of the Process
-            (foreign keys have to be equal for all components of a Process)
+        facade_adapter: FacadeAdapter
+            Adapter related to current process
         components: list
             all components as of a Process as dicts. Helps to check what columns
             that could be pointing to sequences are found in Sequences.
@@ -137,42 +134,46 @@ class DataPackage:
         list of foreignKeys for Process including bus references and pointers to files
         containing `profiles`
         """
+        if facade_adapter is None:
+            return []
         new_foreign_keys = []
         components = pd.DataFrame(components)
-        for bus in mapper.get_busses(struct).keys():
+        for bus in facade_adapter.get_busses().keys():
             new_foreign_keys.append(
                 {"fields": bus, "reference": {"fields": "name", "resource": "bus"}}
             )
 
-        for field in mapper.get_fields():
+        for field in facade_adapter.get_fields():
             if (
-                mapper.is_sequence(field.type)
+                facade_adapter.is_sequence(field.type)
                 and field.name in components.columns
                 and pd.api.types.infer_dtype(components[field.name]) == "string"
             ):
-                if all(components[field.name].isin(mapper.timeseries.columns)):
+                if all(components[field.name].isin(facade_adapter.timeseries.columns)):
                     new_foreign_keys.append(
                         {
                             "fields": field.name,
                             "reference": {
-                                "resource": f"{mapper.process_name}_sequence"
+                                "resource": f"{facade_adapter.process_name}_sequence"
                             },
                         }
                     )
-                elif any(components[field.name].isin(mapper.timeseries.columns)):
+                elif any(
+                    components[field.name].isin(facade_adapter.timeseries.columns)
+                ):
                     # Todo clean up on examples:
                     #   -remove DE from hackerthon or
                     #   -create propper example with realistic project data
                     warnings.warn(
                         "Not all profile columns are set within the given profiles."
                         f" Please check if there is a timeseries for every Component in "
-                        f"{mapper.process_name}"
+                        f"{facade_adapter.process_name}"
                     )
                     new_foreign_keys.append(
                         {
                             "fields": field.name,
                             "reference": {
-                                "resource": f"{mapper.process_name}_sequence"
+                                "resource": f"{facade_adapter.process_name}_sequence"
                             },
                         }
                     )
@@ -326,7 +327,7 @@ class DataPackage:
         return None
 
     @staticmethod
-    def yearly_scalars_to_periodic_values(scalar_dataframe) -> None:
+    def yearly_scalars_to_periodic_values(scalar_dataframe) -> pd.DataFrame:
         """
         Turns yearly scalar values to periodic values
 
@@ -482,7 +483,7 @@ class DataPackage:
         parametrized_sequences = {}
         foreign_keys = {}
         # Iterate Elements
-        for process_name, struct in adapter.get_process_list().items():
+        for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
@@ -493,7 +494,8 @@ class DataPackage:
                     + [x[0] for x in timeseries.columns.get_level_values(1).values]
                 )
             facade_adapter_name: str = process_adapter_map[process_name]
-            facade_adapter = FACADE_ADAPTERS[facade_adapter_name]
+            facade_adapter: Type[FacadeAdapter] = FACADE_ADAPTERS[facade_adapter_name]
+            component_adapter: Optional[FacadeAdapter] = None
             components = []
             process_busses = []
             process_scalars = cls.yearly_scalars_to_periodic_values(
@@ -501,30 +503,27 @@ class DataPackage:
             )
             # Build class from adapter with Mapper and add up for each component within the Element
             for component_data in process_scalars.to_dict(orient="records"):
-                component_mapper = Mapper(
-                    adapter=facade_adapter,
+                component_adapter: FacadeAdapter = facade_adapter(
                     process_name=process_name,
                     data=component_data,
                     timeseries=timeseries,
-                    mapping=parameter_map,
+                    structure=struct,
+                    parameter_map=parameter_map,
                     bus_map=bus_map,
                 )
-                components.append(
-                    FACADE_ADAPTERS[facade_adapter_name](
-                        struct=struct, mapper=component_mapper
-                    ).facade_dict
-                )
-                # Fill with all busses occurring, needed for foreign keys as well!
-                process_busses += list(component_mapper.get_busses(struct).values())
+                components.append(component_adapter.facade_dict)
+                # Fill with all buses occurring, needed for foreign keys as well!
+                process_busses += list(component_adapter.get_busses().values())
 
             process_busses = list(pd.unique(process_busses))
             parametrized_elements["bus"] += process_busses
 
             # getting foreign keys with last component
             # foreign keys have to be equal for every component within a Process
-            # as foreign key columns cannot have mixed meaning
+            # as foreign key columns cannot have mixed meaning.
+            # thus reading foreign keys only from last facade adapter is sufficient.
             foreign_keys[process_name] = cls.get_foreign_keys(
-                struct, component_mapper, components
+                component_adapter, components
             )
 
             parametrized_elements[process_name] = pd.DataFrame(components)

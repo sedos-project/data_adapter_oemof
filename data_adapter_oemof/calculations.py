@@ -1,6 +1,8 @@
-import warnings
-
 from oemof.tools.economics import annuity
+
+
+class CalculationError(Exception):
+    """Raise this exception if calculation goes wrong"""
 
 
 def calculation(func):
@@ -12,19 +14,21 @@ def calculation(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:  # pylint: disable=broad-except
-            warnings.warn(
+            raise CalculationError(
                 f"Calculation function '{func.__name__}' \n"
                 f"called with {args, kwargs} \n"
                 f"failed because of: \n" + str(e)
             )
-            return None
 
     return decorated_func
 
 
 @calculation
-def get_name(region, carrier, tech):
-    return f"{region}-{carrier}-{tech}"
+def get_name(*args, counter=None):
+    name = "--".join(args)
+    if counter:
+        name += f"--{next(counter)}"
+    return name
 
 
 @calculation
