@@ -20,7 +20,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 data_adapter = { git = "https://git@github.com/sedos-project/data_adapter", branch = "dev"}
-oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", branch = "dev"}
+oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", branch = "feature/battery-electric-vehicle_meta-facade"}
 boto3 = "1.26.125"  # fix boto3 to fasten up dependency resolution
 python-dotenv = "^0.21.0"
 tsam = "^2.3.1"
