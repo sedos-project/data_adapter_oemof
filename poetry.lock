@@ -517,7 +517,7 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "data-adapter"
-version = "0.20.2"
+version = "0.20.3"
 description = "Provides general functionality for other data adapters"
 optional = false
 python-versions = ">=3.8.1,<4.0.0"
@@ -537,8 +537,8 @@ units = "^0.7"
 [package.source]
 type = "git"
 url = "https://git@github.com/sedos-project/data_adapter"
-reference = "dev"
-resolved_reference = "b8a429563f1bc90afa3c8b86fe61a4953d3117df"
+reference = "main"
+resolved_reference = "a1dc535846405c924cc0f4a08869896603c4b4ba"
 
 [[package]]
 name = "datapackage"
@@ -2703,4 +2703,4 @@ docs = []
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "99fce4ab11d87e1255cd413424b20bfe759edbc08d8baa0279d1c7ecb545845c"
+content-hash = "1fdae68d1fd816aeff5012460c0dfac7211aa228779e45178b530dd2598a9700"
