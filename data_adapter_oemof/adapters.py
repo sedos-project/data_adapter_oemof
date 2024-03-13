@@ -405,7 +405,7 @@ class BevFleetAdapter(Adapter):
     BevFleetAdapter
     """
 
-    type = "Bev Fleet"
+    type = "bev_fleet"
     facade = facades.BevFleet  # .Bev
 
     def get_default_parameters(
