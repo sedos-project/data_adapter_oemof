@@ -6,7 +6,7 @@ os.environ["STRUCTURES_DIR"] = ""
 
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
-from data_adapter.databus import download_collection
+
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
 # Download Collection
@@ -18,7 +18,7 @@ structure = Structure(
     "Industriestruktur",
     process_sheet="process_set_steel_casting",
     parameter_sheet="parameter_input_output_steel_ca",
-    helper_sheet="steel_casting_helper"
+    helper_sheet="steel_casting_helper",
 )
 
 adapter = Adapter(
