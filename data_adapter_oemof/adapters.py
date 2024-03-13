@@ -414,8 +414,12 @@ class MIMOAdapter(Adapter):
         Field(name="region", type=str),
         Field(name="year", type=int),
         Field(name="groups", type=dict),
-        Field(name="capacity_cost", type=dict),
+        Field(name="capacity_cost", type=float),
+        Field(name="capacity", type=float),
+        Field(name="max", type=float),
+        Field(name="expandable", type=bool),
     )
+
 
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
