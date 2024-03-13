@@ -2,16 +2,14 @@ import os
 import pathlib
 
 os.environ["COLLECTIONS_DIR"] = "./collections/"
-os.environ["STRUCTURES_DIR"] = "./structures"
+os.environ["STRUCTURES_DIR"] = "./examples/industry"
 
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
 
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
-structure = Structure(
-    "SEDOS_Modellstruktur", process_sheet="Processes_steel_industry_2"
-)
+structure = Structure("Industriestruktur", process_sheet="Processes_steel_industry_2")
 adapter = Adapter(
     "steel_industry_test_adapted",
     structure=structure,
