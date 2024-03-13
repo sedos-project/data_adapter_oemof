@@ -14,8 +14,14 @@ from oemof.tabular import datapackage  # noqa
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
 # download_collection(
-#     "https://databus.openenergyplatform.org/felixmaur/collections/test_bev"
+# #     "https://databus.openenergyplatform.org/felixmaur/collections/test_bev"
+# "https://databus.openenergyplatform.org/felixmaur/collections/test_bev"
 # )
+
+import warnings
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
+
 
 structure = Structure("sedos_johannes_emob", process_sheet="Processes_tra_road_car")
 transport_adapter = Adapter(
