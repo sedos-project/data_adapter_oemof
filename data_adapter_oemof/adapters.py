@@ -408,10 +408,12 @@ class BevFleetAdapter(Adapter):
     type = "Bev Fleet"
     facade = facades.BevFleet  # .Bev
 
-    def get_default_parameters(self, struct: dict, mapper: Mapper) -> dict:
-        defaults = super().get_default_parameters(struct, mapper)
-        #defaults.update({"name": mapper.get("process_name", default="fake_name")})
-        defaults.update({"name": mapper.process_name})
+    def get_default_parameters(
+        self,
+    ) -> dict:
+        defaults = super().get_default_parameters()
+        # defaults.update({"name": mapper.get("process_name", default="fake_name")})
+        defaults.update({"name": self.process_name})
         return defaults
 
 
@@ -424,9 +426,11 @@ class TransportConversionAdapter(Adapter):
     type = "conversion"
     facade = facades.Conversion
 
-    def get_default_parameters(self, struct: dict, mapper: Mapper) -> dict:
-        defaults = super().get_default_parameters(struct, mapper)
-        defaults.update({"name": mapper.process_name})
+    def get_default_parameters(
+        self,
+    ) -> dict:
+        defaults = super().get_default_parameters()
+        defaults.update({"name": self.process_name})
         return defaults
 
 

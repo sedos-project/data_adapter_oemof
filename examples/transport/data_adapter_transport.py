@@ -58,7 +58,7 @@ parameter_map = {
         "outflow_conversion_factor": "output_ratio",
     },
     "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
-    "IndividualMobilitySectorAdapter": {
+    "BevFleetAdapter": {
         "storage_capacity": "capacity_e_inst",
         "charging_power_flex": "capacity_tra_connection_flex_max",
         "availability_flex": "capacity_tra_connection_flex_timeseries_upper",
