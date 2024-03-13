@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "data_adapter_oemof_tests"
+name = "data_adapter_oemof"
 version = "0.0.1dev"
 description = "Data adapter from oedatamodel to oemof.tabular datapackages"
 authors = [
