@@ -9,7 +9,8 @@ from data_adapter.structure import Structure  # noqa: E402
 from data_adapter.databus import download_collection
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
-
+# Download Collection
+# Due to Nan values in "ind_scalar" type column datapackage.json must be adjusted after download
 # download_collection(
 #         "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
 #     )
