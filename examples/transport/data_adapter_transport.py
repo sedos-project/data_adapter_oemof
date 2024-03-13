@@ -9,10 +9,9 @@ os.environ["STRUCTURES_DIR"] = "./structures"
 from data_adapter.databus import download_collection  # noqa: E402
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
-
-from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 from oemof.tabular import datapackage  # noqa
 
+from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
 # download_collection(
 #     "https://databus.openenergyplatform.org/felixmaur/collections/test_bev"

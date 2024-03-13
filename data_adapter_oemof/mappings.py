@@ -131,7 +131,7 @@ class Mapper:
         )
         return None
 
-    def get(self, key, field_type: Optional[Type] = None, default = None):
+    def get(self, key, field_type: Optional[Type] = None, default=None):
         """
         Map key with adapter specific mapping and return data for key if
         available.
