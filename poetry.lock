@@ -1403,7 +1403,7 @@ plots = ["matplotlib", "plotly"]
 type = "git"
 url = "https://git@github.com/oemof/oemof-tabular"
 reference = "feature/battery-electric-vehicle_meta-facade"
-resolved_reference = "8cf7a93e7e0e6e2a8e844a4ba0b9ef0b5aba2de6"
+resolved_reference = "90faf86ccb4bab2087fdfb7805a650bb6a756bfd"
 
 [[package]]
 name = "oemof-tools"
