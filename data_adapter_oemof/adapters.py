@@ -420,7 +420,6 @@ class MIMOAdapter(Adapter):
         Field(name="expandable", type=bool),
     )
 
-
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
         defaults["groups"] = self.get_groups()

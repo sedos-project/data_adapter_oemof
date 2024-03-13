@@ -48,8 +48,7 @@ process_adapter_map = {
 }
 
 parameter_map = {
-    "DEFAULT": {
-    },
+    "DEFAULT": {},
     "StorageAdapter": {
         "capacity_potential": "expansion_limit",
         "capacity": "installed_capacity",
@@ -57,10 +56,12 @@ parameter_map = {
         "inflow_conversion_factor": "input_ratio",
         "outflow_conversion_factor": "output_ratio",
     },
-    "MIMOAdapter": {"capacity_cost": "cost_fix_capacity_w",
-                    "capacity":"capacity_w_resid",
-                    "max":"activity_bound_fix",
-                    "expandable":"capacity_w_abs_new_max",},
+    "MIMOAdapter": {
+        "capacity_cost": "cost_fix_capacity_w",
+        "capacity": "capacity_w_resid",
+        "max": "activity_bound_fix",
+        "expandable": "capacity_w_abs_new_max",
+    },
     "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
 }
 
