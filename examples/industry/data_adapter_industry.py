@@ -60,7 +60,7 @@ parameter_map = {
     "MIMOAdapter": {"capacity_cost": "cost_fix_capacity_w",
                     "capacity":"capacity_w_resid",
                     "max":"activity_bound_fix",
-                    "":"",},
+                    "expandable":"capacity_w_abs_new_max",},
     "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
 }
 
