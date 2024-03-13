@@ -26,8 +26,8 @@ transport_adapter = Adapter(
 process_adapter_map = {
     "tra_road_mcar_fcev_pass_0": "TransportConversionAdapter",
     "tra_road_mcar_fcev_pass_1": "TransportConversionAdapter",
-    "tra_road_mcar_bev_pass_0": "IndividualMobilitySectorAdapter",
-    "tra_road_mcar_bev_pass_1": "IndividualMobilitySectorAdapter",
+    "tra_road_mcar_bev_pass_0": "BevFleetAdapter",
+    "tra_road_mcar_bev_pass_1": "BevFleetAdapter",
     "tra_road_mcar_hyb_pass_gasoline_0": "TransportConversionAdapter",
     "tra_road_mcar_hyb_pass_gasoline_1": "TransportConversionAdapter",
     "tra_road_mcar_hyb_pass_diesel_0": "TransportConversionAdapter",
@@ -37,8 +37,7 @@ process_adapter_map = {
     "tra_road_mcar_ice_pass_diesel_0": "TransportConversionAdapter",
     "tra_road_mcar_ice_pass_diesel_1": "TransportConversionAdapter",
     "test_helper_sink_exo_pkm_road_mcar": "CommodityAdapter",
-    "test_pow_wind_turbine_on": "VolatileAdapter"
-
+    "test_pow_wind_turbine_on": "VolatileAdapter",
 }
 
 parameter_map = {
@@ -95,27 +94,22 @@ parameter_map = {
         # "invest_c_rate": "data",
         # "fiexed_investment_costs": "data",
     },
-    "VolatileAdapter": {"profile": "onshore"}
+    "VolatileAdapter": {"profile": "onshore"},
 }
 
 bus_map = {
-    'VolatileAdapter': {
-        'bus': 'electricity'
-    },
-    'TransportConversionAdapter': {
-        'from_bus': 'electricity',
-        'to_bus': 'mobility'
-    },
-    "IndividualMobilitySectorAdapter": {
+    "VolatileAdapter": {"bus": "electricity"},
+    "TransportConversionAdapter": {"from_bus": "electricity", "to_bus": "mobility"},
+    "BevFleetAdapter": {
         "electricity_bus": "electricity",
         "transport_commodity_bus": "mobility",
-    }
+    },
 }
 
 dp = DataPackage.build_datapackage(
     adapter=transport_adapter,
     process_adapter_map=process_adapter_map,
     parameter_map=parameter_map,
-    bus_map=bus_map
+    bus_map=bus_map,
 )
 dp.save_datapackage_to_csv("./datapackage")

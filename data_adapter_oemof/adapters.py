@@ -162,13 +162,14 @@ class VolatileAdapter(Adapter):
     type = "volatile"
     facade = facades.Volatile
 
-class IndividualMobilitySectorAdapter(Adapter):
+
+class BevFleetAdapter(Adapter):
     """
-    IndividualMobilitySectorAdapter
+    BevFleetAdapter
     """
 
-    type = "individual mobility sector"
-    facade = facades.IndividualMobilitySector  # .Bev
+    type = "Bev Fleet"
+    facade = facades.BevFleet  # .Bev
 
     def get_default_parameters(self, struct: dict, mapper: Mapper) -> dict:
         defaults = super().get_default_parameters(struct, mapper)
@@ -196,5 +197,3 @@ class TransportConversionAdapter(Adapter):
 FACADE_ADAPTERS = {
     name: adapter for name, adapter in globals().items() if name.endswith("Adapter")
 }
-
-
