@@ -2,16 +2,26 @@ import os
 import pathlib
 
 os.environ["COLLECTIONS_DIR"] = "./collections/"
-os.environ["STRUCTURES_DIR"] = "./examples/industry"
+os.environ["STRUCTURES_DIR"] = ""
 
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
-
+from data_adapter.databus import download_collection
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
-structure = Structure("Industriestruktur", process_sheet="Processes_steel_industry_2")
+
+# download_collection(
+#         "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
+#     )
+structure = Structure(
+    "Industriestruktur",
+    process_sheet="process_set_steel_casting",
+    parameter_sheet="parameter_input_output_steel_ca",
+    helper_sheet="steel_casting_helper"
+)
+
 adapter = Adapter(
-    "steel_industry_test_adapted",
+    "steel_industry_test",
     structure=structure,
 )
 process_adapter_map = {
@@ -19,13 +29,21 @@ process_adapter_map = {
     "modex_tech_generator_gas": "ConversionAdapter",
     "modex_tech_wind_turbine_onshore": "VolatileAdapter",
     "modex_demand": "LoadAdapter",
+    "ind_scalars": "LoadAdapter",
     "pow_combustion_gt_natgas": "ConversionAdapter",
     "x2x_import_natural_gas": "CommodityAdapter",
     "x2x_import_crudesteel": "CommodityAdapter",
     "x2x_import_coke_oven_gas": "CommodityAdapter",
     "x2x_import_h2": "CommodityAdapter",
     "ind_steel_casting_1": "MIMOAdapter",
+    "ind_steel_casting_0": "MIMOAdapter",
+    "ind_steel_hyddri_1": "MIMOAdapter",
     "ind_steel_demand": "LoadAdapter",
+    "x2x_import_elec": "CommodityAdapter",
+    "ind_steel_boiler_0": "ConversionAdapter",
+    "excess_co2": "ExcessAdapter",
+    "excess_ch4": "ExcessAdapter",
+    "excess_n2o": "ExcessAdapter",
 }
 
 parameter_map = {
