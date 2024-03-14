@@ -400,6 +400,66 @@ class VolatileAdapter(Adapter):
     facade = facades.Volatile
 
 
+class BevFleetAdapter(Adapter):
+    """
+    BevFleetAdapter
+    """
+
+    type = "bev_fleet"
+    facade = facades.BevFleet  # .Bev
+
+    def get_default_parameters(
+        self,
+    ) -> dict:
+        defaults = super().get_default_parameters()
+        # defaults.update({"name": mapper.get("process_name", default="fake_name")})
+        defaults.update({"name": self.process_name})
+        return defaults
+
+    def create_bev_share_constraint(self
+                                    ):
+        """
+        Creates data frame for bev share constraint and returns it.
+        Returns
+        -------
+
+        """
+        df = pd.DataFrame(
+            {'name': [f'{self.process_name}_{year}' for year in self.data['year']],
+             'type': self.process_name,
+             'year': self.data['year'],
+             'label': self.type,
+             'share_mob_flex_G2V': self.data['share_tra_flex_g2v'][0] if len(
+                 self.data['share_tra_flex_g2v']) == 1 else self.data[
+                 'share_tra_flex_g2v'],  # if-structure necessary because single value is contained in a list.
+             'share_mob_flex_V2G': self.data['share_tra_flex_v2g'][0] if len(
+                 self.data['share_tra_flex_v2g']) == 1 else self.data[
+                 'share_tra_flex_v2g'],
+             'share_mob_inflex': self.data['share_tra_inflex'][0]if len(
+                 self.data['share_tra_inflex']) == 1 else self.data[
+                 'share_tra_inflex'],
+             }
+        )
+        return {f'bev_share_{self.process_name}': df}
+
+
+class TransportConversionAdapter(Adapter):
+    """
+    TransportConversionAdapter
+    To use Conversion, map the inputs and outputs within the structure to avoid deduction failure.
+    """
+
+    type = "conversion"
+    facade = facades.Conversion
+
+    def get_default_parameters(
+        self,
+    ) -> dict:
+        defaults = super().get_default_parameters()
+        defaults.update({"name": self.process_name})
+        return defaults
+
+
 # Create a dictionary of all adapter classes defined in this module
 FACADE_ADAPTERS = {
     name: adapter for name, adapter in globals().items() if name.endswith("Adapter")

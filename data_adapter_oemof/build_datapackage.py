@@ -12,6 +12,7 @@ from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.adapters import Adapter as FacadeAdapter
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
 from data_adapter_oemof.utils import convert_mixed_types_to_same_length
+from data_adapter_oemof.adapters import BevFleetAdapter
 
 
 # Define a function to aggregate differing values into a list
@@ -101,6 +102,7 @@ class DataPackage:
     periods: pd.DataFrame()
     location_to_save_to: str = None
     tsa_parameters: pd.DataFrame = None
+    constraints: dict[str, pd.DataFrame] = None
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -482,6 +484,7 @@ class DataPackage:
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
+        constraints = {}
         # Iterate Elements
         for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
@@ -491,7 +494,7 @@ class DataPackage:
                 timeseries.columns = (
                     timeseries.columns.get_level_values(0)
                     + "_"
-                    + [x[0] for x in timeseries.columns.get_level_values(1).values]
+                    + timeseries.columns.get_level_values(1)  #  Adhoc fix bev
                 )
             facade_adapter_name: str = process_adapter_map[process_name]
             facade_adapter: Type[FacadeAdapter] = FACADE_ADAPTERS[facade_adapter_name]
@@ -511,6 +514,8 @@ class DataPackage:
                     parameter_map=parameter_map,
                     bus_map=bus_map,
                 )
+                if component_adapter.type == 'bev_fleet':
+                    constraints.update(component_adapter.create_bev_share_constraint())
                 components.append(component_adapter.facade_dict)
                 # Fill with all buses occurring, needed for foreign keys as well!
                 process_busses += list(component_adapter.get_busses().values())
@@ -546,4 +551,5 @@ class DataPackage:
             foreign_keys=foreign_keys,
             periods=periods,
             location_to_save_to=location_to_save_to,
+            constraints=constraints,
         )
