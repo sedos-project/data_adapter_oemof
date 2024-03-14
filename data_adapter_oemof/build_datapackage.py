@@ -12,6 +12,7 @@ from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.adapters import Adapter as FacadeAdapter
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
 from data_adapter_oemof.utils import convert_mixed_types_to_same_length
+from data_adapter_oemof.adapters import BevFleetAdapter
 
 
 # Define a function to aggregate differing values into a list
@@ -511,6 +512,8 @@ class DataPackage:
                     parameter_map=parameter_map,
                     bus_map=bus_map,
                 )
+                if component_adapter.type == 'bev_fleet':
+                    component_adapter.create_bev_share_constraint()
                 components.append(component_adapter.facade_dict)
                 # Fill with all buses occurring, needed for foreign keys as well!
                 process_busses += list(component_adapter.get_busses().values())

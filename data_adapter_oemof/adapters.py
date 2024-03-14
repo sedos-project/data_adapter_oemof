@@ -416,6 +416,27 @@ class BevFleetAdapter(Adapter):
         defaults.update({"name": self.process_name})
         return defaults
 
+    def create_bev_share_constraint(self
+                                    ):
+        df = pd.DataFrame(
+            {'name': [f'{self.process_name}_{year}' for year in self.data['year']],
+             'type': self.process_name,
+             'year': self.data['year'],
+             'label': self.type,
+             'share_mob_flex_G2V': self.data['share_tra_flex_g2v'][0] if len(
+                 self.data['share_tra_flex_g2v']) == 1 else self.data[
+                 'share_tra_flex_g2v'],  # if-structure necessary because single value is contained in a list.
+             'share_mob_flex_V2G': self.data['share_tra_flex_v2g'][0] if len(
+                 self.data['share_tra_flex_v2g']) == 1 else self.data[
+                 'share_tra_flex_v2g'],
+             'share_mob_inflex': self.data['share_tra_inflex'][0]if len(
+                 self.data['share_tra_inflex']) == 1 else self.data[
+                 'share_tra_inflex'],
+             }
+        )
+        # todo: save df to csv or find function to do so.
+        return
+
 
 class TransportConversionAdapter(Adapter):
     """
