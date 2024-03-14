@@ -418,6 +418,12 @@ class BevFleetAdapter(Adapter):
 
     def create_bev_share_constraint(self
                                     ):
+        """
+        Creates data frame for bev share constraint and returns it.
+        Returns
+        -------
+
+        """
         df = pd.DataFrame(
             {'name': [f'{self.process_name}_{year}' for year in self.data['year']],
              'type': self.process_name,
@@ -434,8 +440,7 @@ class BevFleetAdapter(Adapter):
                  'share_tra_inflex'],
              }
         )
-        # todo: save df to csv or find function to do so.
-        return
+        return {f'bev_share_{self.process_name}': df}
 
 
 class TransportConversionAdapter(Adapter):

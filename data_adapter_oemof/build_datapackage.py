@@ -102,6 +102,7 @@ class DataPackage:
     periods: pd.DataFrame()
     location_to_save_to: str = None
     tsa_parameters: pd.DataFrame = None
+    constraints: dict[str, pd.DataFrame] = None
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -483,6 +484,7 @@ class DataPackage:
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
+        constraints = {}
         # Iterate Elements
         for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
@@ -513,7 +515,7 @@ class DataPackage:
                     bus_map=bus_map,
                 )
                 if component_adapter.type == 'bev_fleet':
-                    component_adapter.create_bev_share_constraint()
+                    constraints.update(component_adapter.create_bev_share_constraint())
                 components.append(component_adapter.facade_dict)
                 # Fill with all buses occurring, needed for foreign keys as well!
                 process_busses += list(component_adapter.get_busses().values())
@@ -549,4 +551,5 @@ class DataPackage:
             foreign_keys=foreign_keys,
             periods=periods,
             location_to_save_to=location_to_save_to,
+            constraints=constraints,
         )
