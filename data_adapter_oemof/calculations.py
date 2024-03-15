@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 from oemof.tools.economics import annuity
 
@@ -49,7 +51,8 @@ def decommission(facade_adapter) -> dict:
     max_column = "max"
 
     if capacity_column not in facade_adapter.keys():
-        raise AttributeError("Capacity missing for decommissioning")
+        warnings.warn("Capacity missing for decommissioning")
+        return facade_adapter
 
     if max_column in facade_adapter.keys():
         if facade_adapter[capacity_column] == facade_adapter[max_column]:
@@ -62,10 +65,5 @@ def decommission(facade_adapter) -> dict:
         # FIXME: Does `max`/`full_load_time_max`
         facade_adapter[max_column] = facade_adapter[capacity_column]
 
-    max_capacity = np.max(facade_adapter[capacity_column])
-    facade_adapter[capacity_column] = [
-        max_capacity for i in facade_adapter[capacity_column]
-    ]
+    facade_adapter[capacity_column] = np.max(facade_adapter[capacity_column])
     return facade_adapter
-
-    # divide each capacity by max capacity and insert fraction as max value
