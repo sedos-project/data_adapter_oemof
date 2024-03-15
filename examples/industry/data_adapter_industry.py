@@ -11,10 +11,16 @@ from data_adapter.structure import Structure  # noqa: E402
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
 # Download Collection
-# Due to Nan values in "ind_scalar" type column datapackage.json must be adjusted after download
 # download_collection(
 #         "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
 #     )
+
+# After download, comment `download_collection` and adapt `collection.json`!
+# Ff uncommented, collection might be downloaded again and changes will be
+# reversed!
+# Replace each `NaN` value in `names` of  "ind_scalar" with "ind_scalar"
+# in `collection.json`
+
 structure = Structure(
     "Industriestruktur",
     process_sheet="process_set_steel_casting",
