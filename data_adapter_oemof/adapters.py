@@ -74,7 +74,8 @@ class Adapter:
                     )
                 }
             )
-
+        if self.process_name[-1] == "0":
+            defaults = calculations.decommission(defaults)
         return defaults
 
     def get_fields(self) -> list[Field]:

@@ -1,4 +1,5 @@
 from oemof.tools.economics import annuity
+import numpy as np
 
 
 class CalculationError(Exception):
@@ -34,3 +35,36 @@ def get_name(*args, counter=None):
 @calculation
 def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
     return annuity(overnight_cost, lifetime, wacc) + fixed_cost
+
+
+def decommission(facade_adapter) -> dict:
+    """
+    Non investment objects must be decomisioned in multi period to take end of lifetime
+     for said objet into account
+    Returns
+    -------
+
+    """
+    capacity_column = "capacity"
+    max_column = "max"
+
+    if capacity_column not in facade_adapter.keys():
+        raise AttributeError("Capacity missing for decommissioning")
+
+    if max_column in facade_adapter.keys():
+        if facade_adapter[capacity_column] == facade_adapter[max_column]:
+            pass
+        else:
+            pass
+            # do something to recalculate max values
+            # FIXME: waiting for implementation of non-oemof value calculation
+    else:
+        # FIXME: Does `max`/`full_load_time_max`
+        facade_adapter[max_column] = facade_adapter[capacity_column]
+
+    max_capacity = np.max(facade_adapter[capacity_column])
+    facade_adapter[capacity_column] = [max_capacity for i in facade_adapter[capacity_column]]
+    return facade_adapter
+
+    # divide each capacity by max capacity and insert fraction as max value
+
