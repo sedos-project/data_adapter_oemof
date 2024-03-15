@@ -3,6 +3,7 @@ import os
 import warnings
 from typing import Optional, Type
 
+import numpy as np
 import pandas as pd
 import tsam.timeseriesaggregation as tsam
 from data_adapter.preprocessing import Adapter
