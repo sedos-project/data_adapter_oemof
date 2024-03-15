@@ -483,7 +483,7 @@ class DataPackage:
 
         def _reduce_lists(x):
             """Unnest list of single tuple or list of single list"""
-            if isinstance(x[0], (list, tuple)):
+            if isinstance(x[0], (list, tuple)) and len(x[0]) == 1:
                 x = x.map(lambda x: x[0])
             return x
 
