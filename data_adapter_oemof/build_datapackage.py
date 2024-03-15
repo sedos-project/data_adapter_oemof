@@ -480,6 +480,13 @@ class DataPackage:
         DataPackage
 
         """
+
+        def _reduce_lists(x):
+            """Unnest list of single tuple or list of single list"""
+            if isinstance(x[0], (list, tuple)):
+                x = x.map(lambda x: x[0])
+            return x
+
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
@@ -490,9 +497,9 @@ class DataPackage:
             if isinstance(timeseries.columns, pd.MultiIndex):
                 # FIXME: Will Regions be lists of strings or strings?
                 timeseries.columns = (
-                    timeseries.columns.get_level_values(0)
+                    _reduce_lists(timeseries.columns.get_level_values(0))
                     + "_"
-                    + timeseries.columns.get_level_values(1)
+                    + _reduce_lists(timeseries.columns.get_level_values(1))
                 )
             facade_adapter_name: str = process_adapter_map[process_name]
             facade_adapter: Type[FacadeAdapter] = FACADE_ADAPTERS[facade_adapter_name]
