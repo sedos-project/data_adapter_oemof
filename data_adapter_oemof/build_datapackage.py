@@ -495,7 +495,6 @@ class DataPackage:
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
-                # FIXME: Will Regions be lists of strings or strings?
                 timeseries.columns = (
                     _reduce_lists(timeseries.columns.get_level_values(0))
                     + "_"
