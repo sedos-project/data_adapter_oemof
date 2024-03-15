@@ -4,6 +4,7 @@ import pathlib
 os.environ["COLLECTIONS_DIR"] = "./collections/"
 os.environ["STRUCTURES_DIR"] = ""
 
+from data_adapter.databus import download_collection  # noqa
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
 
