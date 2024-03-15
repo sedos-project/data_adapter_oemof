@@ -1,5 +1,5 @@
-from oemof.tools.economics import annuity
 import numpy as np
+from oemof.tools.economics import annuity
 
 
 class CalculationError(Exception):
@@ -63,8 +63,9 @@ def decommission(facade_adapter) -> dict:
         facade_adapter[max_column] = facade_adapter[capacity_column]
 
     max_capacity = np.max(facade_adapter[capacity_column])
-    facade_adapter[capacity_column] = [max_capacity for i in facade_adapter[capacity_column]]
+    facade_adapter[capacity_column] = [
+        max_capacity for i in facade_adapter[capacity_column]
+    ]
     return facade_adapter
 
     # divide each capacity by max capacity and insert fraction as max value
-

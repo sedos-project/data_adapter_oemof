@@ -272,6 +272,7 @@ def test_decomissioning():
         process_adapter_map=process_adapter_map,
         parameter_map=parameter_map,
     )
+    print(dta)
     # dir = os.path.join(path_default, "tabular_datapackage_hack_a_thon")
     # dta.save_datapackage_to_csv(dir)
     #
