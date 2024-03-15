@@ -16,7 +16,7 @@ from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 #     )
 
 # After download, comment `download_collection` and adapt `collection.json`!
-# Ff uncommented, collection might be downloaded again and changes will be
+# If uncommented, collection might be downloaded again and changes will be
 # reversed!
 # Replace each `NaN` value in `names` of  "ind_scalar" with "ind_scalar"
 # in `collection.json`
