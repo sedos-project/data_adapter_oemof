@@ -80,9 +80,15 @@ def _listify_to_periodic(group_df) -> pd.Series:
                 )  # throw out the index
             values = group_df[col].unique()
         if len(values) > 1:
-            unique_values[col] = list(group_df[col])
+            if isinstance(group_df[col].iloc[0], list):
+                unique_values[col] = list(group_df[col].apply(lambda x: x[0]))
+            else:
+                unique_values[col] = list(group_df[col])
         else:
-            unique_values[col] = group_df[col].iloc[0]
+            if isinstance(group_df[col].iloc[0], list):
+                unique_values[col] = group_df[col].iat[0][0]
+            else:
+                unique_values[col] = group_df[col].iat[0]
     unique_values["name"] = "_".join(group_df.name)
     unique_values.drop("year")
     return unique_values
