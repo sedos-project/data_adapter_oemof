@@ -212,3 +212,70 @@ def test_tsam():
         tsam_config=tsam_config, location_to_save_to=tsam_folder
     )
     check_if_csv_dirs_equal(tsam_folder, os.path.join(tsam_folder, "..", "tsam_goal"))
+
+
+def test_decomissioning():
+    """
+    Tests Decomissioning with ind_steel_cast example
+    Returns
+    -------
+
+    """
+
+    download_collection(
+        "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
+    )
+    structure = Structure(
+        "SEDOS_Modellstruktur",
+        process_sheet="process_set_steel_casting",
+        parameter_sheet="parameter_input_output_steel_ca",
+        helper_sheet="steel_casting_helper",
+    )
+
+    adapter = Adapter(
+        "steel_industry_test",
+        structure=structure,
+    )
+    adapter.get_process("ind_steel_casting_0")
+    process_adapter_map = {
+        "x2x_import_elec": "CommodityAdapter",
+        "x2x_import_h2": "CommodityAdapter",
+        "x2x_import_natural_gas": "CommodityAdapter",
+        "ind_steel_casting_0": "DispatchableAdapter",
+        "ind_steel_casting_1": "DispatchableAdapter",
+        "ind_steel_hyddri_1": "DispatchableAdapter",
+        "ind_steel_boiler_0": "DispatchableAdapter",
+        "ind_exo_steel_demand": "LoadAdapter",
+        "excess_co2": "ExcessAdapter",
+        "excess_ch4": "ExcessAdapter",
+        "excess_no2": "ExcessAdapter",
+    }
+
+    parameter_map = {
+        "DEFAULT": {
+            "": "",
+        },
+        "StorageAdapter": {
+            "": "",
+        },
+        "CommodityAdapter": {
+            "": "",
+        },
+        "DispatchableAdapter": {
+            "": "",
+        },
+        # "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
+    }
+
+    dta = DataPackage.build_datapackage(
+        adapter=adapter,
+        process_adapter_map=process_adapter_map,
+        parameter_map=parameter_map,
+    )
+    print(dta)
+    # dir = os.path.join(path_default, "tabular_datapackage_hack_a_thon")
+    # dta.save_datapackage_to_csv(dir)
+    #
+    # check_if_csv_dirs_equal(
+    #     dir, os.path.join(path_default, "tabular_datapackage_hack_a_thon_goal")
+    # )
