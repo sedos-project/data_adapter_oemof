@@ -1,3 +1,4 @@
+import logging
 import warnings
 
 import numpy as np
@@ -39,9 +40,9 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
     return annuity(overnight_cost, lifetime, wacc) + fixed_cost
 
 
-def decommission(facade_adapter) -> dict:
+def decommission(adapter_dict: dict) -> dict:
     """
-    Non investment objects must be decomisioned in multi period to take end of lifetime
+    Non investment objects must be decommissioned in multi period to take end of lifetime
      for said objet into account
     Returns
     -------
@@ -50,20 +51,22 @@ def decommission(facade_adapter) -> dict:
     capacity_column = "capacity"
     max_column = "max"
 
-    if capacity_column not in facade_adapter.keys():
-        warnings.warn("Capacity missing for decommissioning")
-        return facade_adapter
+    if capacity_column not in adapter_dict.keys():
+        logging.info("Capacity missing for decommissioning")
+        return adapter_dict
 
-    if max_column in facade_adapter.keys():
-        if facade_adapter[capacity_column] == facade_adapter[max_column]:
-            pass
+    if not isinstance(adapter_dict[capacity_column], list):
+        logging.info("No capacity fading out that can be decommissioned.")
+        return adapter_dict
+
+    if max_column in adapter_dict.keys():
+        if adapter_dict[capacity_column] == adapter_dict[max_column]:
+            adapter_dict[max_column] = adapter_dict[capacity_column]/np.max(adapter_dict[capacity_column])
         else:
-            pass
-            # do something to recalculate max values
-            # FIXME: waiting for implementation of non-oemof value calculation
+            adapter_dict[max_column] = list((adapter_dict[max_column]/np.max(adapter_dict[capacity_column])))
     else:
         # FIXME: Does `max`/`full_load_time_max`
-        facade_adapter[max_column] = facade_adapter[capacity_column]
+        adapter_dict[max_column] = adapter_dict[capacity_column]/np.max(adapter_dict[capacity_column])
 
-    facade_adapter[capacity_column] = np.max(facade_adapter[capacity_column])
-    return facade_adapter
+    adapter_dict[capacity_column] = np.max(adapter_dict[capacity_column])
+    return adapter_dict
