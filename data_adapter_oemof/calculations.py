@@ -1,5 +1,4 @@
 import logging
-import warnings
 
 import numpy as np
 from oemof.tools.economics import annuity
@@ -42,9 +41,16 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
 
 def decommission(adapter_dict: dict) -> dict:
     """
+
+    Takes adapter dictionary from adapters.py with mapped values.
+
+    Supposed to be called when getting default parameters
+
     Non investment objects must be decommissioned in multi period to take end of lifetime
      for said objet into account
+
     Returns
+    dictionary (
     -------
 
     """
@@ -61,12 +67,18 @@ def decommission(adapter_dict: dict) -> dict:
 
     if max_column in adapter_dict.keys():
         if adapter_dict[capacity_column] == adapter_dict[max_column]:
-            adapter_dict[max_column] = adapter_dict[capacity_column]/np.max(adapter_dict[capacity_column])
+            adapter_dict[max_column] = adapter_dict[capacity_column] / np.max(
+                adapter_dict[capacity_column]
+            )
         else:
-            adapter_dict[max_column] = list((adapter_dict[max_column]/np.max(adapter_dict[capacity_column])))
+            adapter_dict[max_column] = list(
+                (adapter_dict[max_column] / np.max(adapter_dict[capacity_column]))
+            )
     else:
         # FIXME: Does `max`/`full_load_time_max`
-        adapter_dict[max_column] = adapter_dict[capacity_column]/np.max(adapter_dict[capacity_column])
+        adapter_dict[max_column] = adapter_dict[capacity_column] / np.max(
+            adapter_dict[capacity_column]
+        )
 
     adapter_dict[capacity_column] = np.max(adapter_dict[capacity_column])
     return adapter_dict
