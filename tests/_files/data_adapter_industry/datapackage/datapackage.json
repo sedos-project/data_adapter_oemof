@@ -1,0 +1,1022 @@
+{
+  "profile": "tabular-data-package",
+  "resources": [
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "bus",
+      "path": "data/elements/bus.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "balanced",
+            "type": "boolean"
+          }
+        ],
+        "foreignKeys": [],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "excess_n2o",
+      "path": "data/elements/excess_n2o.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "bus",
+            "type": "string"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "x2x_import_h2",
+      "path": "data/elements/x2x_import_h2.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "carrier",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "amount",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "marginal_cost",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "bus",
+            "type": "string"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "ind_steel_casting_1",
+      "path": "data/elements/ind_steel_casting_1.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "carrier",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "tech",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "capacity_cost",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_0",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_1",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_2",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_3",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_4",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_0",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_1",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_2",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_3",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "groups",
+            "type": "object"
+          },
+          {
+            "format": "default",
+            "name": "emissions_factor_sec_methane_co2",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "emissions_factor_sec_methane_n2o",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "emissions_factor_sec_methane_ch4",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_iip_heat_proc",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_iip_steel_crudesteel",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_sec_elec_ind",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "flow_share_sec_hydrogen_max",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_sec_methane",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_sec_hydrogen",
+            "type": "number"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "from_bus_0",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_1",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_2",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_3",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_4",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_0",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_1",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_2",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_3",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "ind_steel_casting_0",
+      "path": "data/elements/ind_steel_casting_0.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "carrier",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "tech",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "capacity",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "max",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "expandable",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_0",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_1",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_2",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_3",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_4",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_0",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_1",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_2",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_3",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "groups",
+            "type": "object"
+          },
+          {
+            "format": "default",
+            "name": "emissions_factor_sec_methane_co2",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "emissions_factor_sec_methane_n2o",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "emissions_factor_sec_methane_ch4",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_iip_heat_proc",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_iip_steel_crudesteel",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_sec_elec_ind",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "flow_share_sec_hydrogen_max",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_sec_methane",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_sec_hydrogen",
+            "type": "number"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "from_bus_0",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_1",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_2",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_3",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_4",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_0",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_1",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_2",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_3",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "excess_ch4",
+      "path": "data/elements/excess_ch4.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "bus",
+            "type": "string"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "ind_steel_boiler_0",
+      "path": "data/elements/ind_steel_boiler_0.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "carrier",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "tech",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "from_bus",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus",
+            "type": "string"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "from_bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "x2x_import_elec",
+      "path": "data/elements/x2x_import_elec.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "carrier",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "amount",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "marginal_cost",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "bus",
+            "type": "string"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "x2x_import_natural_gas",
+      "path": "data/elements/x2x_import_natural_gas.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "carrier",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "amount",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "marginal_cost",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "bus",
+            "type": "string"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "ind_scalars",
+      "path": "data/elements/ind_scalars.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [],
+        "foreignKeys": [],
+        "missingValues": [
+          ""
+        ]
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "ind_steel_hyddri_1",
+      "path": "data/elements/ind_steel_hyddri_1.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "carrier",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "tech",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "capacity_cost",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_0",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_1",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "from_bus_2",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "to_bus_0",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "groups",
+            "type": "object"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_iip_steel_iron_ore",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_sec_elec_ind",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "conversion_factor_sec_hydrogen",
+            "type": "number"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "from_bus_0",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_1",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "from_bus_2",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          },
+          {
+            "fields": "to_bus_0",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    },
+    {
+      "encoding": "utf-8",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "name": "excess_co2",
+      "path": "data/elements/excess_co2.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "format": "default",
+            "name": "type",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "region",
+            "type": "string"
+          },
+          {
+            "format": "default",
+            "name": "year",
+            "type": "array"
+          },
+          {
+            "format": "default",
+            "name": "bus",
+            "type": "string"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "fields": "bus",
+            "reference": {
+              "fields": "name",
+              "resource": "bus"
+            }
+          }
+        ],
+        "missingValues": [
+          ""
+        ],
+        "primaryKey": "name"
+      }
+    }
+  ]
+}
