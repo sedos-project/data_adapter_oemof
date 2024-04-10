@@ -53,7 +53,7 @@ def test_build_tabular_datapackage_from_adapter():
         "SEDOS_Modellstruktur",
         process_sheet="hack-a-thon",
         parameter_sheet="Parameter_IO_hack-a-thon",
-        helper_sheet="empty_helper"
+        helper_sheet="empty_helper",
     )
 
     adapter = Adapter(
