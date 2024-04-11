@@ -243,6 +243,6 @@ def test_get_sequence_name():
         "region": {0: "BB", 1: "BB", 2: "BB"},
         "year": {0: 2016, 1: 2030, 2: 2050},
         "bus": "electricity",
-        "name": "modex_tech_wind_turbine_onshore--0",
+        "name": "modex_tech_wind_turbine_onshore--6",
     }
     unittest.TestCase().assertDictEqual(expected, adapter.facade_dict)
