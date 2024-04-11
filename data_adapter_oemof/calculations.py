@@ -76,7 +76,6 @@ def decommission(adapter_dict: dict) -> dict:
                 (adapter_dict[max_column] / np.max(adapter_dict[capacity_column]))
             )
     else:
-        # FIXME: Does `max`/`full_load_time_max`
         adapter_dict[max_column] = adapter_dict[capacity_column] / np.max(
             adapter_dict[capacity_column]
         )
