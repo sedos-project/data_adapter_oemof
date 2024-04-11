@@ -84,7 +84,6 @@ class Adapter:
                 warnings.warn("Lifetime cannot change in Multi-period modeling")
                 defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
 
-
         return defaults
 
     def get_fields(self) -> list[Field]:
