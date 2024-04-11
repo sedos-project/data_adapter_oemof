@@ -71,6 +71,7 @@ def decommission(adapter_dict: dict) -> dict:
                 adapter_dict[capacity_column]
             )
         else:
+            logging.info("Decommissioning and max value can not be set in parallel")
             adapter_dict[max_column] = list(
                 (adapter_dict[max_column] / np.max(adapter_dict[capacity_column]))
             )
