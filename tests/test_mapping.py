@@ -238,11 +238,11 @@ def test_get_sequence_name():
             2: "wind_turbine_onshore",
         },
         "profile": "onshore_BB",
-        "lifetime": {0: 25.4, 1: 30.0, 2: 30.0},
+        "lifetime": 25,
         "fixed_costs": {0: 23280.0, 1: 12600.0, 2: 11340.0},
         "region": {0: "BB", 1: "BB", 2: "BB"},
         "year": {0: 2016, 1: 2030, 2: 2050},
         "bus": "electricity",
-        "name": "modex_tech_wind_turbine_onshore--6",
+        "name": "modex_tech_wind_turbine_onshore--0",
     }
     unittest.TestCase().assertDictEqual(expected, adapter.facade_dict)

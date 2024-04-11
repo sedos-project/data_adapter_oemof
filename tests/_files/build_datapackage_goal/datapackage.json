@@ -400,7 +400,7 @@
           {
             "format": "default",
             "name": "lifetime",
-            "type": "array"
+            "type": "integer"
           },
           {
             "format": "default",
@@ -481,7 +481,7 @@
           {
             "format": "default",
             "name": "lifetime",
-            "type": "array"
+            "type": "integer"
           },
           {
             "format": "default",
