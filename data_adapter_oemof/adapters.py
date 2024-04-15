@@ -266,6 +266,8 @@ class Adapter:
         :return: Dictionary for all fields that the facade can take and matching data
         """
 
+        calculations.default_pre_mapping_calculations(self)
+
         mapped_all_class_fields = {
             field.name: value
             for field in self.get_fields()
