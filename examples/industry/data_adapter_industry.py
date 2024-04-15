@@ -6,14 +6,14 @@ os.environ["STRUCTURES_DIR"] = ""
 
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
-
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
 # Download Collection
 # Due to Nan values in "ind_scalar" type column datapackage.json must be adjusted after download
+# from data_adapter.databus import download_collection
 # download_collection(
-#         "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
-#     )
+#          "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
+#      )
 structure = Structure(
     "Industriestruktur",
     process_sheet="process_set_steel_casting",
@@ -30,7 +30,6 @@ process_adapter_map = {
     "modex_tech_generator_gas": "ConversionAdapter",
     "modex_tech_wind_turbine_onshore": "VolatileAdapter",
     "modex_demand": "LoadAdapter",
-    "ind_scalars": "LoadAdapter",
     "pow_combustion_gt_natgas": "ConversionAdapter",
     "x2x_import_natural_gas": "CommodityAdapter",
     "x2x_import_crudesteel": "CommodityAdapter",
@@ -45,6 +44,10 @@ process_adapter_map = {
     "excess_co2": "ExcessAdapter",
     "excess_ch4": "ExcessAdapter",
     "excess_n2o": "ExcessAdapter",
+    "helper_sink_exo_steel": "LoadAdapter",
+    "ind_timeseries": "LoadAdapter",
+    "helper_sink_exo_steel": "LoadAdapter",
+
 }
 
 parameter_map = {
