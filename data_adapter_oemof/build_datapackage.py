@@ -4,6 +4,7 @@ import warnings
 from typing import Optional, Type
 
 import pandas as pd
+import numpy as np
 import tsam.timeseriesaggregation as tsam
 from data_adapter.preprocessing import Adapter
 from datapackage import Package
@@ -515,7 +516,7 @@ class DataPackage:
                 # Fill with all buses occurring, needed for foreign keys as well!
                 process_busses += list(component_adapter.get_busses().values())
 
-            process_busses = list(pd.unique(process_busses))
+            process_busses = list(np.unique(process_busses))
             parametrized_elements["bus"] += process_busses
 
             # getting foreign keys with last component
@@ -532,7 +533,7 @@ class DataPackage:
         # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
-                "name": (names := pd.unique(parametrized_elements["bus"])),
+                "name": (names := np.unique(parametrized_elements["bus"])),
                 "type": ["bus" for i in names],
                 "balanced": [True for i in names],
             }
