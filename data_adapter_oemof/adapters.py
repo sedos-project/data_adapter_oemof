@@ -2,6 +2,7 @@ import collections
 import dataclasses
 import difflib
 import itertools
+import json
 import logging
 import warnings
 from typing import Optional, Type, Union
@@ -9,6 +10,7 @@ from typing import Optional, Type, Union
 import pandas as pd
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
+from oemof_industry.mimo_converter import MIMO
 
 from data_adapter_oemof import calculations
 
@@ -176,7 +178,7 @@ class Adapter:
         mapped_key = self.map_key(key)
         return self.get_data(mapped_key, field_type)
 
-    def get_busses(self):
+    def get_busses(self) -> dict:
         """
         Identify mentioned buses in the facade.
         Determine if each bus in the facade is classified as an "input"/"output".
@@ -398,6 +400,67 @@ class VolatileAdapter(Adapter):
 
     type = "volatile"
     facade = facades.Volatile
+
+
+class MIMOAdapter(Adapter):
+    """
+    MIMOAdapter
+    """
+
+    type = "mimo"
+    facade = MIMO
+    extra_fields = (
+        Field(name="name", type=str),
+        Field(name="region", type=str),
+        Field(name="year", type=int),
+        Field(name="groups", type=dict),
+        Field(name="capacity_cost", type=float),
+        Field(name="capacity", type=float),
+        Field(name="max", type=float),
+        Field(name="expandable", type=bool),
+    )
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        defaults["groups"] = self.get_groups()
+        keywords = (
+            "emission_factor_",
+            "emissions_factor_",
+            "conversion_factor_",
+            "flow_share_",
+        )
+        for key, value in self.data.items():
+            for keyword in keywords:
+                if key.startswith(keyword):
+                    defaults[key] = value
+        return defaults
+
+    def get_busses(self) -> dict:
+        def get_bus_from_struct(bus_list: list, prefix: str) -> dict:
+            buses = {}
+            counter = 0
+            for bus_group in bus_list:
+                if isinstance(bus_group, str):
+                    buses[f"{prefix}{counter}"] = bus_group
+                    counter += 1
+                    continue
+                if isinstance(bus_group, list):
+                    for bus in bus_group:
+                        buses[f"{prefix}{counter}"] = bus
+                        counter += 1
+            return buses
+
+        return get_bus_from_struct(
+            self.structure["inputs"], prefix="from_bus_"
+        ) | get_bus_from_struct(self.structure["outputs"], prefix="to_bus_")
+
+    def get_groups(self) -> str:
+        groups = {}
+        group_counter = 0
+        for bus_group in self.structure["inputs"] + self.structure["outputs"]:
+            if isinstance(bus_group, list):
+                groups[f"group_{group_counter}"] = bus_group
+        return json.dumps(groups)
 
 
 # Create a dictionary of all adapter classes defined in this module
