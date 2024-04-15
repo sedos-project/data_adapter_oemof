@@ -44,10 +44,13 @@ def decommission(adapter_dict: dict) -> dict:
 
     Takes adapter dictionary from adapters.py with mapped values.
 
-    Supposed to be called when getting default parameters
+    Takes largest found capacity and sets this capacity for all years
+    Each yearly changing capacity value is divided by max capacity and
+    quotient from `max capacity`/`yearly capacity` is set as max value
 
+    Supposed to be called when getting default parameters
     Non investment objects must be decommissioned in multi period to take end of lifetime
-     for said objet into account
+    for said objet into account
 
     Returns
     dictionary (
