@@ -221,11 +221,6 @@ class Adapter:
                 struct = self.structure["default"]
             else:
                 struct = self.structure
-                warnings.warn(
-                    "Please check structure and provide either one set of inputs/outputs "
-                    "or specify as default Parameter specific busses not implemented yet. "
-                    f"No Bus found for Process {self.process_name} in Adapter {self}"
-                )
 
             # 2. Check for default busses
             if bus in ("bus", "from_bus", "to_bus", "fuel_bus"):
