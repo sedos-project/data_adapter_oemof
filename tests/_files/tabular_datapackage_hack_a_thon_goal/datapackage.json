@@ -489,7 +489,7 @@
           {
             "format": "default",
             "name": "lifetime",
-            "type": "number"
+            "type": "integer"
           },
           {
             "format": "default",
@@ -599,7 +599,7 @@
           {
             "format": "default",
             "name": "lifetime",
-            "type": "number"
+            "type": "integer"
           },
           {
             "format": "default",
@@ -689,7 +689,7 @@
           {
             "format": "default",
             "name": "lifetime",
-            "type": "number"
+            "type": "integer"
           },
           {
             "format": "default",
@@ -785,7 +785,7 @@
           {
             "format": "default",
             "name": "lifetime",
-            "type": "number"
+            "type": "integer"
           },
           {
             "format": "default",
