@@ -1,6 +1,7 @@
+import collections
 import logging
 import warnings
-import collections
+
 import numpy as np
 from oemof.tools.economics import annuity
 
@@ -58,7 +59,7 @@ def decommission(adapter_dict: dict) -> dict:
     -------
 
     """
-    #Todo: Revisit to improve calculations and stuff :)
+    # Todo: Revisit to improve calculations and stuff :)
     capacity_column = "capacity"
     max_column = "max"
 
@@ -88,6 +89,7 @@ def decommission(adapter_dict: dict) -> dict:
     adapter_dict[capacity_column] = np.max(adapter_dict[capacity_column])
     return adapter_dict
 
+
 def divide_two_lists(adapter, dividend, divisor):
     """
     Divides two lists returns quotient, returns 0 if divisor is 0
@@ -103,7 +105,7 @@ def divide_two_lists(adapter, dividend, divisor):
     -------
 
     """
-    return [i / j if j is not 0 else 0 for i, j in zip(dividend, divisor)]
+    return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
 
 
 def normalize_activity_bonds(adapter):
@@ -118,18 +120,22 @@ def normalize_activity_bonds(adapter):
 
     """
     if "activity_bound_fix" in adapter.data.keys():
-        adapter.data['activity_bound_min'] = divide_two_lists(adapter.data["activity_bound_fix"],
-                                                              adapter.get("capacity"))
-        adapter.data['activity_bound_max'] = adapter.data['activity_bound_min']
+        adapter.data["activity_bound_min"] = divide_two_lists(
+            adapter.data["activity_bound_fix"], adapter.get("capacity")
+        )
+        adapter.data["activity_bound_max"] = adapter.data["activity_bound_min"]
         adapter.data.pop("activity_bound_fix")
 
     if "activity_bound_min" in adapter.data.keys():
-        adapter.data['activity_bound_min'] = divide_two_lists(adapter.data["activity_bound_min"],
-                                                              adapter.get("capacity"))
+        adapter.data["activity_bound_min"] = divide_two_lists(
+            adapter.data["activity_bound_min"], adapter.get("capacity")
+        )
     if "activity_bound_max" in adapter.data.keys():
-        adapter.data['activity_bound_max'] = divide_two_lists(adapter.data["activity_bound_max"],
-                                                              adapter.get("capacity"))
+        adapter.data["activity_bound_max"] = divide_two_lists(
+            adapter.data["activity_bound_max"], adapter.get("capacity")
+        )
     return adapter
+
 
 def default_pre_mapping_calculations(adapter):
     """
@@ -147,32 +153,31 @@ def default_pre_mapping_calculations(adapter):
     return adapter
 
 
-
-
-
-
 def default_post_mapping_calculations(adapter, mapped_defaults):
     """
     Does default calculations#
 
-    1. Decommissioning of existing Capacities
-    2. Rounding lifetime down to integers
+    I. Decommissioning of existing Capacities
+    II. Rounding lifetime down to integers
 
     Returns
     -------
 
     """
+    # I:
     if adapter.process_name[-1] == "0":
-        defaults = decommission(mapped_defaults)
-    if "lifetime" in defaults.keys():
-        # want to move this section including if statements together with decommissioning
-        # section to a calculations as "default calculations
-        if not isinstance(defaults["lifetime"], collections.abc.Iterable):
-            defaults["lifetime"] = int(np.floor(defaults["lifetime"]))
-        elif all(x == defaults["lifetime"][0] for x in defaults["lifetime"]):
-            defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
+        mapped_defaults = decommission(mapped_defaults)
+
+    # II:
+    if "lifetime" in mapped_defaults.keys():
+        if not isinstance(mapped_defaults["lifetime"], collections.abc.Iterable):
+            mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"]))
+        elif all(
+            x == mapped_defaults["lifetime"][0] for x in mapped_defaults["lifetime"]
+        ):
+            mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
         else:
             warnings.warn("Lifetime cannot change in Multi-period modeling")
-            defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
+            mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
 
-    return defaults
+    return mapped_defaults

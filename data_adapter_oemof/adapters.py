@@ -75,7 +75,9 @@ class Adapter:
                 }
             )
 
-        defaults = calculations.default_post_mapping_calculations(self, mapped_defaults=defaults)
+        defaults = calculations.default_post_mapping_calculations(
+            self, mapped_defaults=defaults
+        )
 
         return defaults
 
