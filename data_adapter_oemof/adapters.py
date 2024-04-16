@@ -37,6 +37,8 @@ class Adapter:
         Field(name="region", type=str),
         Field(name="year", type=int),
     )
+    output_parameter = (Field(name="max", type=float), Field(name="min", type=float))
+    input_parameter = ()
     counter: int = itertools.count()
 
     def __init__(
@@ -264,6 +266,54 @@ class Adapter:
 
         return bus_dict
 
+    def get_yearly_io_parameter_dict(self, parameters, year_iteration):
+        """
+
+        Parameters
+        ----------
+        year_iteration: iteration for list values to maintain order
+        parameters: parameters for input/output
+        flow_direction
+
+        Returns
+        -------
+
+        """
+        io_dict = {}
+        for input_parameter in parameters:
+            input_parameter_value = self.get(input_parameter)
+
+            if isinstance(input_parameter_value, list):
+                io_dict.update({input_parameter: input_parameter_value[year_iteration]})
+            else:
+                io_dict.update({input_parameter: input_parameter_value})
+        return io_dict
+
+    def get_output_input_parameter_fields(self):
+        """
+        Getting output and input parameters from data
+        Parameters must be applicable to respective flows
+
+        Parameters to be defined in Adapter
+        Returns
+        {"output_parameters": [{"min": 10, "max": 20}, {"min": 20, "max": 30}],
+        "input_parameters": [{"min": 10, "max": 20}, {"min": 20, "max": 30}]}
+        -------
+
+        """
+        input_output_parameters = {"output_parameters": [], "input_parameters": []}
+        for i, year in enumerate(self.get("year")):
+            input_output_parameters["input_parameters"].append(
+                self.get_yearly_io_parameter_dict(
+                    parameters=self.input_parameter, year_iteration=i
+                )
+            )
+            input_output_parameters["output_parameters"].append(
+                self.get_yearly_io_parameter_dict(
+                    parameters=self.output_parameter, year_iteration=i
+                )
+            )
+
     def get_default_mappings(self):
         """
         :return: Dictionary for all fields that the facade can take and matching data
@@ -276,6 +326,7 @@ class Adapter:
             for field in self.get_fields()
             if (value := self.get(field.name, field.type)) is not None
         }
+        mapped_all_class_fields.update(self.get_)
         mapped_all_class_fields.update(self.get_busses())
         return mapped_all_class_fields
 
@@ -423,6 +474,7 @@ class MIMOAdapter(Adapter):
         Field(name="capacity_cost", type=float),
         Field(name="capacity", type=float),
         Field(name="max", type=float),
+        Field(name="min", type=float),
         Field(name="expandable", type=bool),
     )
 

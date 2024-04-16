@@ -41,6 +41,24 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
     return annuity(overnight_cost, lifetime, wacc) + fixed_cost
 
 
+def divide_two_lists(dividend, divisor):
+    """
+    Divides two lists returns quotient, returns 0 if divisor is 0
+
+    Lists must be same length
+
+    Parameters
+    ----------
+    dividend
+    divisor
+
+    Returns
+    -------
+
+    """
+    return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
+
+
 def decommission(adapter_dict: dict) -> dict:
     """
 
@@ -88,24 +106,6 @@ def decommission(adapter_dict: dict) -> dict:
 
     adapter_dict[capacity_column] = np.max(adapter_dict[capacity_column])
     return adapter_dict
-
-
-def divide_two_lists(adapter, dividend, divisor):
-    """
-    Divides two lists returns quotient, returns 0 if divisor is 0
-
-    Lists must be same length
-
-    Parameters
-    ----------
-    dividend
-    divisor
-
-    Returns
-    -------
-
-    """
-    return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
 
 
 def normalize_activity_bonds(adapter):
