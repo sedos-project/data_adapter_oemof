@@ -87,9 +87,9 @@ def decommission(adapter_dict: dict) -> dict:
     adapter_dict[capacity_column] = np.max(adapter_dict[capacity_column])
     return adapter_dict
 
-def divide_two_lists(dividend, divisor):
+def divide_two_lists(adapter, dividend, divisor):
     """
-    Divides two lists reurns quotiuent, returns 0 if divisor is 0
+    Divides two lists returns quotient, returns 0 if divisor is 0
 
     Lists must be same length
 
@@ -102,9 +102,33 @@ def divide_two_lists(dividend, divisor):
     -------
 
     """
-
     return [i / j if j is not 0 else 0 for i, j in zip(dividend, divisor)]
 
+
+def normalize_activity_bonds(adapter):
+    """
+    Normalizes activity bonds in order to be used as min/max values
+    Parameters
+    ----------
+    adapter
+
+    Returns
+    -------
+
+    """
+    if "activity_bound_fix" in adapter.data.keys():
+        adapter.data['activity_bound_min'] = divide_two_lists(adapter.data["activity_bound_fix"],
+                                                              adapter.get("capacity"))
+        adapter.data['activity_bound_max'] = adapter.data['activity_bound_min']
+        adapter.data.pop("activity_bound_fix")
+
+    if "activity_bound_min" in adapter.data.keys():
+        adapter.data['activity_bound_min'] = divide_two_lists(adapter.data["activity_bound_min"],
+                                                              adapter.get("capacity"))
+    if "activity_bound_max" in adapter.data.keys():
+        adapter.data['activity_bound_max'] = divide_two_lists(adapter.data["activity_bound_max"],
+                                                              adapter.get("capacity"))
+    return adapter
 
 def default_pre_mapping_calculations(adapter):
     """
@@ -117,17 +141,9 @@ def default_pre_mapping_calculations(adapter):
     -------
 
     """
-    if "activity_bound_fix" in adapter.data.keys():
-        adapter.data['activity_bound_min'] = divide_two_lists(adapter.data["activity_bound_fix"], adapter.get("capacity"))
-        adapter.data['activity_bound_max'] = adapter.data['activity_bound_min']
-        adapter.data.pop("activity_bound_fix")
+    adapter = normalize_activity_bonds(adapter)
 
-    if "activity_bound_min" in adapter.data.keys():
-        adapter.data['activity_bound_min'] = divide_two_lists(adapter.data["activity_bound_min"],
-                                                              adapter.get("capacity"))
-    if "activity_bound_max" in adapter.data.keys():
-        adapter.data['activity_bound_max'] = divide_two_lists(adapter.data["activity_bound_max"],
-                                                          adapter.get("capacity"))
+    return adapter
 
 
 
