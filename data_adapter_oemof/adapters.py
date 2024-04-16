@@ -7,6 +7,7 @@ import logging
 import warnings
 from typing import Optional, Type, Union
 
+import numpy as np
 import pandas as pd
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
@@ -76,6 +77,17 @@ class Adapter:
             )
         if self.process_name[-1] == "0":
             defaults = calculations.decommission(defaults)
+        if "lifetime" in defaults.keys():
+            # want to move this section including if statements together with decommissioning
+            # section to a calculations as "default calculations
+            if not isinstance(defaults["lifetime"], collections.abc.Iterable):
+                defaults["lifetime"] = int(np.floor(defaults["lifetime"]))
+            elif all(x == defaults["lifetime"][0] for x in defaults["lifetime"]):
+                defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
+            else:
+                warnings.warn("Lifetime cannot change in Multi-period modeling")
+                defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
+
         return defaults
 
     def get_fields(self) -> list[Field]:

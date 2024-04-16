@@ -3,6 +3,7 @@ import os
 import warnings
 from typing import Optional, Type
 
+import numpy as np
 import pandas as pd
 import tsam.timeseriesaggregation as tsam
 from data_adapter.preprocessing import Adapter
@@ -80,9 +81,15 @@ def _listify_to_periodic(group_df) -> pd.Series:
                 )  # throw out the index
             values = group_df[col].unique()
         if len(values) > 1:
-            unique_values[col] = list(group_df[col])
+            if isinstance(group_df[col].iloc[0], list):
+                unique_values[col] = list(group_df[col].apply(lambda x: x[0]))
+            else:
+                unique_values[col] = list(group_df[col])
         else:
-            unique_values[col] = group_df[col].iloc[0]
+            if isinstance(group_df[col].iloc[0], list):
+                unique_values[col] = group_df[col].iat[0][0]
+            else:
+                unique_values[col] = group_df[col].iat[0]
     unique_values["name"] = "_".join(group_df.name)
     unique_values.drop("year")
     return unique_values
@@ -479,6 +486,13 @@ class DataPackage:
         DataPackage
 
         """
+
+        def _reduce_lists(x):
+            """Unnest list of single tuple or list of single list"""
+            if isinstance(x[0], (list, tuple)) and len(x[0]) == 1:
+                x = x.map(lambda x: x[0])
+            return x
+
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
@@ -487,11 +501,10 @@ class DataPackage:
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
-                # FIXME: Will Regions be lists of strings or strings?
                 timeseries.columns = (
-                    timeseries.columns.get_level_values(0)
+                    _reduce_lists(timeseries.columns.get_level_values(0))
                     + "_"
-                    + [x[0] for x in timeseries.columns.get_level_values(1).values]
+                    + _reduce_lists(timeseries.columns.get_level_values(1))
                 )
             facade_adapter_name: str = process_adapter_map[process_name]
             facade_adapter: Type[FacadeAdapter] = FACADE_ADAPTERS[facade_adapter_name]
@@ -515,7 +528,7 @@ class DataPackage:
                 # Fill with all buses occurring, needed for foreign keys as well!
                 process_busses += list(component_adapter.get_busses().values())
 
-            process_busses = list(pd.unique(process_busses))
+            process_busses = list(np.unique(process_busses))
             parametrized_elements["bus"] += process_busses
 
             # getting foreign keys with last component
@@ -532,7 +545,7 @@ class DataPackage:
         # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
-                "name": (names := pd.unique(parametrized_elements["bus"])),
+                "name": (names := np.unique(parametrized_elements["bus"])),
                 "type": ["bus" for i in names],
                 "balanced": [True for i in names],
             }
