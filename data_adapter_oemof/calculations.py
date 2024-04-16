@@ -1,5 +1,6 @@
 import logging
-
+import warnings
+import collections
 import numpy as np
 from oemof.tools.economics import annuity
 
@@ -150,13 +151,28 @@ def default_pre_mapping_calculations(adapter):
 
 
 
-def default_post_mapping_calculations():
+def default_post_mapping_calculations(adapter, mapped_defaults):
     """
     Does default calculations#
 
-    1. decomissioning
+    1. Decommissioning of existing Capacities
+    2. Rounding lifetime down to integers
 
     Returns
     -------
 
     """
+    if adapter.process_name[-1] == "0":
+        defaults = decommission(mapped_defaults)
+    if "lifetime" in defaults.keys():
+        # want to move this section including if statements together with decommissioning
+        # section to a calculations as "default calculations
+        if not isinstance(defaults["lifetime"], collections.abc.Iterable):
+            defaults["lifetime"] = int(np.floor(defaults["lifetime"]))
+        elif all(x == defaults["lifetime"][0] for x in defaults["lifetime"]):
+            defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
+        else:
+            warnings.warn("Lifetime cannot change in Multi-period modeling")
+            defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
+
+    return defaults
