@@ -41,24 +41,6 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
     return annuity(overnight_cost, lifetime, wacc) + fixed_cost
 
 
-def divide_two_lists(dividend, divisor):
-    """
-    Divides two lists returns quotient, returns 0 if divisor is 0
-
-    Lists must be same length
-
-    Parameters
-    ----------
-    dividend
-    divisor
-
-    Returns
-    -------
-
-    """
-    return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
-
-
 def decommission(adapter_dict: dict) -> dict:
     """
 
@@ -119,6 +101,24 @@ def normalize_activity_bonds(adapter):
     -------
 
     """
+
+    def divide_two_lists(dividend, divisor):
+        """
+        Divides two lists returns quotient, returns 0 if divisor is 0
+
+        Lists must be same length
+
+        Parameters
+        ----------
+        dividend
+        divisor
+
+        Returns divided list
+        -------
+
+        """
+        return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
+
     if "activity_bound_fix" in adapter.data.keys():
         adapter.data["activity_bound_min"] = divide_two_lists(
             adapter.data["activity_bound_fix"], adapter.get("capacity")
@@ -137,47 +137,22 @@ def normalize_activity_bonds(adapter):
     return adapter
 
 
-def default_pre_mapping_calculations(adapter):
+def floor_lifetime(mapped_defaults):
     """
-    Takes activity bonds and calculates min/max values
+
     Parameters
     ----------
-    adapter_dict
+    adapter
 
     Returns
     -------
 
     """
-    adapter = normalize_activity_bonds(adapter)
-
-    return adapter
-
-
-def default_post_mapping_calculations(adapter, mapped_defaults):
-    """
-    Does default calculations#
-
-    I. Decommissioning of existing Capacities
-    II. Rounding lifetime down to integers
-
-    Returns
-    -------
-
-    """
-    # I:
-    if adapter.process_name[-1] == "0":
-        mapped_defaults = decommission(mapped_defaults)
-
-    # II:
-    if "lifetime" in mapped_defaults.keys():
-        if not isinstance(mapped_defaults["lifetime"], collections.abc.Iterable):
-            mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"]))
-        elif all(
-            x == mapped_defaults["lifetime"][0] for x in mapped_defaults["lifetime"]
-        ):
-            mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
-        else:
-            warnings.warn("Lifetime cannot change in Multi-period modeling")
-            mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
-
+    if not isinstance(mapped_defaults["lifetime"], collections.abc.Iterable):
+        mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"]))
+    elif all(x == mapped_defaults["lifetime"][0] for x in mapped_defaults["lifetime"]):
+        mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
+    else:
+        warnings.warn("Lifetime cannot change in Multi-period modeling")
+        mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
     return mapped_defaults

@@ -37,8 +37,8 @@ class Adapter:
         Field(name="region", type=str),
         Field(name="year", type=int),
     )
-    output_parameter = (Field(name="max", type=float), Field(name="min", type=float))
-    input_parameter = ()
+    output_parameters = (Field(name="max", type=float), Field(name="min", type=float))
+    input_parameters = ()
     counter: int = itertools.count()
 
     def __init__(
@@ -77,9 +77,7 @@ class Adapter:
                 }
             )
 
-        defaults = calculations.default_post_mapping_calculations(
-            self, mapped_defaults=defaults
-        )
+        defaults = self.default_post_mapping_calculations(defaults)
 
         return defaults
 
@@ -266,29 +264,6 @@ class Adapter:
 
         return bus_dict
 
-    def get_yearly_io_parameter_dict(self, parameters, year_iteration):
-        """
-
-        Parameters
-        ----------
-        year_iteration: iteration for list values to maintain order
-        parameters: parameters for input/output
-        flow_direction
-
-        Returns
-        -------
-
-        """
-        io_dict = {}
-        for input_parameter in parameters:
-            input_parameter_value = self.get(input_parameter)
-
-            if isinstance(input_parameter_value, list):
-                io_dict.update({input_parameter: input_parameter_value[year_iteration]})
-            else:
-                io_dict.update({input_parameter: input_parameter_value})
-        return io_dict
-
     def get_output_input_parameter_fields(self):
         """
         Getting output and input parameters from data
@@ -296,44 +271,84 @@ class Adapter:
 
         Parameters to be defined in Adapter
         Returns
-        {"output_parameters": [{"min": 10, "max": 20}, {"min": 20, "max": 30}],
-        "input_parameters": [{"min": 10, "max": 20}, {"min": 20, "max": 30}]}
+        {"output_parameters": {"min": [10, 20], "max": [20, 30]},
+        "input_parameters": {"min": [10, 20], "max": [20, 30]}}
         -------
 
         """
-        input_output_parameters = {"output_parameters": [], "input_parameters": []}
-        for i, year in enumerate(self.get("year")):
-            input_output_parameters["input_parameters"].append(
-                self.get_yearly_io_parameter_dict(
-                    parameters=self.input_parameter, year_iteration=i
-                )
-            )
-            input_output_parameters["output_parameters"].append(
-                self.get_yearly_io_parameter_dict(
-                    parameters=self.output_parameter, year_iteration=i
-                )
-            )
+
+        def get_io_parameter_dict(parameters):
+            io_dict = {}
+            for param in parameters:
+                if input_parameter_value := self.get(param.name):
+                    io_dict.update({param.name: input_parameter_value})
+            return io_dict
+
+        input_output_parameters = {"output_parameters": {}, "input_parameters": {}}
+
+        input_output_parameters["input_parameters"].update(
+            get_io_parameter_dict(parameters=self.input_parameters)
+        )
+        input_output_parameters["output_parameters"].update(
+            get_io_parameter_dict(parameters=self.output_parameters)
+        )
+
+        return input_output_parameters
 
     def get_default_mappings(self):
         """
         :return: Dictionary for all fields that the facade can take and matching data
         """
 
-        calculations.default_pre_mapping_calculations(self)
+        self.default_pre_mapping_calculations()
 
         mapped_all_class_fields = {
             field.name: value
             for field in self.get_fields()
             if (value := self.get(field.name, field.type)) is not None
         }
-        mapped_all_class_fields.update(self.get_)
         mapped_all_class_fields.update(self.get_busses())
+        mapped_all_class_fields.update(self.get_output_input_parameter_fields())
         return mapped_all_class_fields
 
     @staticmethod
     def is_sequence(field_type: Type):
         # TODO: Implement it using typing hints
         return "Sequence" in str(field_type)
+
+    def default_pre_mapping_calculations(self):
+        """
+        Takes activity bonds and calculates min/max values
+        Parameters
+        ----------
+        adapter_dict
+
+        Returns
+        -------
+
+        """
+        calculations.normalize_activity_bonds(self)
+
+    def default_post_mapping_calculations(self, mapped_defaults):
+        """
+        Does default calculations#
+
+        I. Decommissioning of existing Capacities
+        II. Rounding lifetime down to integers
+
+        Returns
+        -------
+
+        """
+        # I:
+        if self.process_name[-1] == "0":
+            mapped_defaults = calculations.decommission(mapped_defaults)
+
+        # II:
+        if "lifetime" in mapped_defaults.keys():
+            mapped_defaults = calculations.floor_lifetime(mapped_defaults)
+
+        return mapped_defaults
 
 
 class DispatchableAdapter(Adapter):
@@ -473,8 +488,6 @@ class MIMOAdapter(Adapter):
         Field(name="groups", type=dict),
         Field(name="capacity_cost", type=float),
         Field(name="capacity", type=float),
-        Field(name="max", type=float),
-        Field(name="min", type=float),
         Field(name="expandable", type=bool),
     )
 
