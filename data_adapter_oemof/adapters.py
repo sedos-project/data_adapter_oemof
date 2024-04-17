@@ -37,7 +37,9 @@ class Adapter:
         Field(name="region", type=str),
         Field(name="year", type=int),
     )
-    output_parameters = (Field(name="max", type=float), Field(name="min", type=float))
+    output_parameters = (
+        Field(name="max", type=float),
+        Field(name="min", type=float))
     input_parameters = ()
     counter: int = itertools.count()
 
