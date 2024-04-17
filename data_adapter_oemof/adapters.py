@@ -37,9 +37,7 @@ class Adapter:
         Field(name="region", type=str),
         Field(name="year", type=int),
     )
-    output_parameters = (
-        Field(name="max", type=float),
-        Field(name="min", type=float))
+    output_parameters = (Field(name="max", type=float), Field(name="min", type=float))
     input_parameters = ()
     counter: int = itertools.count()
 
@@ -80,6 +78,10 @@ class Adapter:
             )
 
         defaults = self.default_post_mapping_calculations(defaults)
+        if not defaults["input_parameters"]:
+            defaults.pop("input_parameters")
+        if not defaults["output_parameters"]:
+            defaults.pop("output_parameters")
 
         return defaults
 
