@@ -493,6 +493,9 @@ class MIMOAdapter(Adapter):
         Field(name="capacity_cost", type=float),
         Field(name="capacity", type=float),
         Field(name="expandable", type=bool),
+        Field(name="activity_bound_min", type=float),
+        Field(name="activity_bound_max", type=float),
+        Field(name="activity_bound_fix", type=float),
     )
 
     def default_pre_mapping_calculations(self):
