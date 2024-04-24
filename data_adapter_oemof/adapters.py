@@ -495,6 +495,15 @@ class MIMOAdapter(Adapter):
         Field(name="expandable", type=bool),
     )
 
+    def default_pre_mapping_calculations(self):
+        """
+        Mimo adapter specific pre calculations
+        Returns
+        -------
+
+        """
+        pass
+
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
         defaults["groups"] = self.get_groups()
