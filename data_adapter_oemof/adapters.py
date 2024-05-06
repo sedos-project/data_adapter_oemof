@@ -497,6 +497,7 @@ class MIMOAdapter(Adapter):
         Field(name="activity_bound_max", type=float),
         Field(name="activity_bound_fix", type=float),
     )
+    output_parameters = ()
 
     def default_pre_mapping_calculations(self):
         """
