@@ -4,6 +4,7 @@ import pathlib
 os.environ["COLLECTIONS_DIR"] = "./collections/"
 os.environ["STRUCTURES_DIR"] = ""
 
+from data_adapter.databus import download_collection  # noqa
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
@@ -30,6 +31,7 @@ process_adapter_map = {
     "modex_tech_generator_gas": "ConversionAdapter",
     "modex_tech_wind_turbine_onshore": "VolatileAdapter",
     "modex_demand": "LoadAdapter",
+    "ind_scalars": "LoadAdapter",
     "pow_combustion_gt_natgas": "ConversionAdapter",
     "x2x_import_natural_gas": "CommodityAdapter",
     "x2x_import_crudesteel": "CommodityAdapter",
@@ -62,7 +64,6 @@ parameter_map = {
     "MIMOAdapter": {
         "capacity_cost": "cost_fix_capacity_w",
         "capacity": "capacity_w_resid",
-        "max": "activity_bound_fix",
         "expandable": "capacity_w_abs_new_max",
     },
     "modex_tech_wind_turbine_onshore": {"profile": "onshore"},

@@ -1,4 +1,4 @@
 name;type;balanced
+ch4;bus;True
 electricity;bus;True
 heat;bus;True
-ch4;bus;True

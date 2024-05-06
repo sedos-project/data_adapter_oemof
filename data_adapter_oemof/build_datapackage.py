@@ -3,6 +3,7 @@ import os
 import warnings
 from typing import Optional, Type
 
+import numpy as np
 import pandas as pd
 import numpy as np
 import tsam.timeseriesaggregation as tsam
@@ -81,9 +82,15 @@ def _listify_to_periodic(group_df) -> pd.Series:
                 )  # throw out the index
             values = group_df[col].unique()
         if len(values) > 1:
-            unique_values[col] = list(group_df[col])
+            if isinstance(group_df[col].iloc[0], list):
+                unique_values[col] = list(group_df[col].apply(lambda x: x[0]))
+            else:
+                unique_values[col] = list(group_df[col])
         else:
-            unique_values[col] = group_df[col].iloc[0]
+            if isinstance(group_df[col].iloc[0], list):
+                unique_values[col] = group_df[col].iat[0][0]
+            else:
+                unique_values[col] = group_df[col].iat[0]
     unique_values["name"] = "_".join(group_df.name)
     unique_values.drop("year")
     return unique_values
@@ -480,6 +487,13 @@ class DataPackage:
         DataPackage
 
         """
+
+        def _reduce_lists(x):
+            """Unnest list of single tuple or list of single list"""
+            if isinstance(x[0], (list, tuple)) and len(x[0]) == 1:
+                x = x.map(lambda x: x[0])
+            return x
+
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
@@ -488,11 +502,10 @@ class DataPackage:
             process_data = adapter.get_process(process_name)
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
-                # FIXME: Will Regions be lists of strings or strings?
                 timeseries.columns = (
-                    timeseries.columns.get_level_values(0)
+                    _reduce_lists(timeseries.columns.get_level_values(0))
                     + "_"
-                    + [x[0] for x in timeseries.columns.get_level_values(1).values]
+                    + _reduce_lists(timeseries.columns.get_level_values(1))
                 )
             facade_adapter_name: str = process_adapter_map[process_name]
             facade_adapter: Type[FacadeAdapter] = FACADE_ADAPTERS[facade_adapter_name]
