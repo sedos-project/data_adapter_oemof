@@ -9,12 +9,27 @@ from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
+from oemof.solph._energy_system import EnergySystem
+from oemof.solph import Model
+
+from oemof.tabular.datapackage import building  # noqa F401
+from oemof.tabular.datapackage.reading import deserialize_constraints, deserialize_energy_system
+
+from oemof.tabular.facades import Excess, Commodity, Conversion, Load, Volatile
+from oemof_industry.mimo_converter import MIMO
+from oemof.solph.buses import Bus
+
+EnergySystem.from_datapackage = classmethod(deserialize_energy_system)
+
+Model.add_constraints_from_datapackage = deserialize_constraints
+#
 # Download Collection
 # Due to Nan values in "ind_scalar" type column datapackage.json must be adjusted after download
-# from data_adapter.databus import download_collection
-# download_collection(
-#          "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
-#      )
+
+from data_adapter.databus import download_collection
+download_collection(
+         "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
+     )
 structure = Structure(
     "Industriestruktur",
     process_sheet="process_set_steel_casting",
@@ -76,3 +91,17 @@ dp = DataPackage.build_datapackage(
 )
 datapackage_path = pathlib.Path(__file__).parent / "datapackage"
 dp.save_datapackage_to_csv(str(datapackage_path))
+
+
+es = EnergySystem.from_datapackage(path = "datapackage/datapackage.json",
+                                   typemap= {"bus": Bus,
+                                       "excess":Excess,
+                                             "commodity": Commodity,
+                                             "conversion": Conversion,
+                                             "load": Load,
+                                             "volatile": Volatile,
+                                             "mimo": MIMO},
+                                   )
+
+m = Model(es)
+m.solve()
