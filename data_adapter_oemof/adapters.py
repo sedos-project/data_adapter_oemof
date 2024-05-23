@@ -346,7 +346,9 @@ class Adapter:
         """
         # I:
         if self.process_name[-1] == "0":
-            mapped_defaults = calculations.decommission(mapped_defaults)
+            mapped_defaults = calculations.decommission(
+                process_name=self.process_name, adapter_dict=mapped_defaults
+            )
 
         # II:
         if "lifetime" in mapped_defaults.keys():

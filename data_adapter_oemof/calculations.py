@@ -41,7 +41,7 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
     return annuity(overnight_cost, lifetime, wacc) + fixed_cost
 
 
-def decommission(adapter_dict: dict) -> dict:
+def decommission(process_name, adapter_dict: dict) -> dict:
     """
 
     Takes adapter dictionary from adapters.py with mapped values.
@@ -53,9 +53,14 @@ def decommission(adapter_dict: dict) -> dict:
 
     II:
     If Max value is already set by another parameter function will issue info
-    Recalculating max value to max_new = (max_old * capacity)/`the largest capacity`
+    Recalculating max value to
+
+    .. math::
+        max_{new} = \frac{(max_{column} * capacity_{column})}{capacity_{max}}
+
     Overwriting max value in `output_parameters`
     Then is setting capacity to the largest found capacity
+
 
     Supposed to be called when getting default parameters
     Non investment objects must be decommissioned in multi period to take end of lifetime
@@ -89,11 +94,16 @@ def decommission(adapter_dict: dict) -> dict:
 
     # check if capacity column is there and if it has to be decommissioned
     if capacity_column not in adapter_dict.keys():
-        logging.info("Capacity missing for decommissioning")
+        logging.info(
+            f"Capacity missing for decommissioning " f"of Process `{process_name}`"
+        )
         return adapter_dict
 
     if not isinstance(adapter_dict[capacity_column], list):
-        logging.info("No capacity fading out that can be decommissioned.")
+        logging.info(
+            f"No capacity fading out that can be decommissioned"
+            f" for Process `{process_name}`."
+        )
         return adapter_dict
 
     # I:
@@ -103,7 +113,6 @@ def decommission(adapter_dict: dict) -> dict:
         ] / np.max(adapter_dict[capacity_column])
     # II:
     else:
-        logging.info("Decommissioning and max value can not be set in parallel")
         adapter_dict["output_parameters"][max_column] = multiply_two_lists(
             adapter_dict["output_parameters"][max_column], adapter_dict[capacity_column]
         ) / np.max(adapter_dict[capacity_column])
@@ -142,11 +151,9 @@ def normalize_activity_bonds(adapter):
         return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
 
     if "activity_bound_fix" in adapter.data.keys():
-        adapter.data["activity_bound_min"] = divide_two_lists(
+        adapter.data["activity_bound_fix"] = divide_two_lists(
             adapter.data["activity_bound_fix"], adapter.get("capacity")
         )
-        adapter.data["activity_bound_max"] = adapter.data["activity_bound_min"]
-        adapter.data.pop("activity_bound_fix")
         return adapter
 
     if "activity_bound_min" in adapter.data.keys():
