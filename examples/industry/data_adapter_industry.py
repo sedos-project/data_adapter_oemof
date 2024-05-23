@@ -1,6 +1,8 @@
 import os
 import pathlib
 
+import numpy as np
+
 os.environ["COLLECTIONS_DIR"] = "./collections/"
 os.environ["STRUCTURES_DIR"] = ""
 
@@ -26,21 +28,27 @@ Model.add_constraints_from_datapackage = deserialize_constraints
 # Download Collection
 # Due to Nan values in "ind_scalar" type column datapackage.json must be adjusted after download
 
-from data_adapter.databus import download_collection
-download_collection(
-         "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
-     )
+# from data_adapter.databus import download_collection
+# download_collection(
+#          "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
+#      )
+
 structure = Structure(
-    "Industriestruktur",
-    process_sheet="process_set_steel_casting",
-    parameter_sheet="parameter_input_output_steel_ca",
-    helper_sheet="steel_casting_helper",
+    "SEDOS_Modellstruktur",
+    process_sheet="Processes_O1",
+    parameter_sheet="Parameter_O1",
+    helper_sheet="Helper_O1",
 )
 
 adapter = Adapter(
     "steel_industry_test",
     structure=structure,
 )
+
+# create dicitonary with all found in and outputs
+
+
+
 process_adapter_map = {
     "modex_tech_storage_battery": "StorageAdapter",
     "modex_tech_generator_gas": "ConversionAdapter",
