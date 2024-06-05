@@ -1,7 +1,7 @@
 import os
 import pathlib
 
-import numpy as np
+import pandas as pd
 
 os.environ["COLLECTIONS_DIR"] = "./collections/"
 os.environ["STRUCTURES_DIR"] = ""
@@ -36,7 +36,7 @@ Model.add_constraints_from_datapackage = deserialize_constraints
 structure = Structure(
     "SEDOS_Modellstruktur",
     process_sheet="Processes_O1",
-    parameter_sheet="Parameter_O1",
+    parameter_sheet="Parameter_Input-Output",
     helper_sheet="Helper_O1",
 )
 
@@ -46,34 +46,19 @@ adapter = Adapter(
 )
 
 # create dicitonary with all found in and outputs
+process_adapter_map = pd.concat([pd.read_excel(
+            io=structure.structure_file,
+            sheet_name="Processes_O1",
+            usecols=("process", "facade adapter (oemof)"),
+            index_col="process"
+        ), pd.read_excel(
+            io=structure.structure_file,
+            sheet_name="Helper_O1",
+            usecols=("process", "facade adapter (oemof)"),
+            index_col="process"
+        )]).to_dict(orient="dict")
 
 
-
-process_adapter_map = {
-    "modex_tech_storage_battery": "StorageAdapter",
-    "modex_tech_generator_gas": "ConversionAdapter",
-    "modex_tech_wind_turbine_onshore": "VolatileAdapter",
-    "modex_demand": "LoadAdapter",
-    "ind_scalars": "LoadAdapter",
-    "pow_combustion_gt_natgas": "ConversionAdapter",
-    "x2x_import_natural_gas": "CommodityAdapter",
-    "x2x_import_crudesteel": "CommodityAdapter",
-    "x2x_import_coke_oven_gas": "CommodityAdapter",
-    "x2x_import_h2": "CommodityAdapter",
-    "ind_steel_casting_1": "MIMOAdapter",
-    "ind_steel_casting_0": "MIMOAdapter",
-    "ind_steel_hyddri_1": "MIMOAdapter",
-    "ind_steel_demand": "LoadAdapter",
-    "x2x_import_elec": "CommodityAdapter",
-    "ind_steel_boiler_0": "ConversionAdapter",
-    "excess_co2": "ExcessAdapter",
-    "excess_ch4": "ExcessAdapter",
-    "excess_n2o": "ExcessAdapter",
-    "helper_sink_exo_steel": "LoadAdapter",
-    "ind_timeseries": "LoadAdapter",
-    "helper_sink_exo_steel": "LoadAdapter",
-
-}
 
 parameter_map = {
     "DEFAULT": {},
