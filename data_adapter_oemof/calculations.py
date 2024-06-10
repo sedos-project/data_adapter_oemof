@@ -3,6 +3,7 @@ import logging
 import warnings
 
 import numpy as np
+import pandas as pd
 from oemof.tools.economics import annuity
 
 
@@ -188,3 +189,68 @@ def floor_lifetime(mapped_defaults):
         warnings.warn("Lifetime cannot change in Multi-period modeling")
         mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
     return mapped_defaults
+
+
+def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function should find and fill in missing min and max values in the data
+
+    Missing min value is set to 0.
+    Missing max value is set to 9999999999999.
+
+    Min values:
+    capacity_p_min
+    capacity_e_min
+    capacity_w_min
+    flow_share_min_<commodity>
+
+    Max values:
+    potential_annual_max
+    capacity_p_max
+    capacity_e_max
+    capacity_w_max
+    capacity_p_abs_new_max
+    capacity_e_abs_new_max
+    capacity_w_abs_new_max
+    availability_timeseries_max
+    capacity_tra_connection_max
+    flow_share_max_<commodity>
+    sto_cycles_max
+    sto_max_timeseries
+
+    Returns
+    -------
+
+    """
+
+    max_value = 9999999999999
+    min_value = 0
+
+    min = ["capacity_p_min", "capacity_e_min", "capacity_w_min", "flow_share_min_"]
+
+    max = [
+        "potential_annual_max",
+        "capacity_p_max",
+        "capacity_e_max",
+        "capacity_w_max",
+        "capacity_p_abs_new_max",
+        "capacity_e_abs_new_max",
+        "capacity_w_abs_new_max",
+        "availability_timeseries_max",
+        "capacity_tra_connection_max",
+        "flow_share_max_",
+        "sto_cycles_max",
+        "sto_max_timeseries",
+    ]
+
+    for column in group_df.columns:
+        if column in ["method", "source", "comment", "bandwidth_type"]:
+            continue
+
+        if group_df[column].nunique(dropna=False) > 1:
+            if column in max:
+                group_df[column].fillna(max_value, inplace=True)
+            elif column in min:
+                group_df[column].fillna(min_value, inplace=True)
+            else:
+                group_df[column].fillna(min_value, inplace=True)
