@@ -2,6 +2,8 @@ import collections
 import logging
 import warnings
 
+from utils import divide_two_lists, multiply_two_lists
+
 import numpy as np
 import pandas as pd
 from oemof.tools.economics import annuity
@@ -72,24 +74,6 @@ def decommission(process_name, adapter_dict: dict) -> dict:
     -------
 
     """
-
-    def multiply_two_lists(l1, l2):
-        """
-        Multiplies two lists
-
-        Lists must be same length
-
-        Parameters
-        ----------
-        l1
-        l2
-
-        Returns divided list
-        -------
-
-        """
-        return [i * j for i, j in zip(l1, l2)]
-
     capacity_column = "capacity"
     max_column = "max"
 
@@ -133,23 +117,6 @@ def normalize_activity_bonds(adapter):
     -------
 
     """
-
-    def divide_two_lists(dividend, divisor):
-        """
-        Divides two lists returns quotient, returns 0 if divisor is 0
-
-        Lists must be same length
-
-        Parameters
-        ----------
-        dividend
-        divisor
-
-        Returns divided list
-        -------
-
-        """
-        return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
 
     if "activity_bound_fix" in adapter.data.keys():
         adapter.data["activity_bound_fix"] = divide_two_lists(
