@@ -214,10 +214,16 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         if column in ["method", "source", "comment", "bandwidth_type"]:
             continue
 
-        if group_df[column].nunique(dropna=False) > 1:
+        if group_df.isna().sum>0:
             if column in max:
                 group_df[column].fillna(max_value, inplace=True)
             elif column in min:
                 group_df[column].fillna(min_value, inplace=True)
             else:
-                group_df[column].fillna(min_value, inplace=True)
+                if "type" in group_df.columns:
+
+                    raise ValueError(f"In column {column} for process {group_df['type']} nan values are found"
+                                     f"please make sure to only provide complete datasets")
+                else:
+                    raise ValueError(f"In column {column} nan values are found"
+                                     f"please make sure to only provide complete datasets")
