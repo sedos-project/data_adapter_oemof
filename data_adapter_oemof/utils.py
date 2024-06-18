@@ -54,6 +54,7 @@ def convert_mixed_types_to_same_length(column):
     else:
         return column
 
+
 def divide_two_lists(dividend, divisor):
     """
     Divides two lists returns quotient, returns 0 if divisor is 0
@@ -70,6 +71,7 @@ def divide_two_lists(dividend, divisor):
 
     """
     return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
+
 
 def multiply_two_lists(l1, l2):
     """

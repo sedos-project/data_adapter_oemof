@@ -2,11 +2,10 @@ import collections
 import logging
 import warnings
 
-from utils import divide_two_lists, multiply_two_lists
-
 import numpy as np
 import pandas as pd
 from oemof.tools.economics import annuity
+from utils import divide_two_lists, multiply_two_lists
 
 
 class CalculationError(Exception):
@@ -214,7 +213,7 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         if column in ["method", "source", "comment", "bandwidth_type"]:
             continue
 
-        if group_df.isna().sum>0:
+        if group_df.isna().sum > 0:
             if column in max:
                 group_df[column].fillna(max_value, inplace=True)
             elif column in min:
@@ -222,8 +221,12 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             else:
                 if "type" in group_df.columns:
 
-                    raise ValueError(f"In column {column} for process {group_df['type']} nan values are found"
-                                     f"please make sure to only provide complete datasets")
+                    raise ValueError(
+                        f"In column {column} for process {group_df['type']} nan values are found"
+                        f"please make sure to only provide complete datasets"
+                    )
                 else:
-                    raise ValueError(f"In column {column} nan values are found"
-                                     f"please make sure to only provide complete datasets")
+                    raise ValueError(
+                        f"In column {column} nan values are found"
+                        f"please make sure to only provide complete datasets"
+                    )
