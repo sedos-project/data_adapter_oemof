@@ -12,6 +12,7 @@ from datapackage import Package
 
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.adapters import Adapter as FacadeAdapter
+from data_adapter_oemof.calculations import handle_nans
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
 from data_adapter_oemof.utils import convert_mixed_types_to_same_length
 
@@ -49,10 +50,11 @@ def _listify_to_periodic(group_df) -> pd.Series:
 
 
     """
-
+    handle_nans(group_df)
     if "year" not in group_df.columns:
         return group_df
     unique_values = pd.Series(dtype=object)
+
     for col in group_df.columns:
         if isinstance(group_df[col][group_df.index[0]], dict):
             # Unique input/output parameters are not allowed per period
@@ -65,21 +67,6 @@ def _listify_to_periodic(group_df) -> pd.Series:
         ):
             values = group_df[col].explode().unique()
         else:
-            # FIXME: Hotfix "if not" statement to replace nan values from lists:
-            #   in final data only complete datasets are expected.
-            if not all(group_df[col].isna()) and any(group_df[col].isna()):
-                group_df.loc[group_df[col].isna(), col] = (
-                    group_df[col]
-                    .dropna()
-                    .sample(
-                        group_df[col]
-                        .isna()
-                        .sum(),  # get the same number of values as are missing
-                        replace=True,
-                        random_state=0,
-                    )
-                    .values
-                )  # throw out the index
             values = group_df[col].unique()
         if len(values) > 1:
             if isinstance(group_df[col].iloc[0], list):

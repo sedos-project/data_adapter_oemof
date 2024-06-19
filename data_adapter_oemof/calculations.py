@@ -3,7 +3,10 @@ import logging
 import warnings
 
 import numpy as np
+import pandas as pd
 from oemof.tools.economics import annuity
+
+from .utils import divide_two_lists, multiply_two_lists
 
 
 class CalculationError(Exception):
@@ -41,7 +44,7 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
     return annuity(overnight_cost, lifetime, wacc) + fixed_cost
 
 
-def decommission(adapter_dict: dict) -> dict:
+def decommission(process_name, adapter_dict: dict) -> dict:
     """
 
     Takes adapter dictionary from adapters.py with mapped values.
@@ -53,9 +56,14 @@ def decommission(adapter_dict: dict) -> dict:
 
     II:
     If Max value is already set by another parameter function will issue info
-    Recalculating max value to max_new = (max_old * capacity)/`the largest capacity`
+    Recalculating max value to
+
+    .. math::
+        max_{new} = \frac{(max_{column} * capacity_{column})}{capacity_{max}}
+
     Overwriting max value in `output_parameters`
     Then is setting capacity to the largest found capacity
+
 
     Supposed to be called when getting default parameters
     Non investment objects must be decommissioned in multi period to take end of lifetime
@@ -66,34 +74,21 @@ def decommission(adapter_dict: dict) -> dict:
     -------
 
     """
-
-    def multiply_two_lists(l1, l2):
-        """
-        Multiplies two lists
-
-        Lists must be same length
-
-        Parameters
-        ----------
-        l1
-        l2
-
-        Returns divided list
-        -------
-
-        """
-        return [i * j for i, j in zip(l1, l2)]
-
     capacity_column = "capacity"
     max_column = "max"
 
     # check if capacity column is there and if it has to be decommissioned
     if capacity_column not in adapter_dict.keys():
-        logging.info("Capacity missing for decommissioning")
+        logging.info(
+            f"Capacity missing for decommissioning " f"of Process `{process_name}`"
+        )
         return adapter_dict
 
     if not isinstance(adapter_dict[capacity_column], list):
-        logging.info("No capacity fading out that can be decommissioned.")
+        logging.info(
+            f"No capacity fading out that can be decommissioned"
+            f" for Process `{process_name}`."
+        )
         return adapter_dict
 
     # I:
@@ -103,7 +98,6 @@ def decommission(adapter_dict: dict) -> dict:
         ] / np.max(adapter_dict[capacity_column])
     # II:
     else:
-        logging.info("Decommissioning and max value can not be set in parallel")
         adapter_dict["output_parameters"][max_column] = multiply_two_lists(
             adapter_dict["output_parameters"][max_column], adapter_dict[capacity_column]
         ) / np.max(adapter_dict[capacity_column])
@@ -124,29 +118,10 @@ def normalize_activity_bonds(adapter):
 
     """
 
-    def divide_two_lists(dividend, divisor):
-        """
-        Divides two lists returns quotient, returns 0 if divisor is 0
-
-        Lists must be same length
-
-        Parameters
-        ----------
-        dividend
-        divisor
-
-        Returns divided list
-        -------
-
-        """
-        return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
-
     if "activity_bound_fix" in adapter.data.keys():
-        adapter.data["activity_bound_min"] = divide_two_lists(
+        adapter.data["activity_bound_fix"] = divide_two_lists(
             adapter.data["activity_bound_fix"], adapter.get("capacity")
         )
-        adapter.data["activity_bound_max"] = adapter.data["activity_bound_min"]
-        adapter.data.pop("activity_bound_fix")
         return adapter
 
     if "activity_bound_min" in adapter.data.keys():
@@ -181,3 +156,87 @@ def floor_lifetime(mapped_defaults):
         warnings.warn("Lifetime cannot change in Multi-period modeling")
         mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
     return mapped_defaults
+
+
+def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function should find and fill in missing min and max values in the data
+
+    Missing min value is set to 0.
+    Missing max value is set to 9999999999999.
+
+    Min values:
+    capacity_p_min
+    capacity_e_min
+    capacity_w_min
+    flow_share_min_<commodity>
+
+    Max values:
+    potential_annual_max
+    capacity_p_max
+    capacity_e_max
+    capacity_w_max
+    capacity_p_abs_new_max
+    capacity_e_abs_new_max
+    capacity_w_abs_new_max
+    availability_timeseries_max
+    capacity_tra_connection_max
+    flow_share_max_<commodity>
+    sto_cycles_max
+    sto_max_timeseries
+
+    Returns
+    -------
+
+    """
+
+    max_value = 9999999999999
+    min_value = 0
+
+    min = ["capacity_p_min", "capacity_e_min", "capacity_w_min", "flow_share_min_"]
+
+    max = [
+        "potential_annual_max",
+        "capacity_p_max",
+        "capacity_e_max",
+        "capacity_w_max",
+        "capacity_p_abs_new_max",
+        "capacity_e_abs_new_max",
+        "capacity_w_abs_new_max",
+        "availability_timeseries_max",
+        "capacity_tra_connection_max",
+        "flow_share_max_",
+        "sto_cycles_max",
+        "sto_max_timeseries",
+    ]
+
+    for column in group_df.columns:
+        if column in ["method", "source", "comment", "bandwidth_type"]:
+            continue
+
+        """
+        Following is a check whether nans can be filled.
+
+        Commented check for columns that are faulty and need to be changed
+        Commented Error for incomplete columns as we dont know where it may cause errors yet
+
+        """
+        # if group_df[column].isna().sum() > 0 and not
+        # group_df[column].isna().sum()==len(group_df[column]):
+        if column in max:
+            group_df[column].fillna(max_value, inplace=True)
+        elif column in min:
+            group_df[column].fillna(min_value, inplace=True)
+        # else:
+        #     if "type" in group_df.columns:
+        #
+        #         raise ValueError(
+        #             f"In column {column} for process {group_df['type']} nan values are found"
+        #             f"please make sure to only provide complete datasets"
+        #         )
+        #     else:
+        #         print(group_df)
+        #         raise ValueError(
+        #             f"In column {column} nan values are found \n"
+        #             f"please make sure to only provide complete datasets"
+        #         )
