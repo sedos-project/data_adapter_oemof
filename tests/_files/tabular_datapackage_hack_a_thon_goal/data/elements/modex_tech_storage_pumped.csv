@@ -1,17 +1,17 @@
 type;carrier;tech;capacity;capacity_cost;capacity_potential;lifetime;fixed_costs;marginal_cost;name;region;year;invest_relation_output_capacity;inflow_conversion_factor;outflow_conversion_factor;bus
 storage;carrier;tech;;1500000.0;;10;22500.0;0.0;BB_carrier_tech;BB;[2016, 2030, 2050];5.8;1.0;0.75;electricity
 storage;carrier;tech;;1500000.0;;10;22500.0;0.0;BE_carrier_tech;BE;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;1873.0;1500000.0;[0.0, 1873.0, 1873.0];10;22500.0;0.0;BW_carrier_tech;BW;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;383.0;1500000.0;[0.0, 383.0, 383.0];10;22500.0;0.0;BY_carrier_tech;BY;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;1873.0;1500000.0;[nan, 1873.0, 1873.0];10;22500.0;0.0;BW_carrier_tech;BW;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;383.0;1500000.0;[nan, 383.0, 383.0];10;22500.0;0.0;BY_carrier_tech;BY;[2016, 2030, 2050];5.8;1.0;0.75;electricity
 storage;carrier;tech;;1500000.0;;10;22500.0;0.0;HB_carrier_tech;HB;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;625.0;1500000.0;[0.0, 625.0, 625.0];10;22500.0;0.0;HE_carrier_tech;HE;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;625.0;1500000.0;[nan, 625.0, 625.0];10;22500.0;0.0;HE_carrier_tech;HE;[2016, 2030, 2050];5.8;1.0;0.75;electricity
 storage;carrier;tech;;1500000.0;;10;22500.0;0.0;HH_carrier_tech;HH;[2016, 2030, 2050];5.8;1.0;0.75;electricity
 storage;carrier;tech;;1500000.0;;10;22500.0;0.0;MV_carrier_tech;MV;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;220.0;1500000.0;[0.0, 220.0, 220.0];10;22500.0;0.0;NI_carrier_tech;NI;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;303.0;1500000.0;[0.0, 303.0, 303.0];10;22500.0;0.0;NW_carrier_tech;NW;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;220.0;1500000.0;[nan, 220.0, 220.0];10;22500.0;0.0;NI_carrier_tech;NI;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;303.0;1500000.0;[nan, 303.0, 303.0];10;22500.0;0.0;NW_carrier_tech;NW;[2016, 2030, 2050];5.8;1.0;0.75;electricity
 storage;carrier;tech;;1500000.0;;10;22500.0;0.0;RP_carrier_tech;RP;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;119.1;1500000.0;[0.0, 119.1, 119.1];10;22500.0;0.0;SH_carrier_tech;SH;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;119.1;1500000.0;[nan, 119.1, 119.1];10;22500.0;0.0;SH_carrier_tech;SH;[2016, 2030, 2050];5.8;1.0;0.75;electricity
 storage;carrier;tech;;1500000.0;;10;22500.0;0.0;SL_carrier_tech;SL;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;1085.0;1500000.0;[0.0, 1085.0, 1085.0];10;22500.0;0.0;SN_carrier_tech;SN;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;79.7;1500000.0;[0.0, 79.7, 79.7];10;22500.0;0.0;ST_carrier_tech;ST;[2016, 2030, 2050];5.8;1.0;0.75;electricity
-storage;carrier;tech;1509.4;1500000.0;[0.0, 1509.4, 1509.4];10;22500.0;0.0;TH_carrier_tech;TH;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;1085.0;1500000.0;[nan, 1085.0, 1085.0];10;22500.0;0.0;SN_carrier_tech;SN;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;79.7;1500000.0;[nan, 79.7, 79.7];10;22500.0;0.0;ST_carrier_tech;ST;[2016, 2030, 2050];5.8;1.0;0.75;electricity
+storage;carrier;tech;1509.4;1500000.0;[nan, 1509.4, 1509.4];10;22500.0;0.0;TH_carrier_tech;TH;[2016, 2030, 2050];5.8;1.0;0.75;electricity
