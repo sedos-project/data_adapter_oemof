@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from oemof.tools.economics import annuity
-from utils import divide_two_lists, multiply_two_lists
+from .utils import divide_two_lists, multiply_two_lists
 
 
 class CalculationError(Exception):
