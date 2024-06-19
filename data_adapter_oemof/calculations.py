@@ -5,6 +5,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from oemof.tools.economics import annuity
+
 from .utils import divide_two_lists, multiply_two_lists
 
 
@@ -213,20 +214,29 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         if column in ["method", "source", "comment", "bandwidth_type"]:
             continue
 
-        if group_df.isna().sum > 0:
-            if column in max:
-                group_df[column].fillna(max_value, inplace=True)
-            elif column in min:
-                group_df[column].fillna(min_value, inplace=True)
-            else:
-                if "type" in group_df.columns:
+        """
+        Following is a check whether nans can be filled.
 
-                    raise ValueError(
-                        f"In column {column} for process {group_df['type']} nan values are found"
-                        f"please make sure to only provide complete datasets"
-                    )
-                else:
-                    raise ValueError(
-                        f"In column {column} nan values are found"
-                        f"please make sure to only provide complete datasets"
-                    )
+        Commented check for columns that are faulty and need to be changed
+        Commented Error for incomplete columns as we dont know where it may cause errors yet
+
+        """
+        # if group_df[column].isna().sum() > 0 and not
+        # group_df[column].isna().sum()==len(group_df[column]):
+        if column in max:
+            group_df[column].fillna(max_value, inplace=True)
+        elif column in min:
+            group_df[column].fillna(min_value, inplace=True)
+        # else:
+        #     if "type" in group_df.columns:
+        #
+        #         raise ValueError(
+        #             f"In column {column} for process {group_df['type']} nan values are found"
+        #             f"please make sure to only provide complete datasets"
+        #         )
+        #     else:
+        #         print(group_df)
+        #         raise ValueError(
+        #             f"In column {column} nan values are found \n"
+        #             f"please make sure to only provide complete datasets"
+        #         )
