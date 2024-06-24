@@ -160,73 +160,97 @@ def floor_lifetime(mapped_defaults):
 
 def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
     """
-    This function should find and fill in missing min and max values in the data
+    This function shall handle found nans in the data.
 
-    Missing min value is set to 0.
-    Missing max value is set to 9999999999999.
+    Identifiers are set pre-mapping! (Might implement mapping feature later)
 
-    Min values:
-    capacity_p_min
-    capacity_e_min
-    capacity_w_min
-    flow_share_min_<commodity>
+    Providing data for one process with changing values and missing some values
+    cannot be handled by oemof.solph multi period feature. Either a value can be set
+    or it can be None but cannot be None in some year and be set in another.
 
-    Max values:
-    potential_annual_max
-    capacity_p_max
-    capacity_e_max
-    capacity_w_max
-    capacity_p_abs_new_max
-    capacity_e_abs_new_max
-    capacity_w_abs_new_max
-    availability_timeseries_max
-    capacity_tra_connection_max
-    flow_share_max_<commodity>
-    sto_cycles_max
-    sto_max_timeseries
+    Sometimes data is still missing for some periods.
+    For most of these occurrences the missing data does not matter:
+        - The Investment in the invest-object is not allowed in these years
+        - Existing process is already decommissioned.
+    For these cases the missing data is marked `irrelevant`.
+
+    The found nans are replaced:
+        - min/max values replaced by 0 or 9999999999999 (see `handle_min_max()`)
+        - `irrelevant` data is replaced by mean (arithmetic)
+        - Other is replaced by mean and warning is issued
+
+    Parameters
+    ----------
+    group_df
 
     Returns
     -------
 
     """
 
-    max_value = 9999999999999
-    min_value = 0
+    def handle_min_max(group_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        This function should find and fill in missing min and max values in the data
 
-    min = ["capacity_p_min", "capacity_e_min", "capacity_w_min", "flow_share_min_"]
+        Missing min value is set to 0.
+        Missing max value is set to 9999999999999.
 
-    max = [
-        "potential_annual_max",
-        "capacity_p_max",
-        "capacity_e_max",
-        "capacity_w_max",
-        "capacity_p_abs_new_max",
-        "capacity_e_abs_new_max",
-        "capacity_w_abs_new_max",
-        "availability_timeseries_max",
-        "capacity_tra_connection_max",
-        "flow_share_max_",
-        "sto_cycles_max",
-        "sto_max_timeseries",
-    ]
+        Min values:
+        capacity_p_min
+        capacity_e_min
+        capacity_w_min
+        flow_share_min_<commodity>
 
-    for column in group_df.columns:
-        if column in ["method", "source", "comment", "bandwidth_type"]:
-            continue
+        Max values:
+        potential_annual_max
+        capacity_p_max
+        capacity_e_max
+        capacity_w_max
+
+        availability_timeseries_max
+        capacity_tra_connection_max
+        flow_share_max_<commodity>
+        sto_cycles_max
+        sto_max_timeseries
+
+        Returns
+        -------
 
         """
-        Following is a check whether nans can be filled.
+        max_value = 9999999999999
+        min_value = 0
 
-        Commented check for columns that are faulty and need to be changed
-        Commented Error for incomplete columns as we dont know where it may cause errors yet
+        min = ["capacity_p_min", "capacity_e_min", "capacity_w_min", "flow_share_min_"]
 
-        """
-        # if group_df[column].isna().sum() > 0 and not
-        # group_df[column].isna().sum()==len(group_df[column]):
-        if column in max:
-            group_df[column].fillna(max_value, inplace=True)
-        elif column in min:
-            group_df[column].fillna(min_value, inplace=True)
+        max = [
+            "potential_annual_max",
+            "capacity_p_max",
+            "capacity_e_max",
+            "capacity_w_max",
+            "availability_timeseries_max",
+            "capacity_tra_connection_max",
+            "flow_share_max_",
+            "sto_cycles_max",
+            "sto_max_timeseries",
+        ]
+
+        for column in group_df.columns:
+            if column in ["method", "source", "comment", "bandwidth_type"]:
+                continue
+
+            """
+            Following is a check whether nans can be filled.
+
+            Commented check for columns that are faulty and need to be changed
+            Commented Error for incomplete columns as we dont know where it may cause errors yet
+
+            """
+            # if group_df[column].isna().sum() > 0 and not
+            # group_df[column].isna().sum()==len(group_df[column]):
+            if column in max:
+                group_df[column].fillna(max_value, inplace=True)
+            elif column in min:
+                group_df[column].fillna(min_value, inplace=True)
         # else:
         #     if "type" in group_df.columns:
         #
@@ -240,3 +264,48 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         #             f"In column {column} nan values are found \n"
         #             f"please make sure to only provide complete datasets"
         #         )
+
+    def find_and_replace_irrelevant_data(group_df: pd.DataFrame)->pd.DataFrame:
+        """
+        Finds and replaces irrelevant Data.
+
+        Searches for where investment is allowed
+            - If no Investment is allowed and there is no period above where investment was allowed
+                -> Data is replaced by mean
+            - If no Investment is allowed and there have been periods with investment before
+                -> Data is replaced by last value found
+
+        Searches for decomissioned Processes
+            - If capacity of a process is 0 other nan data is replaced by mean.
+
+        Parameters
+        ----------
+        group_df
+
+        Returns
+        -------
+
+        """
+
+        capacity_columns = ["capacity_p_inst_0",
+                    "capacity_e_inst_0",
+                    "capacity_w_inst_0",
+                    "capacity_tra_inst_0"]
+
+        invest_zero = [
+            "capacity_p_abs_new_max",
+            "capacity_e_abs_new_max",
+            "capacity_w_abs_new_max",
+            "capacity_p_max",
+            "capacity_e_max",
+            "capacity_w_max"
+        ]
+        for capacity_col in capacity_columns:
+            for row in group_df.iterrows():
+
+                row['abx'] = np.where(group_df[capacity_col==0], 1, group_df[1])
+
+    group_df = handle_min_max(group_df)
+    group_df = find_and_replace_irrelevant_data(group_df)
+
+

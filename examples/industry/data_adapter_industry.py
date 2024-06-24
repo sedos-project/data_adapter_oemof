@@ -22,10 +22,10 @@ from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 # in `collection.json`
 
 structure = Structure(
-    "Industriestruktur",
-    process_sheet="process_set_steel_casting",
-    parameter_sheet="parameter_input_output_steel_ca",
-    helper_sheet="steel_casting_helper",
+    "SEDOS_Modellstruktur",
+    process_sheet="Processes_O1",
+    parameter_sheet="Parameter_Input-Output",
+    helper_sheet="Helper_O1",
 )
 
 adapter = Adapter(
