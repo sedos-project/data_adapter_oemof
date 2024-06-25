@@ -265,7 +265,7 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         #             f"please make sure to only provide complete datasets"
         #         )
 
-    def find_and_replace_irrelevant_data(group_df: pd.DataFrame)->pd.DataFrame:
+    def find_and_replace_irrelevant_data(group_df: pd.DataFrame) -> pd.DataFrame:
         """
         Finds and replaces irrelevant Data.
 
@@ -287,10 +287,12 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
 
         """
 
-        capacity_columns = ["capacity_p_inst_0",
-                    "capacity_e_inst_0",
-                    "capacity_w_inst_0",
-                    "capacity_tra_inst_0"]
+        capacity_columns = [
+            "capacity_p_inst_0",
+            "capacity_e_inst_0",
+            "capacity_w_inst_0",
+            "capacity_tra_inst_0",
+        ]
 
         invest_zero = [
             "capacity_p_abs_new_max",
@@ -298,14 +300,12 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             "capacity_w_abs_new_max",
             "capacity_p_max",
             "capacity_e_max",
-            "capacity_w_max"
+            "capacity_w_max",
         ]
         for capacity_col in capacity_columns:
             for row in group_df.iterrows():
 
-                row['abx'] = np.where(group_df[capacity_col==0], 1, group_df[1])
+                row["abx"] = np.where(group_df[capacity_col == 0], 1, group_df[1])
 
     group_df = handle_min_max(group_df)
     group_df = find_and_replace_irrelevant_data(group_df)
-
-
