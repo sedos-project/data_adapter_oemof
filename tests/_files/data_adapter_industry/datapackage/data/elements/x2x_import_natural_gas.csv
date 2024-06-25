@@ -1,0 +1,2 @@
+type;carrier;amount;marginal_cost;name;region;year;bus
+commodity;methane;1000.0;[10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0];De_methane_tech;De;[2021, 2024, 2027, 2030, 2035, 2040, 2045, 2050, 2060, 2070];sec_methane

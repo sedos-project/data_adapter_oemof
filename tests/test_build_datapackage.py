@@ -53,6 +53,7 @@ def test_build_tabular_datapackage_from_adapter():
         "SEDOS_Modellstruktur",
         process_sheet="hack-a-thon",
         parameter_sheet="Parameter_IO_hack-a-thon",
+        helper_sheet="empty_helper",
     )
 
     adapter = Adapter(
@@ -212,3 +213,19 @@ def test_tsam():
         tsam_config=tsam_config, location_to_save_to=tsam_folder
     )
     check_if_csv_dirs_equal(tsam_folder, os.path.join(tsam_folder, "..", "tsam_goal"))
+
+
+@pytest.mark.skip(reason="Waiting for registered helper set on databus")
+def test_decomissioning():
+    """
+    Tests Decomissioning with ind_steel_cast example
+    Returns
+    -------
+
+    """
+    from examples.industry import data_adapter_industry
+
+    data_adapter_industry
+
+
+# Check wheter result would be correct

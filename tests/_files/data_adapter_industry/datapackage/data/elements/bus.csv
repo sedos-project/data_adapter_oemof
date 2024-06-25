@@ -1,0 +1,16 @@
+name;type;balanced
+sec_elec;bus;True
+sec_h2;bus;True
+sec_methane;bus;True
+sec_hydrogen;bus;True
+sec_elec_ind;bus;True
+iip_heat_proc;bus;True
+iip_steel_crudesteel;bus;True
+exo_steel;bus;True
+emi_co2_f_ind;bus;True
+emi_ch4_f_ind;bus;True
+emi_n2o_f_ind;bus;True
+iip_steel_iron_ore;bus;True
+ch4;bus;True
+electricity;bus;True
+emi_no2_f_ind;bus;True

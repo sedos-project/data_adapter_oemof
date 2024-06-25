@@ -7,7 +7,6 @@ import logging
 import warnings
 from typing import Optional, Type, Union
 
-import numpy as np
 import pandas as pd
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
@@ -38,6 +37,8 @@ class Adapter:
         Field(name="region", type=str),
         Field(name="year", type=int),
     )
+    output_parameters = (Field(name="max", type=float), Field(name="min", type=float))
+    input_parameters = ()
     counter: int = itertools.count()
 
     def __init__(
@@ -75,16 +76,12 @@ class Adapter:
                     )
                 }
             )
-        if "lifetime" in defaults.keys():
-            # want to move this section including if statements together with decommissioning
-            # section to a calculations as "default calculations
-            if not isinstance(defaults["lifetime"], collections.abc.Iterable):
-                defaults["lifetime"] = int(np.floor(defaults["lifetime"]))
-            elif all(x == defaults["lifetime"][0] for x in defaults["lifetime"]):
-                defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
-            else:
-                warnings.warn("Lifetime cannot change in Multi-period modeling")
-                defaults["lifetime"] = int(np.floor(defaults["lifetime"][0]))
+
+        defaults = self.default_post_mapping_calculations(defaults)
+        if not defaults["input_parameters"]:
+            defaults.pop("input_parameters")
+        if not defaults["output_parameters"]:
+            defaults.pop("output_parameters")
 
         return defaults
 
@@ -271,10 +268,43 @@ class Adapter:
 
         return bus_dict
 
+    def get_output_input_parameter_fields(self):
+        """
+        Getting output and input parameters from data
+        Parameters must be applicable to respective flows
+
+        Parameters to be defined in Adapter
+        Returns
+        {"output_parameters": {"min": [10, 20], "max": [20, 30]},
+        "input_parameters": {"min": [10, 20], "max": [20, 30]}}
+        -------
+
+        """
+
+        def get_io_parameter_dict(parameters):
+            io_dict = {}
+            for param in parameters:
+                if input_parameter_value := self.get(param.name):
+                    io_dict.update({param.name: input_parameter_value})
+            return io_dict
+
+        input_output_parameters = {"output_parameters": {}, "input_parameters": {}}
+
+        input_output_parameters["input_parameters"].update(
+            get_io_parameter_dict(parameters=self.input_parameters)
+        )
+        input_output_parameters["output_parameters"].update(
+            get_io_parameter_dict(parameters=self.output_parameters)
+        )
+
+        return input_output_parameters
+
     def get_default_mappings(self):
         """
         :return: Dictionary for all fields that the facade can take and matching data
         """
+
+        self.default_pre_mapping_calculations()
 
         mapped_all_class_fields = {
             field.name: value
@@ -282,12 +312,49 @@ class Adapter:
             if (value := self.get(field.name, field.type)) is not None
         }
         mapped_all_class_fields.update(self.get_busses())
+        mapped_all_class_fields.update(self.get_output_input_parameter_fields())
         return mapped_all_class_fields
 
     @staticmethod
     def is_sequence(field_type: Type):
         # TODO: Implement it using typing hints
         return "Sequence" in str(field_type)
+
+    def default_pre_mapping_calculations(self):
+        """
+        Takes activity bonds and calculates min/max values
+        Parameters
+        ----------
+        adapter_dict
+
+        Returns
+        -------
+
+        """
+        calculations.normalize_activity_bonds(self)
+
+    def default_post_mapping_calculations(self, mapped_defaults):
+        """
+        Does default calculations#
+
+        I. Decommissioning of existing Capacities
+        II. Rounding lifetime down to integers
+
+        Returns
+        -------
+
+        """
+        # I:
+        if self.process_name[-1] == "0":
+            mapped_defaults = calculations.decommission(
+                process_name=self.process_name, adapter_dict=mapped_defaults
+            )
+
+        # II:
+        if "lifetime" in mapped_defaults.keys():
+            mapped_defaults = calculations.floor_lifetime(mapped_defaults)
+
+        return mapped_defaults
 
 
 class DispatchableAdapter(Adapter):
@@ -427,9 +494,21 @@ class MIMOAdapter(Adapter):
         Field(name="groups", type=dict),
         Field(name="capacity_cost", type=float),
         Field(name="capacity", type=float),
-        Field(name="max", type=float),
         Field(name="expandable", type=bool),
+        Field(name="activity_bound_min", type=float),
+        Field(name="activity_bound_max", type=float),
+        Field(name="activity_bound_fix", type=float),
     )
+    output_parameters = ()
+
+    def default_pre_mapping_calculations(self):
+        """
+        Mimo adapter specific pre calculations
+        Returns
+        -------
+
+        """
+        pass
 
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
