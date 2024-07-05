@@ -56,7 +56,7 @@ process_adapter_map = pd.concat([pd.read_excel(
             sheet_name="Helper_O1",
             usecols=("process", "facade adapter (oemof)"),
             index_col="process"
-        )]).to_dict(orient="dict")
+        )]).to_dict(orient="dict")['facade adapter (oemof)']
 
 
 
