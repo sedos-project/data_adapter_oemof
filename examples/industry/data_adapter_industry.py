@@ -9,17 +9,18 @@ os.environ["STRUCTURES_DIR"] = ""
 from data_adapter.databus import download_collection  # noqa
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
-from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
-
-from oemof.solph._energy_system import EnergySystem
 from oemof.solph import Model
-
-from oemof.tabular.datapackage import building  # noqa F401
-from oemof.tabular.datapackage.reading import deserialize_constraints, deserialize_energy_system
-
-from oemof.tabular.facades import Excess, Commodity, Conversion, Load, Volatile
-from oemof_industry.mimo_converter import MIMO
+from oemof.solph._energy_system import EnergySystem
 from oemof.solph.buses import Bus
+from oemof.tabular.datapackage import building  # noqa F401
+from oemof.tabular.datapackage.reading import (
+    deserialize_constraints,
+    deserialize_energy_system,
+)
+from oemof.tabular.facades import Commodity, Conversion, Excess, Load, Volatile
+from oemof_industry.mimo_converter import MIMO
+
+from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
 EnergySystem.from_datapackage = classmethod(deserialize_energy_system)
 
@@ -46,18 +47,22 @@ adapter = Adapter(
 )
 
 # create dicitonary with all found in and outputs
-process_adapter_map = pd.concat([pd.read_excel(
+process_adapter_map = pd.concat(
+    [
+        pd.read_excel(
             io=structure.structure_file,
             sheet_name="Processes_O1",
             usecols=("process", "facade adapter (oemof)"),
-            index_col="process"
-        ), pd.read_excel(
+            index_col="process",
+        ),
+        pd.read_excel(
             io=structure.structure_file,
             sheet_name="Helper_O1",
             usecols=("process", "facade adapter (oemof)"),
-            index_col="process"
-        )]).to_dict(orient="dict")['facade adapter (oemof)']
-
+            index_col="process",
+        ),
+    ]
+).to_dict(orient="dict")["facade adapter (oemof)"]
 
 
 parameter_map = {
@@ -86,15 +91,18 @@ datapackage_path = pathlib.Path(__file__).parent / "datapackage"
 dp.save_datapackage_to_csv(str(datapackage_path))
 
 
-es = EnergySystem.from_datapackage(path = "datapackage/datapackage.json",
-                                   typemap= {"bus": Bus,
-                                       "excess":Excess,
-                                             "commodity": Commodity,
-                                             "conversion": Conversion,
-                                             "load": Load,
-                                             "volatile": Volatile,
-                                             "mimo": MIMO},
-                                   )
+es = EnergySystem.from_datapackage(
+    path="datapackage/datapackage.json",
+    typemap={
+        "bus": Bus,
+        "excess": Excess,
+        "commodity": Commodity,
+        "conversion": Conversion,
+        "load": Load,
+        "volatile": Volatile,
+        "mimo": MIMO,
+    },
+)
 
 m = Model(es)
 m.solve()

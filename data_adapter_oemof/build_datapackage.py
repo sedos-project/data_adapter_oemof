@@ -5,7 +5,6 @@ from typing import Optional, Type
 
 import numpy as np
 import pandas as pd
-import numpy as np
 import tsam.timeseriesaggregation as tsam
 from data_adapter.preprocessing import Adapter
 from datapackage import Package

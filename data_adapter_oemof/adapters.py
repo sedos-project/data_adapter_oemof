@@ -4,7 +4,6 @@ import difflib
 import itertools
 import json
 import logging
-import warnings
 from typing import Optional, Type, Union
 
 import pandas as pd

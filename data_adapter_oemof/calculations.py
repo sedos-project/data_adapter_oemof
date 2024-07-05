@@ -298,20 +298,27 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             for invest_column in invest_zero:
                 if invest_column in group_df.columns:
                     non_investment_indices = group_df[invest_column] == 0
-                    # In Case the first values are missing we have to bfill and in case the last values are missing
-                    # we have to ffil which is why we cannot use interpolate reliably since
-                    # in most cases boundary values are missing
-                    group_df.loc[non_investment_indices] = group_df.bfill().loc[non_investment_indices]
-                    group_df.loc[non_investment_indices] = group_df.ffill().loc[non_investment_indices]
+                    # In Case first values are missing bfil is used in case last values missed
+                    # ffil is used. In most cases boundary values are missing
+                    # therefore interpolation is no viable option.
+                    group_df.loc[non_investment_indices] = group_df.bfill().loc[
+                        non_investment_indices
+                    ]
+                    group_df.loc[non_investment_indices] = group_df.ffill().loc[
+                        non_investment_indices
+                    ]
         else:
             for capacity_c in capacity_columns:
                 if capacity_c in group_df.columns:
                     zero_capacity_columns_indices = group_df[capacity_c] == 0
-                    group_df.loc[zero_capacity_columns_indices] = group_df.bfill().loc[zero_capacity_columns_indices]
-                    group_df.loc[zero_capacity_columns_indices] = group_df.ffill().loc[zero_capacity_columns_indices]
+                    group_df.loc[zero_capacity_columns_indices] = group_df.bfill().loc[
+                        zero_capacity_columns_indices
+                    ]
+                    group_df.loc[zero_capacity_columns_indices] = group_df.ffill().loc[
+                        zero_capacity_columns_indices
+                    ]
 
         return group_df
-
 
     group_df = handle_min_max(group_df)
     return find_and_replace_irrelevant_data(group_df)
