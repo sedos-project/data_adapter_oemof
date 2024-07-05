@@ -232,6 +232,9 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             "flow_share_max_",
             "sto_cycles_max",
             "sto_max_timeseries",
+            "capacity_p_abs_new_max",
+            "capacity_e_abs_new_max",
+            "capacity_w_abs_new_max",
         ]
 
         for column in group_df.columns:
@@ -245,25 +248,12 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             Commented Error for incomplete columns as we dont know where it may cause errors yet
 
             """
-            # if group_df[column].isna().sum() > 0 and not
-            # group_df[column].isna().sum()==len(group_df[column]):
             if column in max:
-                group_df[column].fillna(max_value, inplace=True)
+                group_df[column] = group_df[column].fillna(max_value)
             elif column in min:
-                group_df[column].fillna(min_value, inplace=True)
-        # else:
-        #     if "type" in group_df.columns:
-        #
-        #         raise ValueError(
-        #             f"In column {column} for process {group_df['type']} nan values are found"
-        #             f"please make sure to only provide complete datasets"
-        #         )
-        #     else:
-        #         print(group_df)
-        #         raise ValueError(
-        #             f"In column {column} nan values are found \n"
-        #             f"please make sure to only provide complete datasets"
-        #         )
+                group_df[column] = group_df[column].fillna(min_value)
+
+        return group_df
 
     def find_and_replace_irrelevant_data(group_df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -271,9 +261,9 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
 
         Searches for where investment is allowed
             - If no Investment is allowed and there is no period above where investment was allowed
-                -> Data is replaced by mean
+                -> Data is replaced by pandas ffil/bfill
             - If no Investment is allowed and there have been periods with investment before
-                -> Data is replaced by last value found
+                -> Data is replaced by pandas ffil/bfill
 
         Searches for decomissioned Processes
             - If capacity of a process is 0 other nan data is replaced by mean.
@@ -302,10 +292,26 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             "capacity_e_max",
             "capacity_w_max",
         ]
-        for capacity_col in capacity_columns:
-            for row in group_df.iterrows():
+        # no investment in decommissioning processes
+        # no capacity can be set on investment objects
+        if not any([x in capacity_columns for x in group_df.columns]):
+            for invest_column in invest_zero:
+                if invest_column in group_df.columns:
+                    non_investment_indices = group_df[invest_column] == 0
+                    # In Case the first values are missing we have to bfill and in case the last values are missing
+                    # we have to ffil which is why we cannot use interpolate reliably since
+                    # in most cases boundary values are missing
+                    group_df.loc[non_investment_indices] = group_df.bfill().loc[non_investment_indices]
+                    group_df.loc[non_investment_indices] = group_df.ffill().loc[non_investment_indices]
+        else:
+            for capacity_c in capacity_columns:
+                if capacity_c in group_df.columns:
+                    zero_capacity_columns_indices = group_df[capacity_c] == 0
+                    group_df.loc[zero_capacity_columns_indices] = group_df.bfill().loc[zero_capacity_columns_indices]
+                    group_df.loc[zero_capacity_columns_indices] = group_df.ffill().loc[zero_capacity_columns_indices]
 
-                row["abx"] = np.where(group_df[capacity_col == 0], 1, group_df[1])
+        return group_df
+
 
     group_df = handle_min_max(group_df)
-    group_df = find_and_replace_irrelevant_data(group_df)
+    return find_and_replace_irrelevant_data(group_df)
