@@ -2,6 +2,7 @@ import os
 import pathlib
 
 import pandas as pd
+import logging
 
 os.environ["COLLECTIONS_DIR"] = "./collections/"
 os.environ["STRUCTURES_DIR"] = ""
@@ -20,6 +21,8 @@ from oemof.tabular.datapackage.reading import deserialize_constraints, deseriali
 from oemof.tabular.facades import Excess, Commodity, Conversion, Load, Volatile
 from oemof_industry.mimo_converter import MIMO
 from oemof.solph.buses import Bus
+
+logger = logging.getLogger()
 
 EnergySystem.from_datapackage = classmethod(deserialize_energy_system)
 
@@ -40,11 +43,12 @@ Also adjust Modelstructure:
         - red marked lines in ProcessO1 (not yet uploaded or deleted data)
 """
 
-from data_adapter.databus import download_collection
-download_collection(
-         "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
-     )
-
+# from data_adapter.databus import download_collection
+# logger.info("Starting Download")
+# download_collection(
+#          "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
+#      )
+logger.info("Reading Structure")
 structure = Structure(
     "SEDOS_Modellstruktur",
     process_sheet="Processes_O1",
@@ -56,6 +60,8 @@ adapter = Adapter(
     "steel_industry_test",
     structure=structure,
 )
+
+logger.info("Building Adapter Map")
 
 # create dicitonary with all found in and outputs
 process_adapter_map = pd.concat([pd.read_excel(
@@ -69,8 +75,6 @@ process_adapter_map = pd.concat([pd.read_excel(
             usecols=("process", "facade adapter (oemof)"),
             index_col="process"
         )]).to_dict(orient="dict")["facade adapter (oemof)"]
-
-
 
 parameter_map = {
     "DEFAULT": {},
@@ -88,7 +92,7 @@ parameter_map = {
     },
     "modex_tech_wind_turbine_onshore": {"profile": "onshore"},
 }
-
+logger.info("Building datapackage...")
 dp = DataPackage.build_datapackage(
     adapter=adapter,
     process_adapter_map=process_adapter_map,
@@ -108,7 +112,10 @@ es = EnergySystem.from_datapackage(path = "datapackage/datapackage.json",
                                              "mimo": MIMO},
                                    )
 
+logger.info("Building Model...")
 m = Model(es)
+logger.info("Solving Model...")
 m.solve(solver="cbc")
+logger.info("Reding Results")
 results = processing.convert_keys_to_strings(processing.results(m))
-print(m)
+logger.info("Writing Results and Goodbye :)")
