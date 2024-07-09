@@ -237,6 +237,8 @@ class Adapter:
                     busses = struct["inputs"]
                 if bus == "to_bus":
                     busses = struct["outputs"]
+                if self.__class__.type == "storage" and struct["inputs"] == struct["outputs"]:
+                    busses = struct["outputs"]
                 if len(busses) != 1:
                     raise MappingError(
                         f"Could not map {bus} to default bus - too many options"
