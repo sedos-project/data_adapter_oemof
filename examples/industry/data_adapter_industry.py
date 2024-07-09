@@ -12,7 +12,7 @@ from data_adapter.structure import Structure  # noqa: E402
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
 from oemof.solph._energy_system import EnergySystem
-from oemof.solph import Model
+from oemof.solph import Model, processing
 
 from oemof.tabular.datapackage import building  # noqa F401
 from oemof.tabular.datapackage.reading import deserialize_constraints, deserialize_energy_system
@@ -109,5 +109,6 @@ es = EnergySystem.from_datapackage(path = "datapackage/datapackage.json",
                                    )
 
 m = Model(es)
-m.solve()
+m.solve(solver="cbc")
+results = processing.convert_keys_to_strings(processing.results(m))
 print(m)
