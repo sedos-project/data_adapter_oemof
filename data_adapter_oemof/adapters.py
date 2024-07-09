@@ -4,7 +4,6 @@ import difflib
 import itertools
 import json
 import logging
-import warnings
 from typing import Optional, Type, Union
 
 import pandas as pd
@@ -237,7 +236,10 @@ class Adapter:
                     busses = struct["inputs"]
                 if bus == "to_bus":
                     busses = struct["outputs"]
-                if self.__class__.type == "storage" and struct["inputs"] == struct["outputs"]:
+                if (
+                    self.__class__.type == "storage"
+                    and struct["inputs"] == struct["outputs"]
+                ):
                     busses = struct["outputs"]
                 if len(busses) != 1:
                     raise MappingError(

@@ -1,26 +1,22 @@
-import os
+import logging
 import pathlib
 
 import pandas as pd
-import logging
-
-os.environ["COLLECTIONS_DIR"] = "./collections/"
-os.environ["STRUCTURES_DIR"] = ""
-
 from data_adapter.databus import download_collection  # noqa
 from data_adapter.preprocessing import Adapter  # noqa: E402
 from data_adapter.structure import Structure  # noqa: E402
-from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
-
-from oemof.solph._energy_system import EnergySystem
 from oemof.solph import Model, processing
-
-from oemof.tabular.datapackage import building  # noqa F401
-from oemof.tabular.datapackage.reading import deserialize_constraints, deserialize_energy_system
-
-from oemof.tabular.facades import Excess, Commodity, Conversion, Load, Volatile
-from oemof_industry.mimo_converter import MIMO
+from oemof.solph._energy_system import EnergySystem
 from oemof.solph.buses import Bus
+from oemof.tabular.datapackage import building  # noqa F401
+from oemof.tabular.datapackage.reading import (
+    deserialize_constraints,
+    deserialize_energy_system,
+)
+from oemof.tabular.facades import Commodity, Conversion, Excess, Load, Volatile
+from oemof_industry.mimo_converter import MIMO
+
+from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
 
 logger = logging.getLogger()
 
@@ -35,11 +31,11 @@ Some datasets must be adjusted due to wrong formatting in comments
     - x2x_p2gas_aec_1
     - x2x_p2gas_pemec_1
     - x2x_x2gas_mpyr_1
-    
-    
+
+
 Also adjust Modelstructure:
     Delete lines:
-        - helper sinks in HelperO1 
+        - helper sinks in HelperO1
         - red marked lines in ProcessO1 (not yet uploaded or deleted data)
 """
 
@@ -64,17 +60,22 @@ adapter = Adapter(
 logger.info("Building Adapter Map")
 
 # create dicitonary with all found in and outputs
-process_adapter_map = pd.concat([pd.read_excel(
+process_adapter_map = pd.concat(
+    [
+        pd.read_excel(
             io=structure.structure_file,
             sheet_name="Processes_O1",
             usecols=("process", "facade adapter (oemof)"),
-            index_col="process"
-        ), pd.read_excel(
+            index_col="process",
+        ),
+        pd.read_excel(
             io=structure.structure_file,
             sheet_name="Helper_O1",
             usecols=("process", "facade adapter (oemof)"),
-            index_col="process"
-        )]).to_dict(orient="dict")["facade adapter (oemof)"]
+            index_col="process",
+        ),
+    ]
+).to_dict(orient="dict")["facade adapter (oemof)"]
 
 parameter_map = {
     "DEFAULT": {},
@@ -102,15 +103,18 @@ datapackage_path = pathlib.Path(__file__).parent / "datapackage"
 dp.save_datapackage_to_csv(str(datapackage_path))
 
 
-es = EnergySystem.from_datapackage(path = "datapackage/datapackage.json",
-                                   typemap= {"bus": Bus,
-                                       "excess":Excess,
-                                             "commodity": Commodity,
-                                             "conversion": Conversion,
-                                             "load": Load,
-                                             "volatile": Volatile,
-                                             "mimo": MIMO},
-                                   )
+es = EnergySystem.from_datapackage(
+    path="datapackage/datapackage.json",
+    typemap={
+        "bus": Bus,
+        "excess": Excess,
+        "commodity": Commodity,
+        "conversion": Conversion,
+        "load": Load,
+        "volatile": Volatile,
+        "mimo": MIMO,
+    },
+)
 
 logger.info("Building Model...")
 m = Model(es)

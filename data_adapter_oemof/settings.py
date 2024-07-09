@@ -1,8 +1,7 @@
+import logging
 import os
 import pathlib
 from pathlib import Path
-import logging
-
 
 from data_adapter_oemof.utils import load_yaml
 
@@ -39,15 +38,16 @@ PROCESS_ADAPTER_MAP = load_yaml(
 )
 BUS_MAP = load_yaml(Path(__file__).parent / "mappings" / "BUS_MAP.yaml")
 
+
 class CustomFormatter(logging.Formatter):
     """Logging colored formatter, adapted from https://stackoverflow.com/a/56944256/3638629"""
 
-    grey = '\x1b[38;21m'
-    blue = '\x1b[38;5;39m'
-    yellow = '\x1b[38;5;226m'
-    red = '\x1b[38;5;196m'
-    bold_red = '\x1b[31;1m'
-    reset = '\x1b[0m'
+    grey = "\x1b[38;21m"
+    blue = "\x1b[38;5;39m"
+    yellow = "\x1b[38;5;226m"
+    red = "\x1b[38;5;196m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
     green = "'\x1b[38;5;82m'"
 
     def __init__(self, fmt):
@@ -58,7 +58,7 @@ class CustomFormatter(logging.Formatter):
             logging.INFO: self.green + self.fmt + self.reset,
             logging.WARNING: self.yellow + self.fmt + self.reset,
             logging.ERROR: self.red + self.fmt + self.reset,
-            logging.CRITICAL: self.bold_red + self.fmt + self.reset
+            logging.CRITICAL: self.bold_red + self.fmt + self.reset,
         }
 
     def format(self, record):
@@ -66,13 +66,14 @@ class CustomFormatter(logging.Formatter):
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 
-formatter = CustomFormatter('%(levelname)s: %(message)s')
+formatter = CustomFormatter("%(levelname)s: %(message)s")
 console_handler.setFormatter(formatter)
 
 logger.addHandler(console_handler)
