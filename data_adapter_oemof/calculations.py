@@ -260,13 +260,9 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         Finds and replaces irrelevant Data.
 
         Searches for where investment is allowed
-            - If no Investment is allowed and there is no period above where investment was allowed
-                -> Data is replaced by pandas ffil/bfill
-            - If no Investment is allowed and there have been periods with investment before
-                -> Data is replaced by pandas ffil/bfill
-
+            - If allowed Investmet is 0, nan data is replaced by mean.
         Searches for decomissioned Processes
-            - If capacity of a process is 0 other nan data is replaced by mean.
+            - If capacity of a process is 0, nan data is replaced by mean.
 
         Parameters
         ----------
@@ -294,11 +290,11 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         ]
         # no investment in decommissioning processes
         # no capacity can be set on investment objects
-        if not any([x in capacity_columns for x in group_df.columns]):
-            for invest_column in invest_zero:
-                if invest_column in group_df.columns:
-                    # Get rows where allowed investment is 0
-                    non_investment_indices = group_df[invest_column] == 0
+        for invest_column in invest_zero:
+            if invest_column in group_df.columns and not any(
+                [cap_col in capacity_columns for cap_col in group_df.columns]
+            ):
+                # Fill rows where allowed investment is 0
 
                 group_df.mask(
                     group_df[invest_column] == 0,
