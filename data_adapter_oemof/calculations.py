@@ -313,6 +313,7 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
                     inplace=True,
                 )
                 return group_df
+        return group_df
 
     group_df = handle_min_max(group_df)
     return find_and_replace_irrelevant_data(group_df)
