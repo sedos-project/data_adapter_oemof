@@ -49,7 +49,7 @@ def _listify_to_periodic(group_df) -> pd.Series:
 
 
     """
-    handle_nans(group_df)
+    group_df = handle_nans(group_df)
     if "year" not in group_df.columns:
         return group_df
     unique_values = pd.Series(dtype=object)
