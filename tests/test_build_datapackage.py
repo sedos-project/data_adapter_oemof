@@ -228,4 +228,57 @@ def test_decomissioning():
     data_adapter_industry
 
 
+def test_filling_nans():
+    """
+    Test to fill nan values on rows where Investment is 0 or capacity is 0
+    Returns
+    -------
+
+    """
+    structure = Structure(
+        "test_fill_nans",
+        process_sheet="Processes_O1",
+        parameter_sheet="Parameter_Input-Output",
+        helper_sheet="Helper_O1",
+    )
+    adapter = Adapter(
+        "test_fill_nans",
+        structure=structure,
+    )
+
+    process_adapter_map = {
+        "ind_steel_casting_0": "MIMOAdapter",
+        "ind_steel_hyddri_1": "MIMOAdapter",
+    }
+
+    parameter_map = {
+        "DEFAULT": {"capacity_w_inst_0": "capacity", "capacity": "capacity_w_inst_0"}
+    }
+
+    data_package = DataPackage.build_datapackage(
+        adapter, process_adapter_map, parameter_map
+    )
+
+    assert (
+        data_package.parametrized_elements["ind_steel_casting_0"][
+            "conversion_factor_sec_methane"
+        ][0]
+        == 1.5774000000000008
+    )
+    assert data_package.parametrized_elements["ind_steel_hyddri_1"][
+        "conversion_factor_sec_elec_ind"
+    ][0] == [
+        0.7000000000000001,
+        0.7000000000000001,
+        0.7000000000000001,
+        0.7000000000000001,
+        0.7,
+        0.7,
+        0.7,
+        0.7,
+        0.7,
+        0.7,
+    ]
+
+
 # Check wheter result would be correct
