@@ -300,32 +300,23 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
                     # Get rows where allowed investment is 0
                     non_investment_indices = group_df[invest_column] == 0
 
-                    # In Case first values are missing bfil is used in case last values missed
-                    # ffil is used. In most cases boundary values are missing
-                    # therefore interpolation is no viable option.
-
-                    # Fill all nans in rows where no investment is allowed
-                    group_df.loc[non_investment_indices] = group_df.bfill().loc[
-                        non_investment_indices
-                    ]
-                    group_df.loc[non_investment_indices] = group_df.ffill().loc[
-                        non_investment_indices
-                    ]
-        else:
-            for capacity_c in capacity_columns:
-                if capacity_c in group_df.columns:
-                    # Get rows where capacity is decommissioned
-                    zero_capacity_columns_indices = group_df[capacity_c] == 0
-
-                    # Fill nan values for rows where capacity is decommissioned
-                    group_df.loc[zero_capacity_columns_indices] = group_df.bfill().loc[
-                        zero_capacity_columns_indices
-                    ]
-                    group_df.loc[zero_capacity_columns_indices] = group_df.ffill().loc[
-                        zero_capacity_columns_indices
-                    ]
-
-        return group_df
+                group_df.mask(
+                    group_df[invest_column] == 0,
+                    group_df.fillna(group_df.mean(numeric_only=True)),
+                    axis=1,
+                    inplace=True,
+                )
+                return group_df
+        for capacity_c in capacity_columns:
+            if capacity_c in group_df.columns:
+                # Fill rows where capacity is decommissioned
+                group_df.mask(
+                    group_df[capacity_c] == 0,
+                    group_df.fillna(group_df.mean(numeric_only=True)),
+                    axis=1,
+                    inplace=True,
+                )
+                return group_df
 
     group_df = handle_min_max(group_df)
     return find_and_replace_irrelevant_data(group_df)
