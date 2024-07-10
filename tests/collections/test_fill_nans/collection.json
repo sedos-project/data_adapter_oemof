@@ -1,0 +1,50 @@
+{
+  "name": "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/",
+  "version": "v3",
+  "artifacts": {
+    "SEDOS_industry_sector": {
+      "ind_steel_casting_0": {
+        "latest_version": "srd_range_draft",
+        "multiple_types": true,
+        "names": [
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0",
+          "ind_steel_casting_0"
+        ],
+        "subjects": [
+          "Industry Sector_Industry Sub-sector"
+        ],
+        "datatype": 0
+      },
+      "ind_steel_hyddri_1": {
+        "latest_version": "srd_range_draft",
+        "multiple_types": true,
+        "names": [
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1",
+          "ind_steel_hyddri_1"
+        ],
+        "subjects": [
+          "Industry Sector_Industry Sub-sector"
+        ],
+        "datatype": 0
+      }
+    }
+  }
+}
