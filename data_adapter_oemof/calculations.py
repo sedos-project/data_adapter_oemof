@@ -290,29 +290,36 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         ]
         # no investment in decommissioning processes
         # no capacity can be set on investment objects
-        for invest_column in invest_zero:
-            if invest_column in group_df.columns and not any(
-                [cap_col in capacity_columns for cap_col in group_df.columns]
-            ):
-                # Fill rows where allowed investment is 0
+        invest_col = [d for d in invest_zero if d in group_df.columns]
+        capacity_c = [d for d in capacity_columns if d in group_df.columns]
+        if len(invest_col) == 1 and len(capacity_c) == 0:
+                # Get rows where allowed investment is 0
+                non_investment_indices = group_df[invest_col[0]] == 0
+                # In Case first values are missing bfil is used in case last values missed
+                # ffil is used. In most cases boundary values are missing
+                # therefore interpolation is no viable option.
+                group_df.loc[non_investment_indices] = group_df.bfill().loc[
+                non_investment_indices
+                ]
+                group_df.loc[non_investment_indices] = group_df.ffill().loc[
+                    non_investment_indices
+                ]
 
-                group_df.mask(
-                    group_df[invest_column] == 0,
-                    group_df.fillna(group_df.mean(numeric_only=True)),
-                    axis=1,
-                    inplace=True,
-                )
                 return group_df
-        for capacity_c in capacity_columns:
-            if capacity_c in group_df.columns:
-                # Fill rows where capacity is decommissioned
-                group_df.mask(
-                    group_df[capacity_c] == 0,
-                    group_df.fillna(group_df.mean(numeric_only=True)),
-                    axis=1,
-                    inplace=True,
-                )
-                return group_df
+        if len(capacity_c) == 1:
+            # Fill rows where capacity is decommissioned
+            zero_capacity_columns_indices = group_df[capacity_c[0]] == 0
+            group_df.loc[zero_capacity_columns_indices] = group_df.bfill().loc[
+                zero_capacity_columns_indices
+            ]
+            group_df.loc[zero_capacity_columns_indices] = group_df.ffill().loc[
+                zero_capacity_columns_indices
+            ]
+            return group_df
+        else:
+            warnings.warn("Multiple Investment Columns found - nans cannot be filled automatically"
+                          f" for DataFrame {group_df}")
+
         return group_df
 
     group_df = handle_min_max(group_df)
