@@ -284,43 +284,33 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             "capacity_p_abs_new_max",
             "capacity_e_abs_new_max",
             "capacity_w_abs_new_max",
-            "capacity_p_max",
-            "capacity_e_max",
-            "capacity_w_max",
         ]
-        # no investment in decommissioning processes
-        # no capacity can be set on investment objects
-        invest_col = [d for d in invest_zero if d in group_df.columns]
-        capacity_c = [d for d in capacity_columns if d in group_df.columns]
-        if len(invest_col) == 1 and len(capacity_c) == 0:
-            # Get rows where allowed investment is 0
-            non_investment_indices = group_df[invest_col[0]] == 0
-            # In Case first values are missing bfil is used in case last values missed
-            # ffil is used. In most cases boundary values are missing
-            # therefore interpolation is no viable option.
-            group_df.loc[non_investment_indices] = group_df.bfill().loc[
-                non_investment_indices
-            ]
-            group_df.loc[non_investment_indices] = group_df.ffill().loc[
-                non_investment_indices
-            ]
 
-            return group_df
-        if len(capacity_c) == 1:
-            # Fill rows where capacity is decommissioned
-            zero_capacity_columns_indices = group_df[capacity_c[0]] == 0
-            group_df.loc[zero_capacity_columns_indices] = group_df.bfill().loc[
-                zero_capacity_columns_indices
-            ]
-            group_df.loc[zero_capacity_columns_indices] = group_df.ffill().loc[
-                zero_capacity_columns_indices
-            ]
-            return group_df
-        else:
-            warnings.warn(
-                "Multiple Investment Columns found - nans cannot be filled automatically"
-                f" for DataFrame {group_df}"
-            )
+        max_zero = ["capacity_p_max", "capacity_e_max", "capacity_w_max"]
+
+        # Get relevant columns that appear in dataframe
+        max_col = [d for d in max_zero if d in group_df.columns]
+        invest_col = [d for d in invest_zero if d in group_df.columns]
+        capacity_col = [d for d in capacity_columns if d in group_df.columns]
+
+        # Set all indices to "not be filled" (False)
+        fill_indices = pd.Series([False] * len(group_df), index=group_df.index)
+
+        # Capacity and Investment cannot be set in parallel. If both columns appear in dataframe
+        # Fill the ones where capacity is set to 0 (decomissioned)
+        if len(capacity_col) == 1 and (len(invest_col) != 0 or len(max_col) != 0):
+            # Add Indices where capacity is 0
+            fill_indices += group_df[capacity_col[0]] == 0
+        elif len(invest_col) == 1:
+            # Add indices where capacity max == 0 (making investment impossible)
+            fill_indices += group_df[max_col[0]] == 0
+        elif len(max_col) == 1:
+            # Add indices where investment is not allowed
+            fill_indices += group_df[invest_col[0]] == 0
+
+        # Fill indices
+        group_df.loc[fill_indices] = group_df.bfill().loc[fill_indices]
+        group_df.loc[fill_indices] = group_df.ffill().loc[fill_indices]
 
         return group_df
 
