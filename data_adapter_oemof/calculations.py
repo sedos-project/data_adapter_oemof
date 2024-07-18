@@ -309,7 +309,9 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             fill_indices += group_df[invest_col[0]] == 0
 
         # Fill indices
-        group_df.loc[fill_indices] = group_df.fillna(group_df.mean(numeric_only=True))
+        group_df.loc[fill_indices] = group_df.fillna(
+            group_df.mean(numeric_only=True)
+        ).loc[fill_indices]
 
         return group_df
 
