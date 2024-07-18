@@ -301,16 +301,15 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         if len(capacity_col) == 1 and (len(invest_col) != 0 or len(max_col) != 0):
             # Add Indices where capacity is 0
             fill_indices += group_df[capacity_col[0]] == 0
-        elif len(invest_col) == 1:
+        elif len(max_col) == 1:
             # Add indices where capacity max == 0 (making investment impossible)
             fill_indices += group_df[max_col[0]] == 0
-        elif len(max_col) == 1:
+        elif len(invest_col) == 1:
             # Add indices where investment is not allowed
             fill_indices += group_df[invest_col[0]] == 0
 
         # Fill indices
-        group_df.loc[fill_indices] = group_df.bfill().loc[fill_indices]
-        group_df.loc[fill_indices] = group_df.ffill().loc[fill_indices]
+        group_df.loc[fill_indices] = group_df.fillna(group_df.mean(numeric_only=True))
 
         return group_df
 
