@@ -1,9 +1,8 @@
 {
-  "name": "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/",
-  "version": "v3",
   "artifacts": {
     "SEDOS_industry_sector": {
       "ind_steel_casting_0": {
+        "datatype": 0,
         "latest_version": "srd_range_draft",
         "multiple_types": true,
         "names": [
@@ -21,10 +20,10 @@
         ],
         "subjects": [
           "Industry Sector_Industry Sub-sector"
-        ],
-        "datatype": 0
+        ]
       },
       "ind_steel_hyddri_1": {
+        "datatype": 0,
         "latest_version": "srd_range_draft",
         "multiple_types": true,
         "names": [
@@ -42,9 +41,10 @@
         ],
         "subjects": [
           "Industry Sector_Industry Sub-sector"
-        ],
-        "datatype": 0
+        ]
       }
     }
-  }
+  },
+  "name": "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/",
+  "version": "v3"
 }

@@ -293,19 +293,19 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
         invest_col = [d for d in invest_zero if d in group_df.columns]
         capacity_c = [d for d in capacity_columns if d in group_df.columns]
         if len(invest_col) == 1 and len(capacity_c) == 0:
-                # Get rows where allowed investment is 0
-                non_investment_indices = group_df[invest_col[0]] == 0
-                # In Case first values are missing bfil is used in case last values missed
-                # ffil is used. In most cases boundary values are missing
-                # therefore interpolation is no viable option.
-                group_df.loc[non_investment_indices] = group_df.bfill().loc[
+            # Get rows where allowed investment is 0
+            non_investment_indices = group_df[invest_col[0]] == 0
+            # In Case first values are missing bfil is used in case last values missed
+            # ffil is used. In most cases boundary values are missing
+            # therefore interpolation is no viable option.
+            group_df.loc[non_investment_indices] = group_df.bfill().loc[
                 non_investment_indices
-                ]
-                group_df.loc[non_investment_indices] = group_df.ffill().loc[
-                    non_investment_indices
-                ]
+            ]
+            group_df.loc[non_investment_indices] = group_df.ffill().loc[
+                non_investment_indices
+            ]
 
-                return group_df
+            return group_df
         if len(capacity_c) == 1:
             # Fill rows where capacity is decommissioned
             zero_capacity_columns_indices = group_df[capacity_c[0]] == 0
@@ -317,8 +317,10 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
             ]
             return group_df
         else:
-            warnings.warn("Multiple Investment Columns found - nans cannot be filled automatically"
-                          f" for DataFrame {group_df}")
+            warnings.warn(
+                "Multiple Investment Columns found - nans cannot be filled automatically"
+                f" for DataFrame {group_df}"
+            )
 
         return group_df
 
