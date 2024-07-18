@@ -77,7 +77,6 @@ def _listify_to_periodic(group_df) -> pd.Series:
                 unique_values[col] = group_df[col].iat[0][0]
             else:
                 unique_values[col] = group_df[col].iat[0]
-    unique_values["name"] = "_".join(group_df.name)
     unique_values.drop("year")
     return unique_values
 

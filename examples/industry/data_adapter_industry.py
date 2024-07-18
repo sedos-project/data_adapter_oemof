@@ -40,7 +40,6 @@ Also adjust Modelstructure:
 """
 
 # from data_adapter.databus import download_collection
-# logger.info("Starting Download")
 # download_collection(
 #          "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
 #      )
@@ -103,6 +102,8 @@ datapackage_path = pathlib.Path(__file__).parent / "datapackage"
 dp.save_datapackage_to_csv(str(datapackage_path))
 
 
+logger.info("Building EnergySystem")
+
 es = EnergySystem.from_datapackage(
     path="datapackage/datapackage.json",
     typemap={
@@ -120,6 +121,8 @@ logger.info("Building Model...")
 m = Model(es)
 logger.info("Solving Model...")
 m.solve(solver="cbc")
+logger.warning(m.solver_results["Solver"][0]["Termination condition"])
+print(m.solver_results["Solver"][0]["Termination condition"])
 logger.info("Reding Results")
-results = processing.convert_keys_to_strings(processing.results(m))
+results = processing.results(m)
 logger.info("Writing Results and Goodbye :)")
