@@ -293,6 +293,7 @@ class DataPackage:
         # Add foreign keys from self to Package
         for resource in package.descriptor["resources"]:
             field_names = [field["name"] for field in resource["schema"]["fields"]]
+            resource["dialect"] = {"delimiter": ";"}
             if resource["name"] in self.foreign_keys.keys():
                 resource["schema"].update(
                     {"foreignKeys": self.foreign_keys[resource["name"]]}
