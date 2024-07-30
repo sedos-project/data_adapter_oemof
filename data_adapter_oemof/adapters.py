@@ -158,7 +158,8 @@ class Adapter:
                     f"Using existing timeseries column '{timeseries_key}'."
                 )
                 return timeseries_key
-            logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
+            logger.warning(f"For Process {self.process_name}"
+                           f"Could not find timeseries entry for mapped key '{key}'")
             return None
 
         # 2 Use defaults
@@ -491,6 +492,7 @@ class MIMOAdapter(Adapter):
         Field(name="region", type=str),
         Field(name="year", type=int),
         Field(name="groups", type=dict),
+        Field(name="lifetime", type=float),
         Field(name="capacity_cost", type=float),
         Field(name="capacity", type=float),
         Field(name="expandable", type=bool),
