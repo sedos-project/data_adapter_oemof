@@ -1,8 +1,8 @@
 import dataclasses
+import logging
 import os
 import warnings
 from typing import Optional, Type
-import logging
 
 import numpy as np
 import pandas as pd
@@ -17,6 +17,7 @@ from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_
 from data_adapter_oemof.utils import convert_mixed_types_to_same_length
 
 logger = logging.getLogger()
+
 
 # Define a function to aggregate differing values into a list
 def _listify_to_periodic(group_df) -> pd.Series:
@@ -496,7 +497,9 @@ class DataPackage:
                     + _reduce_lists(timeseries.columns.get_level_values(1))
                 )
             facade_adapter_name: str = process_adapter_map[process_name]
-            logger.info(f"Adaptering process {process_name} into adapter {facade_adapter_name}")
+            logger.info(
+                f"Adaptering process {process_name} into adapter {facade_adapter_name}"
+            )
             facade_adapter: Type[FacadeAdapter] = FACADE_ADAPTERS[facade_adapter_name]
             component_adapter: Optional[FacadeAdapter] = None
             components = []

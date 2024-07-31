@@ -158,8 +158,10 @@ class Adapter:
                     f"Using existing timeseries column '{timeseries_key}'."
                 )
                 return timeseries_key
-            logger.warning(f"For Process {self.process_name}"
-                           f"Could not find timeseries entry for mapped key '{key}'")
+            logger.warning(
+                f"For Process {self.process_name}"
+                f"Could not find timeseries entry for mapped key '{key}'"
+            )
             return None
 
         # 2 Use defaults
