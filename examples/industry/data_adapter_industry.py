@@ -13,7 +13,7 @@ from oemof.tabular.datapackage.reading import (
     deserialize_constraints,
     deserialize_energy_system,
 )
-from oemof.tabular.facades import Commodity, Conversion, Excess, Load, Volatile, Storage
+from oemof.tabular.facades import Commodity, Conversion, Excess, Load, Volatile, Storage, ConversionGHG, CommodityGHG
 from oemof_industry.mimo_converter import MIMO
 
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
@@ -303,7 +303,9 @@ es = EnergySystem.from_datapackage(
         "load": Load,
         "volatile": Volatile,
         "mimo": MIMO,
-        "storage":Storage
+        "storage": Storage,
+        "conversion_ghg": ConversionGHG,
+        "commodity_ghg": CommodityGHG,
     },
 )
 

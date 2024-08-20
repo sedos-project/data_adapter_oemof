@@ -428,6 +428,19 @@ class CommodityAdapter(Adapter):
 
         return defaults
 
+class CommodityGHGAdapter(CommodityAdapter):
+    """
+    CommodityGHGAdapter
+    """
+
+    type = "commodity_ghg"
+    facade = facades.CommodityGHG
+
+    def get_busses(self) -> dict:
+        bus_dict = {"emission_bus_x": bus.label}
+        return bus_dict
+    # todo emission buses and emission factors
+
 
 class ConversionAdapter(Adapter):
     """
@@ -437,6 +450,17 @@ class ConversionAdapter(Adapter):
 
     type = "conversion"
     facade = facades.Conversion
+
+
+class ConversionGHGAdapter(Adapter):
+    """
+    ConversionGHGAdapter
+    """
+
+    type = "conversion_ghg"
+    facade = facades.ConversionGHG
+
+    # todo emission buses and emission factors
 
 
 class LoadAdapter(Adapter):
