@@ -349,7 +349,14 @@ class Adapter:
         # I:
         if self.process_name[-1] == "0":
             mapped_defaults = calculations.decommission(
-                process_name=self.process_name, adapter_dict=mapped_defaults
+                process_name=self.process_name,
+                adapter_dict=mapped_defaults,
+                column="capacity",
+            )
+            mapped_defaults = calculations.decommission(
+                process_name=self.process_name,
+                adapter_dict=mapped_defaults,
+                column="amount",
             )
 
         # II:
