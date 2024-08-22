@@ -95,14 +95,14 @@ def decommission(process_name, adapter_dict: dict) -> dict:
     if max_column not in adapter_dict["output_parameters"].keys():
         adapter_dict["output_parameters"][max_column] = adapter_dict[
             capacity_column
-        ] / np.max(adapter_dict[capacity_column])
+        ] / np.nanmax(adapter_dict[capacity_column])
     # II:
     else:
         adapter_dict["output_parameters"][max_column] = multiply_two_lists(
             adapter_dict["output_parameters"][max_column], adapter_dict[capacity_column]
-        ) / np.max(adapter_dict[capacity_column])
+        ) / np.nanmax(adapter_dict[capacity_column])
 
-    adapter_dict[capacity_column] = np.max(adapter_dict[capacity_column])
+    adapter_dict[capacity_column] = np.nanmax(adapter_dict[capacity_column])
     return adapter_dict
 
 
