@@ -430,6 +430,7 @@ class CommodityAdapter(Adapter):
 
         return defaults
 
+
 class CommodityGHGAdapter(CommodityAdapter):
     """
     CommodityGHGAdapter
@@ -513,7 +514,6 @@ class ConversionGHGAdapter(Adapter):
         #                  f" instead of `ConversionGHGAdapter`.")
 
         return return_bus_dict
-
 
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()

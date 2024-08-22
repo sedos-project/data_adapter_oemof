@@ -13,7 +13,16 @@ from oemof.tabular.datapackage.reading import (
     deserialize_constraints,
     deserialize_energy_system,
 )
-from oemof.tabular.facades import Commodity, Conversion, Excess, Load, Volatile, Storage, ConversionGHG, CommodityGHG
+from oemof.tabular.facades import (
+    Commodity,
+    Conversion,
+    Excess,
+    Load,
+    Volatile,
+    Storage,
+    ConversionGHG,
+    CommodityGHG,
+)
 from oemof_industry.mimo_converter import MIMO
 
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
@@ -87,8 +96,7 @@ parameter_map = {
         "inflow_conversion_factor": "input_ratio",
         "outflow_conversion_factor": "output_ratio",
     },
-    "CommodityAdapter": {
-    },
+    "CommodityAdapter": {},
     "x2x_import_biogas": {"amount": "capacity_w_inst_0", "marginal_cost": "cost_var_e"},
     "x2x_import_coal": {"amount": "capacity_w_inst_0", "marginal_cost": "cost_var_e"},
     "x2x_import_hydrogen_renewable": {
@@ -243,7 +251,7 @@ parameter_map = {
     },
     "x2x_storage_hydrogen_lohc_1": {
         "efficiency": "efficiency_sto_in",
-	"fixed_costs":"cost_fix_w",
+        "fixed_costs": "cost_fix_w",
         "loss_rate": "sto_self_discharge",
         "storage_capacity_cost": "cost_inv_e",
         "fixed_costs": "cost_fix_p",
@@ -253,7 +261,7 @@ parameter_map = {
         "efficiency": "efficiency_sto_in",
         "loss_rate": "sto_self_discharge",
         "storage_capacity_cost": "cost_inv_e",
-	"fixed_costs":"cost_fix_w",
+        "fixed_costs": "cost_fix_w",
         "fixed_costs": "cost_fix_p",
         "marginal_cost": "cost_var_e",
         "capacity_capacity_potential": "capacity_e_max",
@@ -263,7 +271,7 @@ parameter_map = {
         "fixed_costs": "cost_fix_p",
         "loss_rate": "sto_self_discharge",
         "storage_capacity_cost": "cost_inv_e",
-	"fixed_costs":"cost_fix_p",
+        "fixed_costs": "cost_fix_p",
         "marginal_cost": "cost_var_e",
         "capacity_capacity_potential": "capacity_e_max",
         "storage_capacity": "capacity_e_inst",
