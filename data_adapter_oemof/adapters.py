@@ -437,9 +437,24 @@ class CommodityGHGAdapter(CommodityAdapter):
     facade = facades.CommodityGHG
 
     def get_busses(self) -> dict:
-        bus_dict = {"emission_bus_x": bus.label}
+        bus_list = self.structure["outputs"]
+        bus_dict = {}
+        counter = 0
+        for bus in bus_list:
+            if not bus.startswith("emi"):
+                bus_dict["bus"] = bus
+            elif bus.startswith("emi"):
+                bus_dict[f"emission_bus_{counter}"] = bus
+                counter += 1
+
         return bus_dict
     # todo emission buses and emission factors
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        for key, value in self.data.items():
+            if key.startswith("ef"):
+                defaults[key.replace("ef", "emission_factor")] = value
+        return defaults
 
 
 class ConversionAdapter(Adapter):
@@ -461,6 +476,32 @@ class ConversionGHGAdapter(Adapter):
     facade = facades.ConversionGHG
 
     # todo emission buses and emission factors
+    def get_busses(self) -> dict:
+        def get_bus_from_struct(bus_list: list, bus_key: str) -> dict:
+            bus_dict = {}
+            counter = 0
+            for bus in bus_list:
+                if not bus.startswith("emi"):
+                    bus_dict[f"{bus_key}"] = bus
+                elif bus.startswith("emi"):
+                    bus_dict[f"emission_bus_{counter}"] = bus
+                    counter += 1
+            return bus_dict
+
+        return_bus_dict = get_bus_from_struct(
+            self.structure["inputs"], bus_key="from_bus"
+        ) | get_bus_from_struct(self.structure["outputs"], bus_key="to_bus")
+
+
+        return return_bus_dict
+
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        for key, value in self.data.items():
+            if key.startswith("ef"):
+                defaults[key.replace("ef", "emission_factor")] = value
+        return defaults
 
 
 class LoadAdapter(Adapter):
