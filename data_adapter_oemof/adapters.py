@@ -447,8 +447,17 @@ class CommodityGHGAdapter(CommodityAdapter):
                 bus_dict[f"emission_bus_{counter}"] = bus
                 counter += 1
 
+        # check that bus is defined
+        if bus_dict.get("bus") is None:
+            raise KeyError(f"{self.process_name} is missing 'bus', the input.")
+        # emission_buses = [key for key in bus_dict.keys() if key.startswith("emission_bus")]
+        # if len(emission_buses) == 0:
+        #     logging.INFO(f"{self.process_name} is missing emission bus. This is"
+        #                  f" no problem, but you could use `ConversionAdapter`"
+        #                  f" instead of `ConversionGHGAdapter`.")
+
         return bus_dict
-    # todo emission buses and emission factors
+
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
         for key, value in self.data.items():
@@ -475,7 +484,6 @@ class ConversionGHGAdapter(Adapter):
     type = "conversion_ghg"
     facade = facades.ConversionGHG
 
-    # todo emission buses and emission factors
     def get_busses(self) -> dict:
         def get_bus_from_struct(bus_list: list, bus_key: str) -> dict:
             bus_dict = {}
@@ -492,6 +500,15 @@ class ConversionGHGAdapter(Adapter):
             self.structure["inputs"], bus_key="from_bus"
         ) | get_bus_from_struct(self.structure["outputs"], bus_key="to_bus")
 
+        # check that from_bus and to_bus is defined
+        for key in ["from_bus", "to_bus"]:
+            if return_bus_dict.get(key) is None:
+                raise KeyError(f"{self.process_name} is missing {key}.")
+        # emission_buses = [key for key in return_bus_dict.keys() if key.startswith("emission_bus")]
+        # if len(emission_buses) == 0:
+        #     logging.INFO(f"{self.process_name} is missing emission bus. This is"
+        #                  f" no problem, but you could use `ConversionAdapter`"
+        #                  f" instead of `ConversionGHGAdapter`.")
 
         return return_bus_dict
 
