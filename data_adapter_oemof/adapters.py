@@ -601,10 +601,13 @@ class MIMOAdapter(Adapter):
             "emissions_factor_",
             "conversion_factor_",
             "flow_share_",
+            "ef_",
         )
         for key, value in self.data.items():
             for keyword in keywords:
                 if key.startswith(keyword):
+                    if key.startswith("ef"):
+                        key = key.replace("ef", "emission_factor")
                     defaults[key] = value
         return defaults
 
