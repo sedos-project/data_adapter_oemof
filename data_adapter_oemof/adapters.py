@@ -431,6 +431,38 @@ class CommodityAdapter(Adapter):
         return defaults
 
 
+class CommodityGHGAdapter(CommodityAdapter):
+    """
+    CommodityGHGAdapter
+    """
+
+    type = "commodity_ghg"
+    facade = facades.CommodityGHG
+
+    def get_busses(self) -> dict:
+        bus_list = self.structure["outputs"]
+        bus_dict = {}
+        counter = 0
+        for bus in bus_list:
+            if not bus.startswith("emi"):
+                bus_dict["bus"] = bus
+            elif bus.startswith("emi"):
+                bus_dict[f"emission_bus_{counter}"] = bus
+                counter += 1
+
+        # check that bus is defined
+        if bus_dict.get("bus") is None:
+            raise KeyError(f"{self.process_name} is missing 'bus', the input.")
+        return bus_dict
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        for key, value in self.data.items():
+            if key.startswith("ef"):
+                defaults[key.replace("ef", "emission_factor")] = value
+        return defaults
+
+
 class ConversionAdapter(Adapter):
     """
     ConversionAdapter
@@ -439,6 +471,44 @@ class ConversionAdapter(Adapter):
 
     type = "conversion"
     facade = facades.Conversion
+
+
+class ConversionGHGAdapter(Adapter):
+    """
+    ConversionGHGAdapter
+    """
+
+    type = "conversion_ghg"
+    facade = facades.ConversionGHG
+
+    def get_busses(self) -> dict:
+        def get_bus_from_struct(bus_list: list, bus_key: str) -> dict:
+            bus_dict = {}
+            counter = 0
+            for bus in bus_list:
+                if not bus.startswith("emi"):
+                    bus_dict[f"{bus_key}"] = bus
+                elif bus.startswith("emi"):
+                    bus_dict[f"emission_bus_{counter}"] = bus
+                    counter += 1
+            return bus_dict
+
+        return_bus_dict = get_bus_from_struct(
+            self.structure["inputs"], bus_key="from_bus"
+        ) | get_bus_from_struct(self.structure["outputs"], bus_key="to_bus")
+
+        # check that from_bus and to_bus is defined
+        for key in ["from_bus", "to_bus"]:
+            if return_bus_dict.get(key) is None:
+                raise KeyError(f"{self.process_name} is missing {key}.")
+        return return_bus_dict
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        for key, value in self.data.items():
+            if key.startswith("ef"):
+                defaults[key.replace("ef", "emission_factor")] = value
+        return defaults
 
 
 class LoadAdapter(Adapter):
@@ -521,10 +591,13 @@ class MIMOAdapter(Adapter):
             "emissions_factor_",
             "conversion_factor_",
             "flow_share_",
+            "ef_",
         )
         for key, value in self.data.items():
             for keyword in keywords:
                 if key.startswith(keyword):
+                    if key.startswith("ef"):
+                        key = key.replace("ef", "emission_factor")
                     defaults[key] = value
         return defaults
 
