@@ -452,6 +452,7 @@ class DataPackage:
         parameter_map: Optional[dict] = PARAMETER_MAP,
         bus_map: Optional[dict] = BUS_MAP,
         location_to_save_to: str = None,
+        debug=False,
     ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
@@ -544,6 +545,20 @@ class DataPackage:
             }
         )
         periods = cls.get_periods_from_parametrized_sequences(parametrized_sequences)
+
+        def reduce_data_frame(data_frame, steps=4):
+            """reduces `df` to 5 time steps per period"""
+            df = data_frame.copy()
+            df["ind"] = df.index
+            df["ind"] = df["ind"].apply(lambda x: True if x.month == 1 and x.day == 1 and x.hour <= 4 else False)
+            df_reduced = df.loc[df["ind"] == 1].drop(columns=["ind"])
+            return df_reduced
+
+        if debug:
+            periods = reduce_data_frame(data_frame=periods)
+            for key, value in parametrized_sequences.items():
+                df_short = reduce_data_frame(data_frame=value)
+                parametrized_elements.update({key: df_short})
 
         return cls(
             parametrized_elements=parametrized_elements,

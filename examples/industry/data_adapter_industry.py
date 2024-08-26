@@ -32,6 +32,9 @@ logger = logging.getLogger()
 EnergySystem.from_datapackage = classmethod(deserialize_energy_system)
 
 Model.add_constraints_from_datapackage = deserialize_constraints
+
+DEBUG = True  # set to False for full run. DEBUG reduces to 5 time steps per period
+
 """
 Download Collection
 
@@ -296,6 +299,7 @@ dp = DataPackage.build_datapackage(
     adapter=adapter,
     process_adapter_map=process_adapter_map,
     parameter_map=parameter_map,
+    debug=DEBUG,  # set DEBUG to False for full run. DEBUG reduces to 5 time steps per period
 )
 datapackage_path = pathlib.Path(__file__).parent / "datapackage"
 dp.save_datapackage_to_csv(str(datapackage_path))
