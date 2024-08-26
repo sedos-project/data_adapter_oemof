@@ -550,7 +550,9 @@ class DataPackage:
             """reduces `df` to 5 time steps per period"""
             df = data_frame.copy()
             df["ind"] = df.index
-            df["ind"] = df["ind"].apply(lambda x: True if x.month == 1 and x.day == 1 and x.hour <= 4 else False)
+            df["ind"] = df["ind"].apply(
+                lambda x: True if x.month == 1 and x.day == 1 and x.hour <= 4 else False
+            )
             df_reduced = df.loc[df["ind"] == 1].drop(columns=["ind"])
             return df_reduced
 
