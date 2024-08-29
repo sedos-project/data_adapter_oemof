@@ -3,7 +3,10 @@ import logging
 import warnings
 
 import numpy as np
+import pandas as pd
 from oemof.tools.economics import annuity
+
+from .utils import divide_two_lists, multiply_two_lists
 
 
 class CalculationError(Exception):
@@ -71,24 +74,6 @@ def decommission(process_name, adapter_dict: dict) -> dict:
     -------
 
     """
-
-    def multiply_two_lists(l1, l2):
-        """
-        Multiplies two lists
-
-        Lists must be same length
-
-        Parameters
-        ----------
-        l1
-        l2
-
-        Returns divided list
-        -------
-
-        """
-        return [i * j for i, j in zip(l1, l2)]
-
     capacity_column = "capacity"
     max_column = "max"
 
@@ -133,23 +118,6 @@ def normalize_activity_bonds(adapter):
 
     """
 
-    def divide_two_lists(dividend, divisor):
-        """
-        Divides two lists returns quotient, returns 0 if divisor is 0
-
-        Lists must be same length
-
-        Parameters
-        ----------
-        dividend
-        divisor
-
-        Returns divided list
-        -------
-
-        """
-        return [i / j if j != 0 else 0 for i, j in zip(dividend, divisor)]
-
     if "activity_bound_fix" in adapter.data.keys():
         adapter.data["activity_bound_fix"] = divide_two_lists(
             adapter.data["activity_bound_fix"], adapter.get("capacity")
@@ -188,3 +156,164 @@ def floor_lifetime(mapped_defaults):
         warnings.warn("Lifetime cannot change in Multi-period modeling")
         mapped_defaults["lifetime"] = int(np.floor(mapped_defaults["lifetime"][0]))
     return mapped_defaults
+
+
+def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    This function shall handle found nans in the data.
+
+    Identifiers are set pre-mapping! (Might implement mapping feature later)
+
+    Providing data for one process with changing values and missing some values
+    cannot be handled by oemof.solph multi period feature. Either a value can be set
+    or it can be None but cannot be None in some year and be set in another.
+
+    Sometimes data is still missing for some periods.
+    For most of these occurrences the missing data does not matter:
+        - The Investment in the invest-object is not allowed in these years
+        - Existing process is already decommissioned.
+    For these cases the missing data is marked `irrelevant`.
+
+    The found nans are replaced:
+        - min/max values replaced by 0 or 9999999999999 (see `handle_min_max()`)
+        - `irrelevant` data is replaced by mean (arithmetic)
+        - Other is replaced by mean and warning is issued
+
+    Parameters
+    ----------
+    group_df
+
+    Returns
+    -------
+
+    """
+
+    def handle_min_max(group_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        This function should find and fill in missing min and max values in the data
+
+        Missing min value is set to 0.
+        Missing max value is set to 9999999999999.
+
+        Min values:
+        capacity_p_min
+        capacity_e_min
+        capacity_w_min
+        flow_share_min_<commodity>
+
+        Max values:
+        potential_annual_max
+        capacity_p_max
+        capacity_e_max
+        capacity_w_max
+
+        availability_timeseries_max
+        capacity_tra_connection_max
+        flow_share_max_<commodity>
+        sto_cycles_max
+        sto_max_timeseries
+
+        Returns
+        -------
+
+        """
+        max_value = 9999999999999
+        min_value = 0
+
+        min = ["capacity_p_min", "capacity_e_min", "capacity_w_min", "flow_share_min_"]
+
+        max = [
+            "potential_annual_max",
+            "capacity_p_max",
+            "capacity_e_max",
+            "capacity_w_max",
+            "availability_timeseries_max",
+            "capacity_tra_connection_max",
+            "flow_share_max_",
+            "sto_cycles_max",
+            "sto_max_timeseries",
+            "capacity_p_abs_new_max",
+            "capacity_e_abs_new_max",
+            "capacity_w_abs_new_max",
+        ]
+
+        for column in group_df.columns:
+            if column in ["method", "source", "comment", "bandwidth_type"]:
+                continue
+
+            """
+            Following is a check whether nans can be filled.
+
+            Commented check for columns that are faulty and need to be changed
+            Commented Error for incomplete columns as we dont know where it may cause errors yet
+
+            """
+            if column in max:
+                group_df[column] = group_df[column].fillna(max_value)
+            elif column in min:
+                group_df[column] = group_df[column].fillna(min_value)
+
+        return group_df
+
+    def find_and_replace_irrelevant_data(group_df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Finds and replaces irrelevant Data.
+
+        Searches for where investment is allowed
+            - If allowed Investmet is 0, nan data is replaced by mean.
+        Searches for decomissioned Processes
+            - If capacity of a process is 0, nan data is replaced by mean.
+
+        Parameters
+        ----------
+        group_df
+
+        Returns
+        -------
+
+        """
+
+        capacity_columns = [
+            "capacity_p_inst_0",
+            "capacity_e_inst_0",
+            "capacity_w_inst_0",
+            "capacity_tra_inst_0",
+        ]
+
+        invest_zero = [
+            "capacity_p_abs_new_max",
+            "capacity_e_abs_new_max",
+            "capacity_w_abs_new_max",
+        ]
+
+        max_zero = ["capacity_p_max", "capacity_e_max", "capacity_w_max"]
+
+        # Get relevant columns that appear in dataframe
+        max_col = [d for d in max_zero if d in group_df.columns]
+        invest_col = [d for d in invest_zero if d in group_df.columns]
+        capacity_col = [d for d in capacity_columns if d in group_df.columns]
+
+        # Set all indices to "not be filled" (False)
+        fill_indices = pd.Series([False] * len(group_df), index=group_df.index)
+
+        # Capacity and Investment cannot be set in parallel. If both columns appear in dataframe
+        # Fill the ones where capacity is set to 0 (decomissioned)
+        if len(capacity_col) == 1 and (len(invest_col) != 0 or len(max_col) != 0):
+            # Add Indices where capacity is 0
+            fill_indices += group_df[capacity_col[0]] == 0
+        elif len(max_col) == 1:
+            # Add indices where capacity max == 0 (making investment impossible)
+            fill_indices += group_df[max_col[0]] == 0
+        elif len(invest_col) == 1:
+            # Add indices where investment is not allowed
+            fill_indices += group_df[invest_col[0]] == 0
+
+        # Fill indices
+        group_df.loc[fill_indices] = group_df.fillna(
+            group_df.mean(numeric_only=True)
+        ).loc[fill_indices]
+
+        return group_df
+
+    group_df = handle_min_max(group_df)
+    return find_and_replace_irrelevant_data(group_df)
