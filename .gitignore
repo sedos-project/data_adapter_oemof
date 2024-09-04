@@ -7,3 +7,6 @@ __pycache__/
 /tests/_files/tabular_datapackage_hack_a_thon/data/
 /tests/_files/tabular_datapackage_hack_a_thon/datapackage.json
 /tests/_files/tabular_datapackage_mininmal_example/
+/tests/_files/tsam/*
+/examples/industry/collections/*
+/examples/industry/datapackage/*
