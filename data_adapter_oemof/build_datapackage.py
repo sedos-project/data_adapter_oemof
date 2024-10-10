@@ -560,7 +560,7 @@ class DataPackage:
             periods = reduce_data_frame(data_frame=periods)
             for key, value in parametrized_sequences.items():
                 df_short = reduce_data_frame(data_frame=value)
-                parametrized_elements.update({key: df_short})
+                parametrized_sequences.update({key: df_short})
 
         return cls(
             parametrized_elements=parametrized_elements,
