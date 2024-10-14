@@ -158,7 +158,10 @@ class Adapter:
                     f"Using existing timeseries column '{timeseries_key}'."
                 )
                 return timeseries_key
-            logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
+            logger.warning(
+                f"For Process {self.process_name}"
+                f"Could not find timeseries entry for mapped key '{key}'"
+            )
             return None
 
         # 2 Use defaults
@@ -235,6 +238,11 @@ class Adapter:
                 if bus in ("from_bus", "fuel_bus"):
                     busses = struct["inputs"]
                 if bus == "to_bus":
+                    busses = struct["outputs"]
+                if (
+                    self.__class__.type == "storage"
+                    and struct["inputs"] == struct["outputs"]
+                ):
                     busses = struct["outputs"]
                 if len(busses) != 1:
                     raise MappingError(
@@ -420,6 +428,57 @@ class CommodityAdapter(Adapter):
         if self.get("carrier") == "carrier":
             defaults["carrier"] = self.get_busses()["bus"]
 
+        if self.get("amount") == None:
+            amount = 9999999999999
+            logger.warning(
+                f"Adding parameter 'amount' with value {amount} to commodity "
+                f"{self.process_name}. \n         "
+                f"This is beneficial if your commodity is functioning as "
+                f"shortage or unlimited import/source. "
+                f"Otherwise please add 'amount' to your commodity!"
+            )
+            defaults["amount"] = amount
+
+        return defaults
+
+
+class CommodityGHGAdapter(CommodityAdapter):
+    """
+    CommodityGHGAdapter
+    """
+
+    type = "commodity_ghg"
+    facade = facades.CommodityGHG
+
+    def get_busses(self) -> dict:
+        bus_list = self.structure["outputs"]
+        bus_dict = {}
+        counter = 0
+        for bus in bus_list:
+            if not bus.startswith("emi"):
+                bus_dict["bus"] = bus
+            elif bus.startswith("emi"):
+                bus_dict[f"emission_bus_{counter}"] = bus
+                counter += 1
+
+        # check that bus is defined
+        if bus_dict.get("bus") is None:
+            raise KeyError(f"{self.process_name} is missing 'bus', the input.")
+        return bus_dict
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        for key, value in self.data.items():
+            if key.startswith("ef"):
+                # adapt to the naming convention in oemof.tabular commodityGHG facade: emission_factor_<emission_bus_label>
+                target_label = None
+                emission_bus_labels = [key for item, key in defaults.items() if item.startswith("emission_bus")]
+                for label in emission_bus_labels:
+                    if label in key:
+                        target_label = label
+                if target_label == None:
+                    raise ValueError(f"Emission factor of {self.process_name} is named {key} but None of the emission buses matches: {emission_bus_labels}.")
+                defaults[f"emission_factor_{target_label}"] = value
         return defaults
 
 
@@ -431,6 +490,44 @@ class ConversionAdapter(Adapter):
 
     type = "conversion"
     facade = facades.Conversion
+
+
+class ConversionGHGAdapter(Adapter):
+    """
+    ConversionGHGAdapter
+    """
+
+    type = "conversion_ghg"
+    facade = facades.ConversionGHG
+
+    def get_busses(self) -> dict:
+        def get_bus_from_struct(bus_list: list, bus_key: str) -> dict:
+            bus_dict = {}
+            counter = 0
+            for bus in bus_list:
+                if not bus.startswith("emi"):
+                    bus_dict[f"{bus_key}"] = bus
+                elif bus.startswith("emi"):
+                    bus_dict[f"emission_bus_{counter}"] = bus
+                    counter += 1
+            return bus_dict
+
+        return_bus_dict = get_bus_from_struct(
+            self.structure["inputs"], bus_key="from_bus"
+        ) | get_bus_from_struct(self.structure["outputs"], bus_key="to_bus")
+
+        # check that from_bus and to_bus is defined
+        for key in ["from_bus", "to_bus"]:
+            if return_bus_dict.get(key) is None:
+                raise KeyError(f"{self.process_name} is missing {key}.")
+        return return_bus_dict
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        for key, value in self.data.items():
+            if key.startswith("ef"):
+                defaults[key.replace("ef", "emission_factor")] = value
+        return defaults
 
 
 class LoadAdapter(Adapter):
@@ -486,6 +583,7 @@ class MIMOAdapter(Adapter):
         Field(name="region", type=str),
         Field(name="year", type=int),
         Field(name="groups", type=dict),
+        Field(name="lifetime", type=float),
         Field(name="capacity_cost", type=float),
         Field(name="capacity", type=float),
         Field(name="expandable", type=bool),
@@ -512,10 +610,13 @@ class MIMOAdapter(Adapter):
             "emissions_factor_",
             "conversion_factor_",
             "flow_share_",
+            "ef_",
         )
         for key, value in self.data.items():
             for keyword in keywords:
                 if key.startswith(keyword):
+                    if key.startswith("ef"):
+                        key = key.replace("ef", "emission_factor")
                     defaults[key] = value
         return defaults
 

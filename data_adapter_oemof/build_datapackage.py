@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 import os
 import warnings
 from typing import Optional, Type
@@ -14,6 +15,8 @@ from data_adapter_oemof.adapters import Adapter as FacadeAdapter
 from data_adapter_oemof.calculations import handle_nans
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
 from data_adapter_oemof.utils import convert_mixed_types_to_same_length
+
+logger = logging.getLogger()
 
 
 # Define a function to aggregate differing values into a list
@@ -77,7 +80,6 @@ def _listify_to_periodic(group_df) -> pd.Series:
                 unique_values[col] = group_df[col].iat[0][0]
             else:
                 unique_values[col] = group_df[col].iat[0]
-    unique_values["name"] = "_".join(group_df.name)
     unique_values.drop("year")
     return unique_values
 
@@ -450,6 +452,7 @@ class DataPackage:
         parameter_map: Optional[dict] = PARAMETER_MAP,
         bus_map: Optional[dict] = BUS_MAP,
         location_to_save_to: str = None,
+        debug=False,
     ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
@@ -495,6 +498,9 @@ class DataPackage:
                     + _reduce_lists(timeseries.columns.get_level_values(1))
                 )
             facade_adapter_name: str = process_adapter_map[process_name]
+            logger.info(
+                f"Adaptering process {process_name} into adapter {facade_adapter_name}"
+            )
             facade_adapter: Type[FacadeAdapter] = FACADE_ADAPTERS[facade_adapter_name]
             component_adapter: Optional[FacadeAdapter] = None
             components = []
@@ -539,6 +545,22 @@ class DataPackage:
             }
         )
         periods = cls.get_periods_from_parametrized_sequences(parametrized_sequences)
+
+        def reduce_data_frame(data_frame, steps=4):
+            """reduces `df` to 5 time steps per period"""
+            df = data_frame.copy()
+            df["ind"] = df.index
+            df["ind"] = df["ind"].apply(
+                lambda x: True if x.month == 1 and x.day == 1 and x.hour <= steps else False
+            )
+            df_reduced = df.loc[df["ind"] == 1].drop(columns=["ind"])
+            return df_reduced
+
+        if debug:
+            periods = reduce_data_frame(data_frame=periods)
+            for key, value in parametrized_sequences.items():
+                df_short = reduce_data_frame(data_frame=value)
+                parametrized_sequences.update({key: df_short})
 
         return cls(
             parametrized_elements=parametrized_elements,
