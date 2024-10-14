@@ -428,6 +428,17 @@ class CommodityAdapter(Adapter):
         if self.get("carrier") == "carrier":
             defaults["carrier"] = self.get_busses()["bus"]
 
+        if self.get("amount") == None:
+            amount = 9999999999999
+            logger.warning(
+                f"Adding parameter 'amount' with value {amount} to commodity "
+                f"{self.process_name}. \n         "
+                f"This is beneficial if your commodity is functioning as "
+                f"shortage or unlimited import/source. "
+                f"Otherwise please add 'amount' to your commodity!"
+            )
+            defaults["amount"] = amount
+
         return defaults
 
 
