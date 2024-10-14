@@ -470,7 +470,15 @@ class CommodityGHGAdapter(CommodityAdapter):
         defaults = super().get_default_parameters()
         for key, value in self.data.items():
             if key.startswith("ef"):
-                defaults[key.replace("ef", "emission_factor")] = value
+                # adapt to the naming convention in oemof.tabular commodityGHG facade: emission_factor_<emission_bus_label>
+                target_label = None
+                emission_bus_labels = [key for item, key in defaults.items() if item.startswith("emission_bus")]
+                for label in emission_bus_labels:
+                    if label in key:
+                        target_label = label
+                if target_label == None:
+                    raise ValueError(f"Emission factor of {self.process_name} is named {key} but None of the emission buses matches: {emission_bus_labels}.")
+                defaults[f"emission_factor_{target_label}"] = value
         return defaults
 
 
