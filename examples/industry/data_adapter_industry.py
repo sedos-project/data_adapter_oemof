@@ -13,7 +13,16 @@ from oemof.tabular.datapackage.reading import (
     deserialize_constraints,
     deserialize_energy_system,
 )
-from oemof.tabular.facades import Commodity, Conversion, Excess, Load, Storage, Volatile
+from oemof.tabular.facades import (
+    Commodity,
+    Conversion,
+    Excess,
+    Load,
+    Volatile,
+    Storage,
+    ConversionGHG,
+    CommodityGHG,
+)
 from oemof_industry.mimo_converter import MIMO
 
 from data_adapter_oemof.build_datapackage import DataPackage  # noqa: E402
@@ -23,6 +32,9 @@ logger = logging.getLogger()
 EnergySystem.from_datapackage = classmethod(deserialize_energy_system)
 
 Model.add_constraints_from_datapackage = deserialize_constraints
+
+DEBUG = True  # set to False for full run. DEBUG reduces to 5 time steps per period
+
 """
 Download Collection
 
@@ -242,6 +254,7 @@ parameter_map = {
     },
     "x2x_storage_hydrogen_lohc_1": {
         "efficiency": "efficiency_sto_in",
+        "fixed_costs": "cost_fix_w",
         "loss_rate": "sto_self_discharge",
         "storage_capacity_cost": "cost_inv_e",
         "fixed_costs": "cost_fix_p",
@@ -251,6 +264,7 @@ parameter_map = {
         "efficiency": "efficiency_sto_in",
         "loss_rate": "sto_self_discharge",
         "storage_capacity_cost": "cost_inv_e",
+        "fixed_costs": "cost_fix_w",
         "fixed_costs": "cost_fix_p",
         "marginal_cost": "cost_var_e",
         "capacity_capacity_potential": "capacity_e_max",
@@ -260,6 +274,7 @@ parameter_map = {
         "fixed_costs": "cost_fix_p",
         "loss_rate": "sto_self_discharge",
         "storage_capacity_cost": "cost_inv_e",
+        "fixed_costs": "cost_fix_p",
         "marginal_cost": "cost_var_e",
         "capacity_capacity_potential": "capacity_e_max",
         "storage_capacity": "capacity_e_inst",
@@ -284,6 +299,7 @@ dp = DataPackage.build_datapackage(
     adapter=adapter,
     process_adapter_map=process_adapter_map,
     parameter_map=parameter_map,
+    debug=DEBUG,  # set DEBUG to False for full run. DEBUG reduces to 5 time steps per period
 )
 datapackage_path = pathlib.Path(__file__).parent / "datapackage"
 dp.save_datapackage_to_csv(str(datapackage_path))
@@ -301,6 +317,8 @@ es = EnergySystem.from_datapackage(
         "volatile": Volatile,
         "mimo": MIMO,
         "storage": Storage,
+        "conversion_ghg": ConversionGHG,
+        "commodity_ghg": CommodityGHG,
     },
 )
 
