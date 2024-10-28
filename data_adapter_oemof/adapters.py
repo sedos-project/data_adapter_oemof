@@ -340,7 +340,8 @@ class Adapter:
         Does default calculations#
 
         I. Decommissioning of existing Capacities
-        II. Rounding lifetime down to integers
+        II. Reformatting of amount in case amount is not a number
+        III. Rounding lifetime down to integers
 
         Returns
         -------
@@ -353,13 +354,16 @@ class Adapter:
                 adapter_dict=mapped_defaults,
                 column="capacity",
             )
+
+        # II:
+        if "amount" in mapped_defaults.keys():
             mapped_defaults = calculations.decommission(
                 process_name=self.process_name,
                 adapter_dict=mapped_defaults,
                 column="amount",
             )
 
-        # II:
+        # III:
         if "lifetime" in mapped_defaults.keys():
             mapped_defaults = calculations.floor_lifetime(mapped_defaults)
 
