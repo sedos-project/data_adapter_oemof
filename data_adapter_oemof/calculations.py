@@ -44,7 +44,9 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
     return annuity(overnight_cost, lifetime, wacc) + fixed_cost
 
 
-def decommission(process_name, adapter_dict: dict) -> dict:
+def decommission(
+    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max"
+) -> dict:
     """
 
     Takes adapter dictionary from adapters.py with mapped values.
@@ -74,17 +76,15 @@ def decommission(process_name, adapter_dict: dict) -> dict:
     -------
 
     """
-    capacity_column = "capacity"
-    max_column = "max"
 
     # check if capacity column is there and if it has to be decommissioned
-    if capacity_column not in adapter_dict.keys():
+    if column not in adapter_dict.keys():
         logging.info(
             f"Capacity missing for decommissioning " f"of Process `{process_name}`"
         )
         return adapter_dict
 
-    if not isinstance(adapter_dict[capacity_column], list):
+    if not isinstance(adapter_dict[column], list):
         logging.info(
             f"No capacity fading out that can be decommissioned"
             f" for Process `{process_name}`."
@@ -94,15 +94,15 @@ def decommission(process_name, adapter_dict: dict) -> dict:
     # I:
     if max_column not in adapter_dict["output_parameters"].keys():
         adapter_dict["output_parameters"][max_column] = adapter_dict[
-            capacity_column
-        ] / np.nanmax(adapter_dict[capacity_column])
+            column
+        ] / np.nanmax(adapter_dict[column])
     # II:
     else:
         adapter_dict["output_parameters"][max_column] = multiply_two_lists(
-            adapter_dict["output_parameters"][max_column], adapter_dict[capacity_column]
-        ) / np.nanmax(adapter_dict[capacity_column])
+            adapter_dict["output_parameters"][max_column], adapter_dict[column]
+        ) / np.nanmax(adapter_dict[column])
 
-    adapter_dict[capacity_column] = np.nanmax(adapter_dict[capacity_column])
+    adapter_dict[column] = np.nanmax(adapter_dict[column])
     return adapter_dict
 
 

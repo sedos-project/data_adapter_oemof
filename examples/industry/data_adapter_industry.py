@@ -51,11 +51,11 @@ Also adjust Modelstructure:
         - red marked lines in ProcessO1 (not yet uploaded or deleted data)
 """
 
-from data_adapter.databus import download_collection
-
-download_collection(
-    "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
-)
+# from data_adapter.databus import download_collection
+#
+# download_collection(
+#     "https://databus.openenergyplatform.org/felixmaur/collections/steel_industry_test/"
+# )
 
 logger.info("Reading Structure")
 structure = Structure(
