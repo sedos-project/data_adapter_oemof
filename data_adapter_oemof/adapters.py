@@ -216,11 +216,12 @@ class Adapter:
         bus_dict = {}
         for bus in bus_occurrences_in_fields:  # emission_bus
             # 1. Check for existing mappings
-            try:
-                bus_dict[bus] = self.bus_map[self.__class__.__name__][bus]
-                continue
-            except KeyError:
-                pass
+            if self.bus_map:
+                try:
+                    bus_dict[bus] = self.bus_map[self.__class__.__name__][bus]
+                    continue
+                except KeyError:
+                    pass
 
             # TODO: Make use of Parameter [stuct.csv]?
             # Do we need parameter specific Bus structure? Maybe for multiple in/output?
