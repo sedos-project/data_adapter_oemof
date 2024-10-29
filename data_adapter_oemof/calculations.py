@@ -96,11 +96,16 @@ def decommission(
         adapter_dict["output_parameters"][max_column] = adapter_dict[
             column
         ] / np.nanmax(adapter_dict[column])
+
     # II:
     else:
         adapter_dict["output_parameters"][max_column] = multiply_two_lists(
             adapter_dict["output_parameters"][max_column], adapter_dict[column]
         ) / np.nanmax(adapter_dict[column])
+
+    # convert to string. this is needed for datapackage to detect this as object
+    adapter_dict[input_output_parameters] = json.dumps(
+        adapter_dict[input_output_parameters])
 
     adapter_dict[column] = np.nanmax(adapter_dict[column])
     return adapter_dict
