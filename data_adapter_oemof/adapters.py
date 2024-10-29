@@ -348,12 +348,17 @@ class Adapter:
         -------
 
         """
+        if len(self.structure["outputs"]) == 0:
+            change_parameter = "input_parameters"
+        else:
+            change_parameter = "output_parameters"
         # I:
         if self.process_name[-1] == "0":
             mapped_defaults = calculations.decommission(
                 process_name=self.process_name,
                 adapter_dict=mapped_defaults,
                 column="capacity",
+                input_output_parameters=change_parameter,
             )
 
         # II:
@@ -362,6 +367,7 @@ class Adapter:
                 process_name=self.process_name,
                 adapter_dict=mapped_defaults,
                 column="amount",
+                input_output_parameters=change_parameter,
             )
 
         # III:
