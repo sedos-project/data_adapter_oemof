@@ -115,6 +115,22 @@ def decommission(
     return adapter_dict
 
 
+def adapt_profile_with_changing_amount(profile, amount):
+
+    # Map amount to years
+    years = sorted(profile.index.year.unique())
+    yearly_amount = dict(zip(years, amount))
+
+    profile["amount"] = profile.index.year.map(yearly_amount)
+
+    # Multiply profile with amount
+    col_name = profile.columns[0]
+    profile["adjusted_ts"] = (profile[col_name] * profile["amount"])
+    profile.drop(columns=[col_name, "amount"], inplace=True)
+    profile.rename(columns={"adjusted_ts": col_name}, inplace=True)
+
+    return profile
+
 def normalize_activity_bonds(adapter):
     """
     Normalizes activity bonds in order to be used as min/max values

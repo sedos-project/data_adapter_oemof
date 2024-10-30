@@ -342,6 +342,8 @@ class Adapter:
 
         I. Decommissioning of existing Capacities
         II. Reformatting of amount in case amount is not a number
+            a) Multiply timeseries by the repeoctiv yearly amount
+            b) Analogous to decommissioning of capacities
         III. Rounding lifetime down to integers
 
         Returns
@@ -363,12 +365,22 @@ class Adapter:
 
         # II:
         if "amount" in mapped_defaults.keys():
-            mapped_defaults = calculations.decommission(
-                process_name=self.process_name,
-                adapter_dict=mapped_defaults,
-                column="amount",
-                input_output_parameters=change_parameter,
-            )
+            # a)
+            if "profile" in mapped_defaults.keys():
+                self.timeseries = calculations.adapt_profile_with_changing_amount(
+                    profile=self.timeseries,
+                    amount=mapped_defaults["amount"]
+                )
+                mapped_defaults["amount"] = 1
+
+            # b)
+            else:
+                mapped_defaults = calculations.decommission(
+                    process_name=self.process_name,
+                    adapter_dict=mapped_defaults,
+                    column="amount",
+                    input_output_parameters=change_parameter,
+                )
 
         # III:
         if "lifetime" in mapped_defaults.keys():
