@@ -110,7 +110,7 @@ def decommission(
         ts = pd.DataFrame(data=[1 for i in range(8760)], columns=column_name,
                        index=pd.date_range(f"1/1/{y}", periods=8760, freq="h"),
                        dtype="float64")
-        timeseries = pd.concat([timeseries, ts])
+        timeseries = ts.copy() if timeseries.empty else pd.concat([timeseries, ts])
     max_time_series = adapt_profile_with_yearly_value(profile=timeseries, value=max)
 
     adapter_dict["max_profile"] = max_time_series
