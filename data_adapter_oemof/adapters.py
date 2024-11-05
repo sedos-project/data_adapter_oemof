@@ -367,9 +367,9 @@ class Adapter:
         if "amount" in mapped_defaults.keys():
             # a)
             if "profile" in mapped_defaults.keys():
-                self.timeseries = calculations.adapt_profile_with_changing_amount(
+                self.timeseries = calculations.adapt_profile_with_yearly_value(
                     profile=self.timeseries,
-                    amount=mapped_defaults["amount"]
+                    value=mapped_defaults["amount"]
                 )
                 mapped_defaults["amount"] = 1
 

@@ -115,18 +115,18 @@ def decommission(
     return adapter_dict
 
 
-def adapt_profile_with_changing_amount(profile, amount):
+def adapt_profile_with_yearly_value(profile, value):
 
     # Map amount to years
     years = sorted(profile.index.year.unique())
-    yearly_amount = dict(zip(years, amount))
+    values_mapped_to_years = dict(zip(years, value))
 
-    profile["amount"] = profile.index.year.map(yearly_amount)
+    profile["value"] = profile.index.year.map(values_mapped_to_years)
 
-    # Multiply profile with amount
+    # Multiply profile with value
     col_name = profile.columns[0]
-    profile["adjusted_ts"] = (profile[col_name] * profile["amount"])
-    profile.drop(columns=[col_name, "amount"], inplace=True)
+    profile["adjusted_ts"] = (profile[col_name] * profile["value"])
+    profile.drop(columns=[col_name, "value"], inplace=True)
     profile.rename(columns={"adjusted_ts": col_name}, inplace=True)
 
     return profile
