@@ -46,7 +46,7 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
 
 
 def decommission(
-    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max", input_output_parameters: str = "output_parameters",
+    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max",
 ) -> dict:
     """
 
@@ -93,13 +93,13 @@ def decommission(
         return adapter_dict
 
     # I:
-    if max_column not in adapter_dict[input_output_parameters].keys():
+    if max_column not in adapter_dict["output_parameters"].keys():
         max = list(adapter_dict[column] / np.nanmax(adapter_dict[column]))
 
     # II:
     else:
         max = list(multiply_two_lists(
-                adapter_dict[input_output_parameters][max_column],
+                adapter_dict["output_parameters"][max_column],
                 adapter_dict[column]
             ) / np.nanmax(adapter_dict[column]))
 
