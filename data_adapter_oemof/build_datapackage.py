@@ -490,7 +490,7 @@ class DataPackage:
         # Iterate Elements
         for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
-            timeseries = process_data.timeseries
+            timeseries = process_data.timeseries  # might also be set below if 'max_profile' exists
             if isinstance(timeseries.columns, pd.MultiIndex):
                 timeseries.columns = (
                     _reduce_lists(timeseries.columns.get_level_values(0))
@@ -534,6 +534,12 @@ class DataPackage:
             )
 
             parametrized_elements[process_name] = pd.DataFrame(components)
+
+            # if 'max_profile' exists the time series is added in `timeseries` and removed from `parametrized_elements`
+            # todo un-hard-code --> max_profile is set in calculations.decommission() which is called by Adapter.default_post_mapping_calculations()
+            if "max_profile" in parametrized_elements[process_name]:
+                timeseries = parametrized_elements[process_name]["max_profile"][0]
+                parametrized_elements[process_name].drop(columns=["max_profile"], inplace=True)
             if not timeseries.empty:
                 parametrized_sequences.update({process_name: timeseries})
         # Create Bus Element from all unique `busses` found in elements

@@ -94,23 +94,28 @@ def decommission(
 
     # I:
     if max_column not in adapter_dict[input_output_parameters].keys():
-        adapter_dict[input_output_parameters][max_column] = list(adapter_dict[
-                                                                     column
-                                                                 ] / np.nanmax(
-            adapter_dict[column]))
+        max = list(adapter_dict[column] / np.nanmax(adapter_dict[column]))
 
     # II:
     else:
-        adapter_dict[input_output_parameters][max_column] = list(
-            multiply_two_lists(
+        max = list(multiply_two_lists(
                 adapter_dict[input_output_parameters][max_column],
                 adapter_dict[column]
             ) / np.nanmax(adapter_dict[column]))
 
-    # convert to string. this is needed for datapackage to detect this as object
-    adapter_dict[input_output_parameters] = json.dumps(
-        adapter_dict[input_output_parameters])
+    # max must be extended to time series over all time steps of each period
+    column_name = ["max_timeseries"]
+    timeseries = pd.DataFrame(columns=column_name)
+    for y in adapter_dict["year"]:
+        ts = pd.DataFrame(data=[1 for i in range(8760)], columns=column_name,
+                       index=pd.date_range(f"1/1/{y}", periods=8760, freq="h"),
+                       dtype="float64")
+        timeseries = pd.concat([timeseries, ts])
+    max_time_series = adapt_profile_with_yearly_value(profile=timeseries, value=max)
 
+    adapter_dict["max_profile"] = max_time_series
+
+    # set `column` value to maximum value
     adapter_dict[column] = np.nanmax(adapter_dict[column])
     return adapter_dict
 
