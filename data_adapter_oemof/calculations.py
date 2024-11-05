@@ -81,13 +81,13 @@ def decommission(
     # check if capacity column is there and if it has to be decommissioned
     if column not in adapter_dict.keys():
         logging.info(
-            f"Capacity missing for decommissioning " f"of Process `{process_name}`"
+            f"{column} missing for decommissioning " f"of Process `{process_name}`"
         )
         return adapter_dict
 
     if not isinstance(adapter_dict[column], list):
         logging.info(
-            f"No capacity fading out that can be decommissioned"
+            f"No {column} fading out that can be decommissioned"
             f" for Process `{process_name}`."
         )
         return adapter_dict
