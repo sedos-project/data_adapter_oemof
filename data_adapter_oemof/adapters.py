@@ -10,6 +10,7 @@ import pandas as pd
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
 from oemof_industry.mimo_converter import MIMO
+from oemof_industry.emission_constraint import CO2EmissionLimit
 
 from data_adapter_oemof import calculations
 
@@ -597,6 +598,16 @@ class VolatileAdapter(Adapter):
     type = "volatile"
     facade = facades.Volatile
 
+
+class EmissionConstraintAdapter(Adapter):
+    """
+    LoadAdapter
+    """
+
+    type = "co2_emission_limit"
+    facade = CO2EmissionLimit  # oemof.industry facade - might be moved to oemof.tabular
+
+    pass
 
 class MIMOAdapter(Adapter):
     """

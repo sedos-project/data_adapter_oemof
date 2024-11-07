@@ -97,6 +97,7 @@ class DataPackage:
     periods: pd.DataFrame()
     location_to_save_to: str = None
     tsa_parameters: pd.DataFrame = None
+    constraint_parameters: pd.DataFrame = None
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -249,11 +250,16 @@ class DataPackage:
         sequences_path = os.path.join(location_to_save_to, "data", "sequences")
         periods_path = os.path.join(location_to_save_to, "data", "periods")
         tsam_path = os.path.join(location_to_save_to, "data", "tsam")
+        constraint_path = os.path.join(location_to_save_to, "data", "constraints")
 
         os.makedirs(elements_path, exist_ok=True)
         os.makedirs(sequences_path, exist_ok=True)
         os.makedirs(periods_path, exist_ok=True)
         os.makedirs(tsam_path, exist_ok=True)
+
+
+        if self.constraint_parameters:
+            os.makedirs(constraint_path, exist_ok=True)
 
         if not self.periods.empty:
             self.periods.to_csv(
