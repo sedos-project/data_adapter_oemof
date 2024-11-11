@@ -7,7 +7,8 @@ authors = [
   "Sarah Berendes <Sarah.Berendes@rl-institut.de>",
   "Julian Endres <Julian.Endres@rl-institut.de>",
   "Felix Maurer <Felix.Maurer@rl-institut.de>",
-  "Hendrik Huyskens <Hendrik.Huyskens@rl-institut.de>"
+  "Hendrik Huyskens <Hendrik.Huyskens@rl-institut.de>",
+  "Sabine Haas <Sabine.Haas@rl-institut.de>"
 ]
 
 [tool.poetry.group.dev.dependencies]
