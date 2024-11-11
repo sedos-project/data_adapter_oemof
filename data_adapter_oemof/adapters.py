@@ -78,7 +78,6 @@ class Adapter:
 
         defaults = self.default_post_mapping_calculations(defaults)
         if "max_profile" in defaults:
-            self.timeseries = defaults["max_profile"]
             defaults["profile"] = defaults["max_profile"].columns[0]
         if not defaults["input_parameters"]:
             defaults.pop("input_parameters")
