@@ -35,6 +35,7 @@ class Adapter:
         Field(name="name", type=str),
         Field(name="region", type=str),
         Field(name="year", type=int),
+        Field(name="full_load_time_max", type=float),
     )
     output_parameters = (Field(name="max", type=float), Field(name="min", type=float))
     input_parameters = ()
@@ -337,6 +338,7 @@ class Adapter:
 
         """
         calculations.normalize_activity_bonds(self)
+        calculations.process_availability_constant_to_full_load_time_max(self)
 
     def default_post_mapping_calculations(self, mapped_defaults):
         """
@@ -608,6 +610,7 @@ class MIMOAdapter(Adapter):
         Field(name="name", type=str),
         Field(name="region", type=str),
         Field(name="year", type=int),
+        Field(name="full_load_time_max", type=float),
         Field(name="groups", type=dict),
         Field(name="lifetime", type=float),
         Field(name="capacity_cost", type=float),

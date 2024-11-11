@@ -167,6 +167,15 @@ def normalize_activity_bonds(adapter):
         return adapter
 
 
+def process_availability_constant_to_full_load_time_max(adapter):
+    """ Calculate full load time max from availability constant."""
+    if "availability_constant" in adapter.data.keys():
+        availability_constant = adapter.data["availability_constant"]
+        if availability_constant > 1:  # assumption: then the unit is %
+            availability_constant = availability_constant / 100
+        adapter.data["full_load_time_max"] = 8760 * availability_constant
+
+
 def floor_lifetime(mapped_defaults):
     """
 
