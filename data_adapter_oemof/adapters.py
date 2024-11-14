@@ -344,7 +344,8 @@ class Adapter:
         """
         Does default calculations#
 
-        I. Decommissioning of existing Capacities
+        I. Decommissioning of existing Capacities (processes _0) and add
+            `expandable = True` if process is expandable (_1, _2, not _0)
         II. Reformatting of amount in case amount is not a number
             a) Multiply timeseries by the repeoctiv yearly amount
             b) Analogous to decommissioning of capacities
@@ -361,6 +362,8 @@ class Adapter:
                 adapter_dict=mapped_defaults,
                 column="capacity",
             )
+        elif self.process_name[-1] == "1" or self.process_name[-1] == "2":
+            mapped_defaults["expandable"] = True
 
         # II:
         if "amount" in mapped_defaults.keys():
