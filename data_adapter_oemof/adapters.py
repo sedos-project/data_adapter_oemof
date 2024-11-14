@@ -367,9 +367,10 @@ class Adapter:
         elif "x2x_other_biogas_treatment" in self.process_name:
             mapped_defaults["expandable"] = True
             logging.warning(
-                "Setting capacity cost of x2x_other_biogas_treatment to 0 as "
-                "it is missing in the data.")
+                "Setting capacity cost of x2x_other_biogas_treatment to 0 and "
+                "life time to 20 as this is missing in the data.")
             mapped_defaults["capacity_cost"] = 0
+            mapped_defaults["lifetime"] = 20
 
         # II:
         if "amount" in mapped_defaults.keys():
