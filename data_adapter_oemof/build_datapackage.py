@@ -297,6 +297,12 @@ class DataPackage:
             field_names = [field["name"] for field in resource["schema"]["fields"]]
             resource["dialect"] = {"delimiter": ";"}
             if resource["name"] in self.foreign_keys.keys():
+                # drop "primary", see mimo converter of oemof.industry for more information
+                self.foreign_keys[resource["name"]] = [
+                    item for item in self.foreign_keys[resource["name"]] if
+                    item["fields"] != "primary"
+                ]
+                # update schema
                 resource["schema"].update(
                     {"foreignKeys": self.foreign_keys[resource["name"]]}
                 )

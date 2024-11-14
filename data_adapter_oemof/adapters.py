@@ -628,6 +628,7 @@ class MIMOAdapter(Adapter):
         Field(name="activity_bound_min", type=float),
         Field(name="activity_bound_max", type=float),
         Field(name="activity_bound_fix", type=float),
+        Field(name="primary", type=str),
     )
     output_parameters = ()
 
@@ -654,6 +655,8 @@ class MIMOAdapter(Adapter):
             buses = {}
             counter = 0
             for bus_group in bus_list:
+                if prefix == "to_bus_" and counter == 0:
+                    buses["primary"] = bus_group
                 if isinstance(bus_group, str):
                     buses[f"{prefix}{counter}"] = bus_group
                     counter += 1
