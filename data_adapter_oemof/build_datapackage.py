@@ -258,8 +258,13 @@ class DataPackage:
         os.makedirs(tsam_path, exist_ok=True)
 
 
-        if self.constraint_parameters:
+        if self.constraint_parameters is not None:
             os.makedirs(constraint_path, exist_ok=True)
+            self.constraint_parameters.to_csv(
+                os.path.join(constraint_path, "emission_constraint.csv"),
+                index=False,
+                sep=";",
+            )
 
         if not self.periods.empty:
             self.periods.to_csv(
@@ -499,6 +504,7 @@ class DataPackage:
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
+        constraint_parameters = None
         # Iterate Elements
         for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
@@ -545,15 +551,18 @@ class DataPackage:
                 component_adapter, components
             )
 
-            parametrized_elements[process_name] = pd.DataFrame(components)
+            if "constraint" in process_name:
+                constraint_parameters = pd.DataFrame(components)
+            else:
+                parametrized_elements[process_name] = pd.DataFrame(components)
 
-            # if 'max_profile' exists the time series is added in `timeseries` and removed from `parametrized_elements`
-            # todo un-hard-code --> max_profile is set in calculations.decommission() which is called by Adapter.default_post_mapping_calculations()
-            if "max_profile" in parametrized_elements[process_name]:
-                timeseries = parametrized_elements[process_name]["max_profile"][0]
-                parametrized_elements[process_name].drop(columns=["max_profile"], inplace=True)
-            if not timeseries.empty:
-                parametrized_sequences.update({process_name: timeseries})
+                # if 'max_profile' exists the time series is added in `timeseries` and removed from `parametrized_elements`
+                # todo un-hard-code --> max_profile is set in calculations.decommission() which is called by Adapter.default_post_mapping_calculations()
+                if "max_profile" in parametrized_elements[process_name]:
+                    timeseries = parametrized_elements[process_name]["max_profile"][0]
+                    parametrized_elements[process_name].drop(columns=["max_profile"], inplace=True)
+                if not timeseries.empty:
+                    parametrized_sequences.update({process_name: timeseries})
         # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
@@ -587,4 +596,5 @@ class DataPackage:
             foreign_keys=foreign_keys,
             periods=periods,
             location_to_save_to=location_to_save_to,
+            constraint_parameters=constraint_parameters,
         )
