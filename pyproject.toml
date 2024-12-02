@@ -7,7 +7,8 @@ authors = [
   "Sarah Berendes <Sarah.Berendes@rl-institut.de>",
   "Julian Endres <Julian.Endres@rl-institut.de>",
   "Felix Maurer <Felix.Maurer@rl-institut.de>",
-  "Hendrik Huyskens <Hendrik.Huyskens@rl-institut.de>"
+  "Hendrik Huyskens <Hendrik.Huyskens@rl-institut.de>",
+  "Sabine Haas <Sabine.Haas@rl-institut.de>"
 ]
 
 [tool.poetry.group.dev.dependencies]
@@ -19,8 +20,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-data_adapter = { git = "https://git@github.com/sedos-project/data_adapter", branch = "bug_fix/drop_comment_column"}
-oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", branch = "dev"}
+data_adapter = { git = "https://git@github.com/sedos-project/data_adapter", branch = "main"}
+oemof-tabular = { git = "https://git@github.com/oemof/oemof-tabular", branch = "feature/multi-period-results"}
 oemof-industry = { git = "https://github.com/sedos-project/oemof.industry.git", branch = "main"}
 boto3 = "1.26.125"  # fix boto3 to fasten up dependency resolution
 python-dotenv = "^0.21.0"

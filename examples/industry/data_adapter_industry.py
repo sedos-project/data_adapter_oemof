@@ -72,7 +72,7 @@ adapter = Adapter(
 
 logger.info("Building Adapter Map")
 
-# create dicitonary with all found in and outputs
+# create dictionary with all found in- and outputs
 process_adapter_map = pd.concat(
     [
         pd.read_excel(

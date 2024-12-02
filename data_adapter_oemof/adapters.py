@@ -36,6 +36,7 @@ class Adapter:
         Field(name="name", type=str),
         Field(name="region", type=str),
         Field(name="year", type=int),
+        Field(name="full_load_time_max", type=float),
     )
     output_parameters = (Field(name="max", type=float), Field(name="min", type=float))
     input_parameters = ()
@@ -79,7 +80,6 @@ class Adapter:
 
         defaults = self.default_post_mapping_calculations(defaults)
         if "max_profile" in defaults:
-            self.timeseries = defaults["max_profile"]
             defaults["profile"] = defaults["max_profile"].columns[0]
         if not defaults["input_parameters"]:
             defaults.pop("input_parameters")
@@ -339,12 +339,14 @@ class Adapter:
 
         """
         calculations.normalize_activity_bonds(self)
+        calculations.process_availability_constant_to_full_load_time_max(self)
 
     def default_post_mapping_calculations(self, mapped_defaults):
         """
         Does default calculations#
 
-        I. Decommissioning of existing Capacities
+        I. Decommissioning of existing Capacities (processes _0) and add
+            `expandable = True` if process is expandable (_1, _2, not _0)
         II. Reformatting of amount in case amount is not a number
             a) Multiply timeseries by the repeoctiv yearly amount
             b) Analogous to decommissioning of capacities
@@ -361,6 +363,15 @@ class Adapter:
                 adapter_dict=mapped_defaults,
                 column="capacity",
             )
+        elif self.process_name[-1] == "1" or self.process_name[-1] == "2":
+            mapped_defaults["expandable"] = True
+        elif "x2x_other_biogas_treatment" in self.process_name:
+            mapped_defaults["expandable"] = True
+            logging.warning(
+                "Setting capacity cost of x2x_other_biogas_treatment to 0 and "
+                "life time to 20 as this is missing in the data.")
+            mapped_defaults["capacity_cost"] = 0
+            mapped_defaults["lifetime"] = 20
 
         # II:
         if "amount" in mapped_defaults.keys():
@@ -620,6 +631,7 @@ class MIMOAdapter(Adapter):
         Field(name="name", type=str),
         Field(name="region", type=str),
         Field(name="year", type=int),
+        Field(name="full_load_time_max", type=float),
         Field(name="groups", type=dict),
         Field(name="lifetime", type=float),
         Field(name="capacity_cost", type=float),
@@ -628,17 +640,9 @@ class MIMOAdapter(Adapter):
         Field(name="activity_bound_min", type=float),
         Field(name="activity_bound_max", type=float),
         Field(name="activity_bound_fix", type=float),
+        Field(name="primary", type=str),
     )
     output_parameters = ()
-
-    def default_pre_mapping_calculations(self):
-        """
-        Mimo adapter specific pre calculations
-        Returns
-        -------
-
-        """
-        pass
 
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
@@ -663,6 +667,8 @@ class MIMOAdapter(Adapter):
             buses = {}
             counter = 0
             for bus_group in bus_list:
+                if prefix == "to_bus_" and counter == 0:
+                    buses["primary"] = bus_group
                 if isinstance(bus_group, str):
                     buses[f"{prefix}{counter}"] = bus_group
                     counter += 1
