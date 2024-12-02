@@ -639,7 +639,8 @@ class EmissionConstraintAdapter(Adapter):
                 commodities["ch4_commodities"].append(i)
             elif "n2o" in i:
                 commodities["n2o_commodities"].append(i)
-        defaults["commodities"] = json.dumps(commodities).replace('"', "")
+        # replace quotes with # to make a json.loads easier later
+        defaults["commodities"] = json.dumps(commodities).replace('"', "#")
         return defaults
 
 
