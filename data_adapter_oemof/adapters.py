@@ -10,6 +10,7 @@ import pandas as pd
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
 from oemof_industry.mimo_converter import MIMO
+from oemof_industry.emission_constraint import CO2EmissionLimit
 
 from data_adapter_oemof import calculations
 
@@ -498,10 +499,6 @@ class CommodityGHGAdapter(CommodityAdapter):
             elif bus.startswith("emi"):
                 bus_dict[f"emission_bus_{counter}"] = bus
                 counter += 1
-
-        # check that bus is defined
-        if bus_dict.get("bus") is None:
-            raise KeyError(f"{self.process_name} is missing 'bus', the input.")
         return bus_dict
 
     def get_default_parameters(self) -> dict:
@@ -607,6 +604,44 @@ class VolatileAdapter(Adapter):
 
     type = "volatile"
     facade = facades.Volatile
+
+
+class EmissionConstraintAdapter(Adapter):
+    """
+    EmissionConstraintAdapter
+    """
+
+    type = "co2_emission_limit"
+    facade = CO2EmissionLimit  # oemof.industry facade - might be moved to oemof.tabular
+    extra_fields = Adapter.extra_fields + (
+        Field(name="commodities", type=float),
+    )
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        del defaults["region"]
+        del defaults["name"]
+        del defaults["year"]
+        # reduce co2 limit by share of steel industry
+        defaults["co2_limit"] = [limit * self.data["steel_emission_share"] for
+                                 limit in defaults["co2_limit"]]
+
+        # categorize commodities
+        commodities = {"co2_commodities": [], "ch4_commodities": [],
+                       "n2o_commodities": [], "negative_co2_commodities": []}
+        inputs = self.structure["inputs"]
+        for i in inputs:
+            if "neg" in i and "co2" in i:
+                commodities["negative_co2_commodities"].append(i)
+            elif "co2" in i:
+                commodities["co2_commodities"].append(i)
+            elif "ch4" in i:
+                commodities["ch4_commodities"].append(i)
+            elif "n2o" in i:
+                commodities["n2o_commodities"].append(i)
+        # replace quotes with # to make a json.loads easier later
+        defaults["commodities"] = json.dumps(commodities).replace('"', "#")
+        return defaults
 
 
 class MIMOAdapter(Adapter):
