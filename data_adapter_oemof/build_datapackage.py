@@ -482,6 +482,9 @@ class DataPackage:
         -------
         DataPackage
 
+        units : dict
+            keys: process names, values: dict containing parameters for
+            optimization as keys and units as values.
         """
 
         def _reduce_lists(x):
@@ -496,6 +499,7 @@ class DataPackage:
         # Iterate Elements
         for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
+            units[process_name] = process_data.units
             timeseries = process_data.timeseries  # might also be set below if 'max_profile' exists
             if isinstance(timeseries.columns, pd.MultiIndex):
                 timeseries.columns = (
@@ -581,4 +585,4 @@ class DataPackage:
             foreign_keys=foreign_keys,
             periods=periods,
             location_to_save_to=location_to_save_to,
-        )
+        ), units
