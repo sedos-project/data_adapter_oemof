@@ -508,6 +508,7 @@ class DataPackage:
         parametrized_sequences = {}
         foreign_keys = {}
         constraint_parameters = None
+        units = {}
         # Iterate Elements
         for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
