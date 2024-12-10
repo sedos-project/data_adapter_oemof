@@ -560,12 +560,6 @@ class DataPackage:
                 constraint_parameters = pd.DataFrame(components)
             else:
                 parametrized_elements[process_name] = pd.DataFrame(components)
-
-                # if 'max_profile' exists the time series is added in `timeseries` and removed from `parametrized_elements`
-                # todo un-hard-code --> max_profile is set in calculations.decommission() which is called by Adapter.default_post_mapping_calculations()
-                if "max_profile" in parametrized_elements[process_name]:
-                    timeseries = parametrized_elements[process_name]["max_profile"][0]
-                    parametrized_elements[process_name].drop(columns=["max_profile"], inplace=True)
                 if not timeseries.empty:
                     parametrized_sequences.update({process_name: timeseries})
         # Create Bus Element from all unique `busses` found in elements

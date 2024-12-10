@@ -46,7 +46,7 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
 
 
 def decommission(
-    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max",
+    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max", input_output_parameters: str = "output_parameters",
 ) -> dict:
     """
 
@@ -93,18 +93,18 @@ def decommission(
         return adapter_dict
 
     # I:
-    if max_column not in adapter_dict["output_parameters"].keys():
+    if max_column not in adapter_dict[input_output_parameters].keys():
         max = list(adapter_dict[column] / np.nanmax(adapter_dict[column]))
 
     # II:
     else:
         max = list(multiply_two_lists(
-                adapter_dict["output_parameters"][max_column],
+                adapter_dict[input_output_parameters][max_column],
                 adapter_dict[column]
             ) / np.nanmax(adapter_dict[column]))
 
     # max must be extended to time series over all time steps of each period
-    column_name = ["max_timeseries"]
+    column_name = [f"max_timeseries_{process_name}"]
     timeseries = pd.DataFrame(columns=column_name)
     for y in adapter_dict["year"]:
         ts = pd.DataFrame(data=[1 for i in range(8760)], columns=column_name,
@@ -114,6 +114,8 @@ def decommission(
     max_time_series = adapt_profile_with_yearly_value(profile=timeseries, value=max)
 
     adapter_dict["max_profile"] = max_time_series
+    adapter_dict[input_output_parameters][max_column] = list(max_time_series[column_name[0]].values)
+    adapter_dict[input_output_parameters] = json.dumps(adapter_dict[input_output_parameters])
 
     # set `column` value to maximum value
     adapter_dict[column] = np.nanmax(adapter_dict[column])

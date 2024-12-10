@@ -79,8 +79,6 @@ class Adapter:
             )
 
         defaults = self.default_post_mapping_calculations(defaults)
-        if "max_profile" in defaults:
-            defaults["profile"] = defaults["max_profile"].columns[0]
         if not defaults["input_parameters"]:
             defaults.pop("input_parameters")
         if not defaults["output_parameters"]:
@@ -356,12 +354,18 @@ class Adapter:
         -------
 
         """
+        if len(self.structure["outputs"]) == 0:
+            change_parameter = "input_parameters"
+        else:
+            change_parameter = "output_parameters"
+
         # I:
         if self.process_name[-1] == "0":
             mapped_defaults = calculations.decommission(
                 process_name=self.process_name,
                 adapter_dict=mapped_defaults,
                 column="capacity",
+                input_output_parameters=change_parameter,
             )
         elif self.process_name[-1] == "1" or self.process_name[-1] == "2":
             mapped_defaults["expandable"] = True
@@ -389,6 +393,7 @@ class Adapter:
                     process_name=self.process_name,
                     adapter_dict=mapped_defaults,
                     column="amount",
+                    input_output_parameters=change_parameter,
                 )
 
         # III:
