@@ -572,7 +572,7 @@ class DataPackage:
         )
         periods = cls.get_periods_from_parametrized_sequences(parametrized_sequences)
 
-        def reduce_data_frame(data_frame, steps=4):
+        def reduce_data_frame(data_frame, steps=24):
             """reduces `df` to 5 time steps per period"""
             df = data_frame.copy()
             df["ind"] = df.index
