@@ -46,7 +46,7 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
 
 
 def decommission(
-    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max", input_output_parameters: str = "output_parameters",
+    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max", change_parameter: str = "output_parameters",
 ) -> dict:
     """
 
