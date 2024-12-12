@@ -12,7 +12,7 @@ from datapackage import Package
 
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.adapters import Adapter as FacadeAdapter
-from data_adapter_oemof.calculations import handle_nans
+from data_adapter_oemof.calculations import handle_nans, reduce_data_frame
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
 from data_adapter_oemof.utils import convert_mixed_types_to_same_length
 
@@ -513,7 +513,7 @@ class DataPackage:
         for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
             units[process_name] = process_data.units
-            timeseries = process_data.timeseries  # might also be set below if 'max_profile' exists
+            timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
                 timeseries.columns = (
                     _reduce_lists(timeseries.columns.get_level_values(0))
@@ -571,16 +571,6 @@ class DataPackage:
             }
         )
         periods = cls.get_periods_from_parametrized_sequences(parametrized_sequences)
-
-        def reduce_data_frame(data_frame, steps=24):
-            """reduces `df` to 5 time steps per period"""
-            df = data_frame.copy()
-            df["ind"] = df.index
-            df["ind"] = df["ind"].apply(
-                lambda x: True if x.month == 1 and x.day == 1 and x.hour <= steps else False
-            )
-            df_reduced = df.loc[df["ind"] == 1].drop(columns=["ind"])
-            return df_reduced
 
         if debug:
             periods = reduce_data_frame(data_frame=periods)

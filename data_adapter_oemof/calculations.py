@@ -358,3 +358,15 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
 
     group_df = handle_min_max(group_df)
     return find_and_replace_irrelevant_data(group_df)
+
+
+def reduce_data_frame(data_frame, steps=4):
+    """reduces `df` to less time steps per period"""
+    df = data_frame.copy()
+    df["ind"] = df.index
+    df["ind"] = df["ind"].apply(
+        lambda
+            x: True if x.month == 1 and x.day == 1 and x.hour <= steps else False
+    )
+    df_reduced = df.loc[df["ind"] == 1].drop(columns=["ind"])
+    return df_reduced
