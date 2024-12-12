@@ -115,7 +115,6 @@ def decommission(
 
     max_time_series = reduce_data_frame(max_time_series)
 
-    adapter_dict["max_profile"] = max_time_series
     adapter_dict[input_output_parameters][max_column] = list(max_time_series[column_name[0]].values)
     adapter_dict[input_output_parameters] = json.dumps(adapter_dict[input_output_parameters])
 
@@ -362,7 +361,7 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
     return find_and_replace_irrelevant_data(group_df)
 
 
-def reduce_data_frame(data_frame, steps=24):
+def reduce_data_frame(data_frame, steps=23):
     """reduces `df` to less time steps per period"""
     df = data_frame.copy()
     df["ind"] = df.index
