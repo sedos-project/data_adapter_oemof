@@ -379,7 +379,7 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
     return find_and_replace_irrelevant_data(group_df)
 
 
-def reduce_data_frame(data_frame, steps=4):
+def reduce_data_frame(data_frame, steps=23):
     """reduces `df` to less time steps per period"""
     df = data_frame.copy()
     df["ind"] = df.index
