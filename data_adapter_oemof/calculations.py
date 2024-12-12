@@ -131,7 +131,6 @@ def decommission(
         max_time_series = adapt_profile_with_yearly_value(profile=timeseries,
                                                           value=max)
 
-        max_time_series = reduce_data_frame(max_time_series)   # todo delete
         adapter_dict[change_parameter][max_column] = list(max_time_series[column_name[0]].values)
         adapter_dict[change_parameter] = json.dumps(adapter_dict[change_parameter])
 
