@@ -1,8 +1,10 @@
 # data_adapter_oemof
 
-A data adapter to create datapackages for oemof.tabular/oemof.solph from the SEDOS input data model.
+A data adapter to create datapackages for oemof.tabular from the output of the general [data_adapter](https://github.com/sedos-project/data_adapter). 
 
-## Getting started
+## Getting Started
+
+### Installation
 
 To install data_adapter_oemof, follow these steps:
 
@@ -13,21 +15,14 @@ To install data_adapter_oemof, follow these steps:
 * activate environment: `conda activate data_adapter_oemof`
 * install data_adapter_oemof package using poetry, via: `poetry install`
 
-## Docs
+### Functionalities
+The data_adapter_oemof comprises three primary functionalities:
 
-To build the docs simply go to the `docs` folder
+1. Mappings: The mappings include translation tables for parameters, enabling the program to appropriately assign the provided data to the parameters defined in oemof.tabular.
 
-    cd docs
+2. Adapter: The adapter encompasses the facades, which serve as crucial templates for the creation of components within the energy system. It also includes various extensions and additional specifications relevant to the facades.
 
-Install the requirements
-
-    pip install -r docs_requirements.txt
-
-and run
-
-    make html
-
-The output will then be located in `docs/_build/html` and can be opened with your favorite browser
+3. Functions for Data Compatibility: A set of functions is available within the oemof.tabular builder to facilitate the generation of compatible data packages. These packages can be produced from data sourced from the public data bus. For this process to occur, the data records must be formatted in accordance with the parameter model data structure, and appropriate structure files and mappings must be supplied. The builder interacts with both the mapper and the adapter to accomplish this task.
 
 ## Code linting
 
