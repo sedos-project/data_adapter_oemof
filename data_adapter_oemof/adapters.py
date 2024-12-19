@@ -354,10 +354,12 @@ class Adapter:
         -------
 
         """
-        if len(self.structure["outputs"]) == 0:
-            change_parameter = "input_parameters"
+        if mapped_defaults["type"] == "mimo":
+            parameter_name = f"flow_share_max_{mapped_defaults['primary']}"
+        elif len(self.structure["outputs"]) == 0:
+            parameter_name = "input_parameters"
         else:
-            change_parameter = "output_parameters"
+            parameter_name = "output_parameters"
 
         # I:
         if self.process_name[-1] == "0":
@@ -365,7 +367,7 @@ class Adapter:
                 process_name=self.process_name,
                 adapter_dict=mapped_defaults,
                 column="capacity",
-                input_output_parameters=change_parameter,
+                change_parameter=parameter_name,
             )
         elif self.process_name[-1] == "1" or self.process_name[-1] == "2":
             mapped_defaults["expandable"] = True
@@ -393,7 +395,7 @@ class Adapter:
                     process_name=self.process_name,
                     adapter_dict=mapped_defaults,
                     column="amount",
-                    input_output_parameters=change_parameter,
+                    change_parameter=parameter_name,
                 )
 
         # III:

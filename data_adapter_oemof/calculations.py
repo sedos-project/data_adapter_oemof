@@ -46,7 +46,7 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
 
 
 def decommission(
-    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max", input_output_parameters: str = "output_parameters",
+    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max", change_parameter: str = "output_parameters",
 ) -> dict:
     """
 
@@ -93,30 +93,48 @@ def decommission(
         return adapter_dict
 
     # I:
-    if max_column not in adapter_dict[input_output_parameters].keys():
+    if change_parameter not in ["input_parameters", "output_parameters"]:
+        # this occurs e.g. for flow_share_max of mimo
+        # still max might be set in parameters
+        parameter = "output_parameters"
+    else:
+        parameter = change_parameter
+    if max_column not in adapter_dict[parameter].keys():
         max = list(adapter_dict[column] / np.nanmax(adapter_dict[column]))
 
     # II:
     else:
         max = list(multiply_two_lists(
-                adapter_dict[input_output_parameters][max_column],
+                adapter_dict[parameter][max_column],
                 adapter_dict[column]
             ) / np.nanmax(adapter_dict[column]))
+        if change_parameter != parameter:
+            # drop max output_parameters, as max_column is saved in `change_parameter`
+            del adapter_dict[parameter][max_column]
 
-    # max must be extended to time series over all time steps of each period
-    column_name = [f"max_timeseries_{process_name}"]
-    timeseries = pd.DataFrame(columns=column_name)
-    for y in adapter_dict["year"]:
-        ts = pd.DataFrame(data=[1 for i in range(8760)], columns=column_name,
-                       index=pd.date_range(f"1/1/{y}", periods=8760, freq="h"),
-                       dtype="float64")
-        timeseries = ts.copy() if timeseries.empty else pd.concat([timeseries, ts])
-    max_time_series = adapt_profile_with_yearly_value(profile=timeseries, value=max)
+    if change_parameter != parameter:
+        # e.g. flow_share_max_<bus_name>
+        adapter_dict[change_parameter] = max
+    else:
+        # max must be extended to time series over all time steps of each
+        # period as output_parameters are not extended in oemof.tabular
+        column_name = [f"max_timeseries_{process_name}"]
+        timeseries = pd.DataFrame(columns=column_name)
+        for y in adapter_dict["year"]:
+            ts = pd.DataFrame(data=[1 for i in range(8760)],
+                              columns=column_name,
+                              index=pd.date_range(f"1/1/{y}", periods=8760,
+                                                  freq="h"),
+                              dtype="float64")
+            timeseries = ts.copy() if timeseries.empty else pd.concat(
+                [timeseries, ts])
+        max_time_series = adapt_profile_with_yearly_value(profile=timeseries,
+                                                          value=max)
 
-    max_time_series = reduce_data_frame(max_time_series)
+        max_time_series = reduce_data_frame(max_time_series)
 
-    adapter_dict[input_output_parameters][max_column] = list(max_time_series[column_name[0]].values)
-    adapter_dict[input_output_parameters] = json.dumps(adapter_dict[input_output_parameters])
+        adapter_dict[change_parameter][max_column] = list(max_time_series[column_name[0]].values)
+        adapter_dict[change_parameter] = json.dumps(adapter_dict[change_parameter])
 
     # set `column` value to maximum value
     adapter_dict[column] = np.nanmax(adapter_dict[column])
