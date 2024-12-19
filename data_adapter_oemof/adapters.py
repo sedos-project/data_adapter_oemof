@@ -10,6 +10,7 @@ import pandas as pd
 from oemof.tabular import facades
 from oemof.tabular._facade import Facade
 from oemof_industry.mimo_converter import MIMO
+from oemof_industry.emission_constraint import CO2EmissionLimit
 
 from data_adapter_oemof import calculations
 
@@ -35,6 +36,7 @@ class Adapter:
         Field(name="name", type=str),
         Field(name="region", type=str),
         Field(name="year", type=int),
+        Field(name="full_load_time_max", type=float),
     )
     output_parameters = (Field(name="max", type=float), Field(name="min", type=float))
     input_parameters = ()
@@ -158,7 +160,10 @@ class Adapter:
                     f"Using existing timeseries column '{timeseries_key}'."
                 )
                 return timeseries_key
-            logger.warning(f"Could not find timeseries entry for mapped key '{key}'")
+            logger.warning(
+                f"For Process {self.process_name}"
+                f"Could not find timeseries entry for mapped key '{key}'"
+            )
             return None
 
         # 2 Use defaults
@@ -213,11 +218,12 @@ class Adapter:
         bus_dict = {}
         for bus in bus_occurrences_in_fields:  # emission_bus
             # 1. Check for existing mappings
-            try:
-                bus_dict[bus] = self.bus_map[self.__class__.__name__][bus]
-                continue
-            except KeyError:
-                pass
+            if self.bus_map:
+                try:
+                    bus_dict[bus] = self.bus_map[self.__class__.__name__][bus]
+                    continue
+                except KeyError:
+                    pass
 
             # TODO: Make use of Parameter [stuct.csv]?
             # Do we need parameter specific Bus structure? Maybe for multiple in/output?
@@ -235,6 +241,11 @@ class Adapter:
                 if bus in ("from_bus", "fuel_bus"):
                     busses = struct["inputs"]
                 if bus == "to_bus":
+                    busses = struct["outputs"]
+                if (
+                    self.__class__.type == "storage"
+                    and struct["inputs"] == struct["outputs"]
+                ):
                     busses = struct["outputs"]
                 if len(busses) != 1:
                     raise MappingError(
@@ -326,25 +337,68 @@ class Adapter:
 
         """
         calculations.normalize_activity_bonds(self)
+        calculations.process_availability_constant_to_full_load_time_max(self)
 
     def default_post_mapping_calculations(self, mapped_defaults):
         """
         Does default calculations#
 
-        I. Decommissioning of existing Capacities
-        II. Rounding lifetime down to integers
+        I. Decommissioning of existing Capacities (processes _0) and add
+            `expandable = True` if process is expandable (_1, _2, not _0)
+        II. Reformatting of amount in case amount is not a number
+            a) Multiply timeseries by the repeoctiv yearly amount
+            b) Analogous to decommissioning of capacities
+        III. Rounding lifetime down to integers
 
         Returns
         -------
 
         """
+        if mapped_defaults["type"] == "mimo":
+            parameter_name = f"flow_share_max_{mapped_defaults['primary']}"
+        elif len(self.structure["outputs"]) == 0:
+            parameter_name = "input_parameters"
+        else:
+            parameter_name = "output_parameters"
+
         # I:
         if self.process_name[-1] == "0":
             mapped_defaults = calculations.decommission(
-                process_name=self.process_name, adapter_dict=mapped_defaults
+                process_name=self.process_name,
+                adapter_dict=mapped_defaults,
+                column="capacity",
+                change_parameter=parameter_name,
             )
+        elif self.process_name[-1] == "1" or self.process_name[-1] == "2":
+            mapped_defaults["expandable"] = True
+        elif "x2x_other_biogas_treatment" in self.process_name:
+            mapped_defaults["expandable"] = True
+            logging.warning(
+                "Setting capacity cost of x2x_other_biogas_treatment to 0 and "
+                "life time to 20 as this is missing in the data.")
+            mapped_defaults["capacity_cost"] = 0
+            mapped_defaults["lifetime"] = 20
 
         # II:
+        if "amount" in mapped_defaults.keys():
+            # a)
+            if "profile" in mapped_defaults.keys():
+                self.timeseries = calculations.adapt_profile_with_yearly_value(
+                    profile=self.timeseries,
+                    value=mapped_defaults["amount"]
+                )
+                mapped_defaults["amount"] = 1
+
+            # b)
+            else:
+                mapped_defaults = calculations.decommission(
+                    process_name=self.process_name,
+                    adapter_dict=mapped_defaults,
+                    column="amount",
+                    change_parameter=parameter_name,
+                )
+
+        # III:
         if "lifetime" in mapped_defaults.keys():
             mapped_defaults = calculations.floor_lifetime(mapped_defaults)
 
@@ -420,6 +474,53 @@ class CommodityAdapter(Adapter):
         if self.get("carrier") == "carrier":
             defaults["carrier"] = self.get_busses()["bus"]
 
+        if self.get("amount") == None:
+            amount = 9999999999999
+            logger.warning(
+                f"Adding parameter 'amount' with value {amount} to commodity "
+                f"{self.process_name}. \n         "
+                f"This is beneficial if your commodity is functioning as "
+                f"shortage or unlimited import/source. "
+                f"Otherwise please add 'amount' to your commodity!"
+            )
+            defaults["amount"] = amount
+
+        return defaults
+
+
+class CommodityGHGAdapter(CommodityAdapter):
+    """
+    CommodityGHGAdapter
+    """
+
+    type = "commodity_ghg"
+    facade = facades.CommodityGHG
+
+    def get_busses(self) -> dict:
+        bus_list = self.structure["outputs"]
+        bus_dict = {}
+        counter = 0
+        for bus in bus_list:
+            if not bus.startswith("emi"):
+                bus_dict["bus"] = bus
+            elif bus.startswith("emi"):
+                bus_dict[f"emission_bus_{counter}"] = bus
+                counter += 1
+        return bus_dict
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        for key, value in self.data.items():
+            if key.startswith("ef"):
+                # adapt to the naming convention in oemof.tabular commodityGHG facade: emission_factor_<emission_bus_label>
+                target_label = None
+                emission_bus_labels = [key for item, key in defaults.items() if item.startswith("emission_bus")]
+                for label in emission_bus_labels:
+                    if label in key:
+                        target_label = label
+                if target_label == None:
+                    raise ValueError(f"Emission factor of {self.process_name} is named {key} but None of the emission buses matches: {emission_bus_labels}.")
+                defaults[f"emission_factor_{target_label}"] = value
         return defaults
 
 
@@ -431,6 +532,44 @@ class ConversionAdapter(Adapter):
 
     type = "conversion"
     facade = facades.Conversion
+
+
+class ConversionGHGAdapter(Adapter):
+    """
+    ConversionGHGAdapter
+    """
+
+    type = "conversion_ghg"
+    facade = facades.ConversionGHG
+
+    def get_busses(self) -> dict:
+        def get_bus_from_struct(bus_list: list, bus_key: str) -> dict:
+            bus_dict = {}
+            counter = 0
+            for bus in bus_list:
+                if not bus.startswith("emi"):
+                    bus_dict[f"{bus_key}"] = bus
+                elif bus.startswith("emi"):
+                    bus_dict[f"emission_bus_{counter}"] = bus
+                    counter += 1
+            return bus_dict
+
+        return_bus_dict = get_bus_from_struct(
+            self.structure["inputs"], bus_key="from_bus"
+        ) | get_bus_from_struct(self.structure["outputs"], bus_key="to_bus")
+
+        # check that from_bus and to_bus is defined
+        for key in ["from_bus", "to_bus"]:
+            if return_bus_dict.get(key) is None:
+                raise KeyError(f"{self.process_name} is missing {key}.")
+        return return_bus_dict
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        for key, value in self.data.items():
+            if key.startswith("ef"):
+                defaults[key.replace("ef", "emission_factor")] = value
+        return defaults
 
 
 class LoadAdapter(Adapter):
@@ -474,6 +613,44 @@ class VolatileAdapter(Adapter):
     facade = facades.Volatile
 
 
+class EmissionConstraintAdapter(Adapter):
+    """
+    EmissionConstraintAdapter
+    """
+
+    type = "co2_emission_limit"
+    facade = CO2EmissionLimit  # oemof.industry facade - might be moved to oemof.tabular
+    extra_fields = Adapter.extra_fields + (
+        Field(name="commodities", type=float),
+    )
+
+    def get_default_parameters(self) -> dict:
+        defaults = super().get_default_parameters()
+        del defaults["region"]
+        del defaults["name"]
+        del defaults["year"]
+        # reduce co2 limit by share of steel industry
+        defaults["co2_limit"] = [limit * self.data["steel_emission_share"] for
+                                 limit in defaults["co2_limit"]]
+
+        # categorize commodities
+        commodities = {"co2_commodities": [], "ch4_commodities": [],
+                       "n2o_commodities": [], "negative_co2_commodities": []}
+        inputs = self.structure["inputs"]
+        for i in inputs:
+            if "neg" in i and "co2" in i:
+                commodities["negative_co2_commodities"].append(i)
+            elif "co2" in i:
+                commodities["co2_commodities"].append(i)
+            elif "ch4" in i:
+                commodities["ch4_commodities"].append(i)
+            elif "n2o" in i:
+                commodities["n2o_commodities"].append(i)
+        # replace quotes with # to make a json.loads easier later
+        defaults["commodities"] = json.dumps(commodities).replace('"', "#")
+        return defaults
+
+
 class MIMOAdapter(Adapter):
     """
     MIMOAdapter
@@ -485,24 +662,18 @@ class MIMOAdapter(Adapter):
         Field(name="name", type=str),
         Field(name="region", type=str),
         Field(name="year", type=int),
+        Field(name="full_load_time_max", type=float),
         Field(name="groups", type=dict),
+        Field(name="lifetime", type=float),
         Field(name="capacity_cost", type=float),
         Field(name="capacity", type=float),
         Field(name="expandable", type=bool),
         Field(name="activity_bound_min", type=float),
         Field(name="activity_bound_max", type=float),
         Field(name="activity_bound_fix", type=float),
+        Field(name="primary", type=str),
     )
     output_parameters = ()
-
-    def default_pre_mapping_calculations(self):
-        """
-        Mimo adapter specific pre calculations
-        Returns
-        -------
-
-        """
-        pass
 
     def get_default_parameters(self) -> dict:
         defaults = super().get_default_parameters()
@@ -512,10 +683,13 @@ class MIMOAdapter(Adapter):
             "emissions_factor_",
             "conversion_factor_",
             "flow_share_",
+            "ef_",
         )
         for key, value in self.data.items():
             for keyword in keywords:
                 if key.startswith(keyword):
+                    if key.startswith("ef"):
+                        key = key.replace("ef", "emission_factor")
                     defaults[key] = value
         return defaults
 
@@ -524,6 +698,8 @@ class MIMOAdapter(Adapter):
             buses = {}
             counter = 0
             for bus_group in bus_list:
+                if prefix == "to_bus_" and counter == 0:
+                    buses["primary"] = bus_group
                 if isinstance(bus_group, str):
                     buses[f"{prefix}{counter}"] = bus_group
                     counter += 1

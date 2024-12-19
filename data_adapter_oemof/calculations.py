@@ -1,6 +1,7 @@
 import collections
 import logging
 import warnings
+import json
 
 import numpy as np
 import pandas as pd
@@ -44,7 +45,9 @@ def get_capacity_cost(overnight_cost, fixed_cost, lifetime, wacc):
     return annuity(overnight_cost, lifetime, wacc) + fixed_cost
 
 
-def decommission(process_name, adapter_dict: dict) -> dict:
+def decommission(
+    process_name, adapter_dict: dict, column: str = "capacity", max_column: str = "max", change_parameter: str = "output_parameters",
+) -> dict:
     """
 
     Takes adapter dictionary from adapters.py with mapped values.
@@ -74,37 +77,85 @@ def decommission(process_name, adapter_dict: dict) -> dict:
     -------
 
     """
-    capacity_column = "capacity"
-    max_column = "max"
 
     # check if capacity column is there and if it has to be decommissioned
-    if capacity_column not in adapter_dict.keys():
+    if column not in adapter_dict.keys():
         logging.info(
-            f"Capacity missing for decommissioning " f"of Process `{process_name}`"
+            f"{column} missing for decommissioning " f"of Process `{process_name}`"
         )
         return adapter_dict
 
-    if not isinstance(adapter_dict[capacity_column], list):
+    if not isinstance(adapter_dict[column], list):
         logging.info(
-            f"No capacity fading out that can be decommissioned"
+            f"No {column} fading out that can be decommissioned"
             f" for Process `{process_name}`."
         )
         return adapter_dict
 
     # I:
-    if max_column not in adapter_dict["output_parameters"].keys():
-        adapter_dict["output_parameters"][max_column] = adapter_dict[
-            capacity_column
-        ] / np.max(adapter_dict[capacity_column])
+    if change_parameter not in ["input_parameters", "output_parameters"]:
+        # this occurs e.g. for flow_share_max of mimo
+        # still max might be set in parameters
+        parameter = "output_parameters"
+    else:
+        parameter = change_parameter
+    if max_column not in adapter_dict[parameter].keys():
+        max = list(adapter_dict[column] / np.nanmax(adapter_dict[column]))
+
     # II:
     else:
-        adapter_dict["output_parameters"][max_column] = multiply_two_lists(
-            adapter_dict["output_parameters"][max_column], adapter_dict[capacity_column]
-        ) / np.max(adapter_dict[capacity_column])
+        max = list(multiply_two_lists(
+                adapter_dict[parameter][max_column],
+                adapter_dict[column]
+            ) / np.nanmax(adapter_dict[column]))
+        if change_parameter != parameter:
+            # drop max output_parameters, as max_column is saved in `change_parameter`
+            del adapter_dict[parameter][max_column]
 
-    adapter_dict[capacity_column] = np.max(adapter_dict[capacity_column])
+    if change_parameter != parameter:
+        # e.g. flow_share_max_<bus_name>
+        adapter_dict[change_parameter] = max
+    else:
+        # max must be extended to time series over all time steps of each
+        # period as output_parameters are not extended in oemof.tabular
+        column_name = [f"max_timeseries_{process_name}"]
+        timeseries = pd.DataFrame(columns=column_name)
+        for y in adapter_dict["year"]:
+            ts = pd.DataFrame(data=[1 for i in range(8760)],
+                              columns=column_name,
+                              index=pd.date_range(f"1/1/{y}", periods=8760,
+                                                  freq="h"),
+                              dtype="float64")
+            timeseries = ts.copy() if timeseries.empty else pd.concat(
+                [timeseries, ts])
+        max_time_series = adapt_profile_with_yearly_value(profile=timeseries,
+                                                          value=max)
+
+        max_time_series = reduce_data_frame(max_time_series)
+
+        adapter_dict[change_parameter][max_column] = list(max_time_series[column_name[0]].values)
+        adapter_dict[change_parameter] = json.dumps(adapter_dict[change_parameter])
+
+    # set `column` value to maximum value
+    adapter_dict[column] = np.nanmax(adapter_dict[column])
     return adapter_dict
 
+
+def adapt_profile_with_yearly_value(profile, value):
+
+    # Map amount to years
+    years = sorted(profile.index.year.unique())
+    values_mapped_to_years = dict(zip(years, value))
+
+    profile["value"] = profile.index.year.map(values_mapped_to_years)
+
+    # Multiply profile with value
+    col_name = profile.columns[0]
+    profile["adjusted_ts"] = (profile[col_name] * profile["value"])
+    profile.drop(columns=[col_name, "value"], inplace=True)
+    profile.rename(columns={"adjusted_ts": col_name}, inplace=True)
+
+    return profile
 
 def normalize_activity_bonds(adapter):
     """
@@ -135,6 +186,15 @@ def normalize_activity_bonds(adapter):
             adapter.data["activity_bound_max"], adapter.get("capacity")
         )
         return adapter
+
+
+def process_availability_constant_to_full_load_time_max(adapter):
+    """ Calculate full load time max from availability constant."""
+    if "availability_constant" in adapter.data.keys():
+        availability_constant = adapter.data["availability_constant"]
+        if availability_constant > 1:  # assumption: then the unit is %
+            availability_constant = availability_constant / 100
+        adapter.data["full_load_time_max"] = 8760 * availability_constant
 
 
 def floor_lifetime(mapped_defaults):
@@ -317,3 +377,15 @@ def handle_nans(group_df: pd.DataFrame) -> pd.DataFrame:
 
     group_df = handle_min_max(group_df)
     return find_and_replace_irrelevant_data(group_df)
+
+
+def reduce_data_frame(data_frame, steps=23):
+    """reduces `df` to less time steps per period"""
+    df = data_frame.copy()
+    df["ind"] = df.index
+    df["ind"] = df["ind"].apply(
+        lambda
+            x: True if x.month == 1 and x.day == 1 and x.hour <= steps else False
+    )
+    df_reduced = df.loc[df["ind"] == 1].drop(columns=["ind"])
+    return df_reduced

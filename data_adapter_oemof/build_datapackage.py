@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 import os
 import warnings
 from typing import Optional, Type
@@ -11,9 +12,11 @@ from datapackage import Package
 
 from data_adapter_oemof.adapters import FACADE_ADAPTERS
 from data_adapter_oemof.adapters import Adapter as FacadeAdapter
-from data_adapter_oemof.calculations import handle_nans
+from data_adapter_oemof.calculations import handle_nans, reduce_data_frame
 from data_adapter_oemof.settings import BUS_MAP, PARAMETER_MAP, PROCESS_ADAPTER_MAP
 from data_adapter_oemof.utils import convert_mixed_types_to_same_length
+
+logger = logging.getLogger()
 
 
 # Define a function to aggregate differing values into a list
@@ -77,7 +80,6 @@ def _listify_to_periodic(group_df) -> pd.Series:
                 unique_values[col] = group_df[col].iat[0][0]
             else:
                 unique_values[col] = group_df[col].iat[0]
-    unique_values["name"] = "_".join(group_df.name)
     unique_values.drop("year")
     return unique_values
 
@@ -95,6 +97,7 @@ class DataPackage:
     periods: pd.DataFrame()
     location_to_save_to: str = None
     tsa_parameters: pd.DataFrame = None
+    constraint_parameters: pd.DataFrame = None
 
     @staticmethod
     def __split_timeseries_into_years(parametrized_sequences):
@@ -247,11 +250,21 @@ class DataPackage:
         sequences_path = os.path.join(location_to_save_to, "data", "sequences")
         periods_path = os.path.join(location_to_save_to, "data", "periods")
         tsam_path = os.path.join(location_to_save_to, "data", "tsam")
+        constraint_path = os.path.join(location_to_save_to, "data", "constraints")
 
         os.makedirs(elements_path, exist_ok=True)
         os.makedirs(sequences_path, exist_ok=True)
         os.makedirs(periods_path, exist_ok=True)
         os.makedirs(tsam_path, exist_ok=True)
+
+
+        if self.constraint_parameters is not None:
+            os.makedirs(constraint_path, exist_ok=True)
+            self.constraint_parameters.to_csv(
+                os.path.join(constraint_path, "emission_constraint.csv"),
+                index=False,
+                sep=";",
+            )
 
         if not self.periods.empty:
             self.periods.to_csv(
@@ -295,6 +308,12 @@ class DataPackage:
             field_names = [field["name"] for field in resource["schema"]["fields"]]
             resource["dialect"] = {"delimiter": ";"}
             if resource["name"] in self.foreign_keys.keys():
+                # drop "primary", see mimo converter of oemof.industry for more information
+                self.foreign_keys[resource["name"]] = [
+                    item for item in self.foreign_keys[resource["name"]] if
+                    item["fields"] != "primary"
+                ]
+                # update schema
                 resource["schema"].update(
                     {"foreignKeys": self.foreign_keys[resource["name"]]}
                 )
@@ -450,6 +469,7 @@ class DataPackage:
         parameter_map: Optional[dict] = PARAMETER_MAP,
         bus_map: Optional[dict] = BUS_MAP,
         location_to_save_to: str = None,
+        debug=False,
     ):
         """
         Creating a Datapackage from the oemof_data_adapter that fits oemof.tabular Datapackages.
@@ -473,6 +493,9 @@ class DataPackage:
         -------
         DataPackage
 
+        units : dict
+            keys: process names, values: dict containing parameters for
+            optimization as keys and units as values.
         """
 
         def _reduce_lists(x):
@@ -484,9 +507,12 @@ class DataPackage:
         parametrized_elements = {"bus": []}
         parametrized_sequences = {}
         foreign_keys = {}
+        constraint_parameters = None
+        units = {}
         # Iterate Elements
         for process_name, struct in adapter.structure.processes.items():
             process_data = adapter.get_process(process_name)
+            units[process_name] = process_data.units
             timeseries = process_data.timeseries
             if isinstance(timeseries.columns, pd.MultiIndex):
                 timeseries.columns = (
@@ -495,6 +521,9 @@ class DataPackage:
                     + _reduce_lists(timeseries.columns.get_level_values(1))
                 )
             facade_adapter_name: str = process_adapter_map[process_name]
+            logger.info(
+                f"Adaptering process {process_name} into adapter {facade_adapter_name}"
+            )
             facade_adapter: Type[FacadeAdapter] = FACADE_ADAPTERS[facade_adapter_name]
             component_adapter: Optional[FacadeAdapter] = None
             components = []
@@ -527,9 +556,12 @@ class DataPackage:
                 component_adapter, components
             )
 
-            parametrized_elements[process_name] = pd.DataFrame(components)
-            if not timeseries.empty:
-                parametrized_sequences.update({process_name: timeseries})
+            if "constraint" in process_name:
+                constraint_parameters = pd.DataFrame(components)
+            else:
+                parametrized_elements[process_name] = pd.DataFrame(components)
+                if not timeseries.empty:
+                    parametrized_sequences.update({process_name: timeseries})
         # Create Bus Element from all unique `busses` found in elements
         parametrized_elements["bus"] = pd.DataFrame(
             {
@@ -540,6 +572,12 @@ class DataPackage:
         )
         periods = cls.get_periods_from_parametrized_sequences(parametrized_sequences)
 
+        if debug:
+            periods = reduce_data_frame(data_frame=periods)
+            for key, value in parametrized_sequences.items():
+                df_short = reduce_data_frame(data_frame=value)
+                parametrized_sequences.update({key: df_short})
+
         return cls(
             parametrized_elements=parametrized_elements,
             parametrized_sequences=parametrized_sequences,
@@ -547,4 +585,5 @@ class DataPackage:
             foreign_keys=foreign_keys,
             periods=periods,
             location_to_save_to=location_to_save_to,
-        )
+            constraint_parameters=constraint_parameters,
+        ), units
